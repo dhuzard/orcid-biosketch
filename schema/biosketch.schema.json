@@ -22,8 +22,12 @@
     "employment": {"type": "array"},
     "education": {"type": "array"},
     "works": {"type": "array"},
+    "selection": {
+      "type": "object",
+      "description": "Researcher-controlled output selection policy and annotations.",
+      "additionalProperties": true
+    },
     "provenance": {"type": "object", "required": ["primary_source", "generated_at"]}
   },
   "additionalProperties": false
 }
-
