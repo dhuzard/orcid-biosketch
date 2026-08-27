@@ -35,11 +35,17 @@ Load the web component and point it to any published `biosketch.json`:
 <script type="module" src="https://cdn.jsdelivr.net/gh/dhuzard/orcid-biosketch@main/web/orcid-biosketch.js"></script>
 <orcid-biosketch
   src="https://raw.githubusercontent.com/dhuzard/orcid-biosketch/main/generated/biosketch.json"
-  works="5">
+  bio="true"
+  works="all"
+  search="true"
+  pdf="true"
+  provenance="true">
 </orcid-biosketch>
 ```
 
-For static Jekyll, Hugo, Quarto or MyST sites, consuming the generated Markdown or JSON at build time is preferable: it is faster, versioned and does not depend on client-side JavaScript.
+The reusable component can display the biography, a searchable publication table, provenance, and an A4 PDF export. It adds no framework dependency and isolates its styling with Shadow DOM.
+
+See the complete [website integration guide](docs/website-integration.md) for plain HTML, Astro, Jekyll/GitHub Pages, Hugo, Quarto and MyST, including browser-time and build-time synchronization.
 
 ## Researcher-controlled overrides
 
@@ -68,13 +74,22 @@ python -m pip install -e ".[dev]"
 pytest -q
 ```
 
+## Included website capabilities
+
+- Browser-time loading of the latest synchronized profile
+- Configurable biography and work limits
+- Publication search, output-type filtering and sorting
+- DOI links and visible provenance
+- Selectable, searchable A4 PDF biosketch export
+- Framework-neutral Web Component
+- Build-time JSON, JSON-LD and Markdown alternatives
+
 ## Roadmap
 
 - Crossref/OpenAlex enrichment without overwriting ORCID assertions
 - Named short, medium and long approved biography variants
-- CSL-JSON, DOCX and PDF exporters
+- CSL-JSON and DOCX exporters
 - Selection rules for works and grants
-- Jekyll, Hugo, Quarto and MyST integration examples
 - Optional ORCID OAuth and premium webhook adapter
 
 ## License
