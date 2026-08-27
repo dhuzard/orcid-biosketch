@@ -2,15 +2,17 @@
 
 [ORCID: 0000-0003-4820-7951](https://orcid.org/0000-0003-4820-7951)
 
-I am a behavioral and metadata consultant with Neuronautix (www.neuronautix.com), where I support research teams, CROs, and biotech companies in improving the reliability, reproducibility, and translational value of preclinical studies. In parallel, I am developing Metadatapp (www.metadatapp.net), an API-first platform designed to streamline preclinical research pipelines, standardize experimental metadata, and operationalize FAIR data practices.
+I am a behavioral neuroscience and research-data consultant with Neuronautix, where I support academic teams, CROs, biotechnology companies, pharmas and research infrastructure projects in improving the reliability, reproducibility, interoperability, and translational value of preclinical research.
 
-My expertise lies at the interface of behavior, physiology, and data science. I design and analyze behavioral protocols combined with physiological recordings—such as ECG, heart rate variability (HRV), and skin–nerve signals—and develop analytical tools that make complex datasets more accessible and reusable. I co-developed LWTools, a Python library that simplifies analysis of Live Mouse Tracker data for non-programmers.
+My work lies at the intersection of behavior, physiology, data science, and FAIR (meta)data. I have extensive expertise in behavioral studies combined with physiological recordings (including ECG, heart-rate variability and skin–nerve signals). I also develop analytical tools and structured data workflows that make complex experimental datasets easier to interpret, exchange, and reuse.
 
-Alongside my consulting and software development activities, I serve as an administrator of TheBehaviourForum.org, an international community dedicated to advancing methods, standards, and discussion in behavioral science, with a particular focus on automated and home-cage monitoring approaches.
+A major focus of my current work is the development of research metadata standards and machine-actionable scientific infrastructure. This includes approaches for describing experimental context, provenance, methods, claims, evidence, and analytical outputs in forms that can be used reliably by both researchers and AI systems. I previously developed Metadatapp as an API-first platform for preclinical metadata and now continue this work through open-source projects and consulting activities within Neuronautix.
 
-Before founding Neuronautix and building MAPP, I led academic research as a behavioral neuroscientist, often describing my approach as that of a “neuro-physio-behavio-analyst.” My work focused on adaptation, stress, coping strategies, and social interactions, examined through their underlying physiological mechanisms, including cardiac regulation and sensory processing. More recently, my research explored the skin as a critical interface between the environment and behavioral adaptation.
+I also develop tools and collaborative initiatives for automated behavioral phenotyping and home-cage monitoring. I co-developed LWTools, a Python-based toolkit that makes Live Mouse Tracker data analysis more accessible to non-programmers, and I serve as an administrator of TheBehaviourForum.org, an international community dedicated to advancing methods, standards, and discussion in behavioral science.
 
-Throughout my academic career, I have consistently advocated for rigorous biobehavioral phenotyping of animal models, emphasizing precise description and contextualization of data over premature or oversimplified interpretation. My overarching goal is to ensure that preclinical behavioral research meaningfully contributes to the understanding and treatment of clinical conditions.
+Before founding Neuronautix, I conducted more than ten years of academic research in behavioral neuroscience. My work investigated adaptation, stress, coping strategies, social behavior, cardiac regulation, sensory processing, and the role of the skin as an interface between the environment and behavioral adaptation.
+
+Throughout my career, I have advocated for rigorous biobehavioral phenotyping and for precise description and contextualization of experimental data. My broader goal is to ensure that preclinical research produces reliable, reusable knowledge that can meaningfully contribute to biological understanding and the development of better treatments.
 
 ## Employment
 
@@ -32,4 +34,4 @@ Throughout my academic career, I have consistently advocated for rigorous biobeh
 - [dhuzard/MBO: MBO DOI](https://doi.org/10.5281/zenodo.17248808) (2025)
 - [Primary sensory neuron dysfunction underlying mechanical itch hypersensitivity in a Shank3 mouse model of autism](https://doi.org/10.1038/s41398-025-03461-w) (2025)
 
-_Generated from ORCID; synchronized 2026-04-28T14:21:32.330000+00:00._
+_Generated from ORCID; synchronized 2026-08-27T11:57:37.719000+00:00._
