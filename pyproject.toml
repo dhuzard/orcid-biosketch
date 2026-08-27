@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orcid-biosketch"
+version = "0.1.0"
+description = "Generate provenance-aware, website-ready biosketches from ORCID"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Damien Huzard"}]
+keywords = ["ORCID", "biosketch", "FAIR", "researcher profile", "JSON-LD"]
+classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "jsonschema>=4"]
+
+[project.scripts]
+orcid-biosketch = "orcid_biosketch.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/orcid_biosketch"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
