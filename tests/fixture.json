@@ -1,0 +1,17 @@
+{
+  "orcid-identifier": {"path": "0000-0003-4820-7951"},
+  "history": {"last-modified-date": {"value": 123}},
+  "person": {
+    "name": {"given-names": {"value": "Damien"}, "family-name": {"value": "Huzard"}},
+    "biography": {"content": "A scientist."},
+    "addresses": {"address": [{"country": {"value": "FR"}}]},
+    "keywords": {"keyword": [{"content": "FAIR"}]},
+    "researcher-urls": {"researcher-url": [{"url-name": "Website", "url": {"value": "https://example.org"}}]}
+  },
+  "activities-summary": {
+    "employments": {"affiliation-group": []},
+    "educations": {"affiliation-group": []},
+    "works": {"group": [{"work-summary": [{"title": {"title": {"value": "A paper"}}, "type": "journal-article", "publication-date": {"year": {"value": "2026"}}, "external-ids": {"external-id": [{"external-id-type": "doi", "external-id-value": "10.1/test"}]}, "put-code": 1}]}]}
+  }
+}
+
