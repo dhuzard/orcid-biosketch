@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dhuzard/orcid-biosketch/raw/main/schema/biosketch.schema.json",
+  "title": "ORCID Biosketch",
+  "type": "object",
+  "required": ["schema_version", "person", "employment", "education", "works", "provenance"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "person": {
+      "type": "object",
+      "required": ["name", "orcid", "orcid_url", "biography", "keywords", "urls"],
+      "properties": {
+        "name": {"type": "string"},
+        "orcid": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"},
+        "orcid_url": {"type": "string", "format": "uri"},
+        "biography": {"type": "string"},
+        "keywords": {"type": "array", "items": {"type": "string"}},
+        "urls": {"type": "object", "additionalProperties": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "employment": {"type": "array"},
+    "education": {"type": "array"},
+    "works": {"type": "array"},
+    "provenance": {"type": "object", "required": ["primary_source", "generated_at"]}
+  },
+  "additionalProperties": false
+}
+
