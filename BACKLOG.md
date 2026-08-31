@@ -33,14 +33,14 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 |---|---|---|---|---|
 | KF-01 | Complete the ORCID activities surface | P0 | done | agent/core-surface |
 | KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
-| KF-03 | Citation and funder-format exporters | P0 | in-progress | agent/exporters |
+| KF-03 | Citation and funder-format exporters | P0 | in-review | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
 | KF-05 | `lint` — ORCID record quality report | P1 | in-review | agent/lint |
 | KF-06 | Assertion trust layer | P2 | planned | — |
 | KF-07 | Lab / multi-researcher mode | P2 | planned | — |
 | KF-08 | Change feed and publication Atom feed | P2 | planned | — |
 | KF-09 | Agent-facing surface (MCP + well-known) | P2 | planned | — |
-| INF-01 | Fetch robustness, offline input, iD validation | P0 | in-progress | session |
+| INF-01 | Fetch robustness, offline input, iD validation | P0 | done | session |
 | INF-02 | CLI subcommand architecture | P0 | in-progress | session |
 | INF-03 | Verify shapes against a live ORCID record | P1 | planned | — |
 | FUN-01 | Academic Wrapped | P2 | in-progress | agent/fun |
@@ -114,7 +114,7 @@ per request and returns contributors, abstract and language.
 
 ## KF-03 — Citation and funder-format exporters
 
-- **Priority** P0 · **Status** in-progress · **Owner** agent/exporters · **Rev** r2
+- **Priority** P0 · **Status** in-review · **Owner** agent/exporters · **Rev** r3
 - **Files** `src/orcid_biosketch/exporters.py` (new), `tests/test_exporters.py`
 
 `render_markdown` is the only renderer. The adoption argument is not "a nicer
@@ -122,12 +122,19 @@ web page" — it is removing four hours of formatting the night before a grant
 deadline.
 
 **Acceptance criteria**
-- [ ] CSL-JSON export, valid against the CSL-JSON item schema.
-- [ ] BibTeX export with stable, collision-free citation keys and correct escaping.
-- [ ] RIS export.
-- [ ] Funder templates (NIH, ERC, Horizon) as data files, not hardcoded, so a
+- [x] CSL-JSON export, valid against the CSL-JSON item schema.
+- [x] BibTeX export with stable, collision-free citation keys and correct escaping.
+- [x] RIS export.
+- [x] Funder templates (NIH, ERC, Horizon) as data files, not hardcoded, so a
       new format arrives as a contributed template rather than a code change.
-- [ ] Every exporter is a pure function of the biosketch contract.
+- [x] Every exporter is a pure function of the biosketch contract.
+
+**Notes** — CSL type is the single source of truth; BibTeX and RIS map off it.
+The template mini-language builds loop scopes from every list-of-dict section in
+the contract, so KF-01's new sections render with no code change and a new funder
+format really is just a new `.md` file. Authors light up automatically if KF-02
+adds them. Wheel build confirmed the templates ship as package data, so no
+`pyproject.toml` change was needed.
 
 ---
 
@@ -247,7 +254,7 @@ machine-*readable* to machine-*actionable*.
 
 ## INF-01 — Fetch robustness, offline input, iD validation
 
-- **Priority** P0 · **Status** in-progress · **Owner** session · **Rev** r2
+- **Priority** P0 · **Status** done · **Owner** session · **Rev** r3
 - **Files** `src/orcid_biosketch/core.py`, `src/orcid_biosketch/cli.py`
 
 `fetch_orcid_record` has no retries, no caching and no rate-limit handling. The
@@ -256,11 +263,16 @@ CLI cannot read a saved record from disk — the test suite can, via
 error rather than a clear message.
 
 **Acceptance criteria**
-- [ ] MOD 11-2 checksum validation of ORCID iDs with a clear error.
-- [ ] `--record FILE` for offline and CI runs.
-- [ ] Retry with exponential backoff; explicit rate-limit handling.
-- [ ] ORCID sandbox base URL supported for contributor testing.
-- [ ] Network failures produce actionable messages, not tracebacks.
+- [x] MOD 11-2 checksum validation of ORCID iDs with a clear error.
+- [x] `--record FILE` for offline and CI runs.
+- [x] Retry with exponential backoff; explicit rate-limit handling.
+- [x] ORCID sandbox base URL supported for contributor testing.
+- [x] Network failures produce actionable messages, not tracebacks.
+
+**Notes** — `normalize_orcid()` runs before any network call, so a typo fails
+instantly with a readable message instead of a 404. 404/401/403 are permanent
+and never retried; 429 and 5xx back off exponentially and honour `Retry-After`.
+`OrcidError` replaces raw `HTTPError`/`URLError` tracebacks at the boundary.
 
 ---
 
@@ -425,3 +437,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | KF-05 | Implementation green locally, awaiting agent report | — |
 | 2026-08-31 | KF-05 | Implemented: 14-check weighted rubric, report and shields badge; 21 tests green | in-progress → in-review |
 | 2026-08-31 | KF-05 | ROR check deferred to not-applicable until affiliations carry organisation identifiers | scope |
+| 2026-08-31 | INF-01 | Checksum validation, offline --record loading, retry/backoff, sandbox URL; 8 tests added | in-progress → done |
+| 2026-08-31 | KF-03 | CSL-JSON, BibTeX and RIS exporters plus nih/erc/horizon templates; 12 tests green | in-progress → in-review |
