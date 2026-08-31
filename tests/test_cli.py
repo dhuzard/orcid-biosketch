@@ -67,3 +67,21 @@ def test_missing_source_is_explained(capsys):
 def test_unknown_template_is_reported(biosketch, capsys):
     assert cli.main(["export", "--biosketch", str(biosketch), "--format", "template", "--template", "nope"]) == 2
     assert "nope" in capsys.readouterr().err
+
+
+def test_biosketch_of_the_wrong_shape_is_a_clean_error(tmp_path, capsys):
+    wrong = tmp_path / "csl.json"
+    wrong.write_text('[{"id": "x", "type": "article-journal"}]', encoding="utf-8")
+    assert cli.main(["lint", "--biosketch", str(wrong)]) == 2
+    assert "not a biosketch document" in capsys.readouterr().err
+
+
+def test_naming_a_template_selects_template_mode(tmp_path, capsys):
+    out = tmp_path / "nih.md"
+    assert cli.main(["export", "--record", str(FIXTURE), "--template", "nih", "-o", str(out)]) == 0
+    assert "NIH Biographical Sketch" in out.read_text(encoding="utf-8")
+
+
+def test_unknown_template_is_a_clean_error(capsys):
+    assert cli.main(["export", "--record", str(FIXTURE), "--template", "nope"]) == 2
+    assert "Unknown template" in capsys.readouterr().err

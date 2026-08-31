@@ -28,10 +28,15 @@ Research areas: {{ keywords_text }}
 {{#education}}
 - {{ period }} — {{ role }}, {{ organization }}
 {{/education}}
+{{/?education}}
+
+{{?qualifications}}
+### Qualifications and certifications
+
 {{#qualifications}}
 - {{ period }} — {{ role }}, {{ organization }}
 {{/qualifications}}
-{{/?education}}
+{{/?qualifications}}
 
 {{?distinctions}}
 ### Honors and distinctions

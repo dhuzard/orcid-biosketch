@@ -263,7 +263,9 @@ def test_template_loops_pick_up_sections_added_later():
     bio["distinctions"] = [{"organization": "Academy", "role": "Prize", "start_date": "2025", "end_date": None}]
     rendered = render_template(bio, "nih")
     assert "### Honors and distinctions" in rendered
-    assert "2025–present — Prize, Academy" in rendered
+    # A distinction with no end date is point-in-time, not ongoing.
+    assert "2025 — Prize, Academy" in rendered
+    assert "2025–present" not in rendered
     assert "eLife" in render_template(bio, "erc")
 
 

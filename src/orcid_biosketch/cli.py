@@ -34,7 +34,10 @@ def _source_parser() -> argparse.ArgumentParser:
 
 def _biosketch(args: argparse.Namespace) -> dict[str, Any]:
     if args.biosketch:
-        return json.loads(args.biosketch.read_text(encoding="utf-8"))
+        bio = json.loads(args.biosketch.read_text(encoding="utf-8"))
+        if not isinstance(bio, dict) or not isinstance(bio.get("person"), dict):
+            raise OrcidError(f"{args.biosketch} is not a biosketch document (no 'person' object)")
+        return bio
     override = json.loads(args.config.read_text(encoding="utf-8")) if args.config else None
     if args.record:
         return build_biosketch(load_record(args.record), override)
@@ -56,9 +59,9 @@ def _emit(text: str, destination: Path | None) -> None:
 def _generate(args: argparse.Namespace) -> int:
     bio = _biosketch(args)
     args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / "biosketch.json").write_text(json.dumps(bio, indent=2, ensure_ascii=False) + "\n")
-    (args.output / "biosketch.jsonld").write_text(json.dumps(to_jsonld(bio), indent=2, ensure_ascii=False) + "\n")
-    (args.output / "biosketch.md").write_text(render_markdown(bio, args.max_works))
+    (args.output / "biosketch.json").write_text(json.dumps(bio, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (args.output / "biosketch.jsonld").write_text(json.dumps(to_jsonld(bio), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (args.output / "biosketch.md").write_text(render_markdown(bio, args.max_works), encoding="utf-8")
     print(f"Generated biosketch for {bio['person']['name']} in {args.output}")
     return 0
 
@@ -74,14 +77,21 @@ def _lint(args: argparse.Namespace) -> int:
 
 def _export(args: argparse.Namespace) -> int:
     bio = _biosketch(args)
-    if args.format == "csl":
+    # Naming a template selects template mode; otherwise citations, defaulting to BibTeX.
+    fmt = args.format or ("template" if args.template else "bibtex")
+    if fmt == "template":
+        template = args.template or "nih"
+        available = exporters.available_templates()
+        if template not in available:
+            raise OrcidError(f"Unknown template {template!r}; available: {', '.join(available)}")
+        _emit(exporters.render_template(bio, template), args.out)
+        return 0
+    if fmt == "csl":
         text = json.dumps(exporters.to_csl_json(bio), indent=2, ensure_ascii=False)
-    elif args.format == "bibtex":
+    elif fmt == "bibtex":
         text = exporters.to_bibtex(bio)
-    elif args.format == "ris":
-        text = exporters.to_ris(bio)
     else:
-        text = exporters.render_template(bio, args.template)
+        text = exporters.to_ris(bio)
     _emit(text, args.out)
     return 0
 
@@ -132,8 +142,8 @@ def build_parser() -> argparse.ArgumentParser:
     lint_cmd.set_defaults(handler=_lint)
 
     export = subparsers.add_parser("export", parents=[source], help="Export citations or a funder biosketch")
-    export.add_argument("--format", choices=("csl", "bibtex", "ris", "template"), default="bibtex")
-    export.add_argument("--template", default="nih", help=f"Funder template: {', '.join(exporters.available_templates())}")
+    export.add_argument("--format", choices=("csl", "bibtex", "ris", "template"))
+    export.add_argument("--template", help=f"Funder template: {', '.join(exporters.available_templates())}")
     export.add_argument("-o", "--out", type=Path)
     export.set_defaults(handler=_export)
 
@@ -176,7 +186,7 @@ def main(argv: list[str] | None = None) -> int:
     except OrcidError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
-    except (OSError, ValueError, json.JSONDecodeError) as error:
+    except (OSError, ValueError, TypeError, AttributeError, KeyError, json.JSONDecodeError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
 

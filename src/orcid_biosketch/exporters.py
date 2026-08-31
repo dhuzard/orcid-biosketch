@@ -360,12 +360,19 @@ def to_ris(bio: dict[str, Any]) -> str:
     return "\n".join(records)
 
 
-def _period(item: dict[str, Any]) -> str:
+# Sections whose entries are point-in-time: a missing end date records no end,
+# it does not mean the entry is ongoing.
+POINT_IN_TIME_SECTIONS = frozenset({"distinctions", "qualifications"})
+
+
+def _period(item: dict[str, Any], ongoing: bool = True) -> str:
     start = _text(item.get("start_date"))
     end = _text(item.get("end_date"))
     if not start and not end:
         return ""
-    return f"{start or '?'}–{end or 'present'}"
+    if start and not end:
+        return f"{start}–present" if ongoing else start
+    return f"{start or '?'}–{end}"
 
 
 def _citation(work: dict[str, Any]) -> str:
@@ -391,7 +398,7 @@ def _work_scope(work: dict[str, Any]) -> dict[str, Any]:
 
 def _item_scope(section: str, item: dict[str, Any], index: int) -> dict[str, Any]:
     scope: dict[str, Any] = {k: v for k, v in item.items()}
-    scope.update({"index": index + 1, "index0": index, "period": _period(item)})
+    scope.update({"index": index + 1, "index0": index, "period": _period(item, section not in POINT_IN_TIME_SECTIONS)})
     identifiers = item.get("identifiers")
     if isinstance(identifiers, dict):
         scope.setdefault("grant_number", _identifier(item, "grant_number", "grant-number", "grant"))

@@ -236,3 +236,46 @@ def test_sandbox_base_url_is_honoured(monkeypatch):
     monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
     core.fetch_orcid_record("0000-0003-4820-7951", base_url=core.SANDBOX_API)
     assert seen["url"] == "https://pub.sandbox.orcid.org/v3.0/0000-0003-4820-7951/record"
+
+
+def test_period_does_not_invent_ongoing_engagements():
+    from orcid_biosketch.core import _period
+    assert _period({"start_date": "2018", "end_date": None}, ongoing=False) == "2018"
+    assert _period({"start_date": "2018", "end_date": None}) == "2018–present"
+    assert _period({"start_date": None, "end_date": None}) == ""
+    assert _period({"start_date": "2016", "end_date": "2019"}) == "2016–2019"
+
+
+def test_markdown_does_not_mark_distinctions_as_ongoing():
+    bio = build_biosketch(fixture())
+    if bio["distinctions"]:
+        rendered = render_markdown(bio)
+        assert "Young Investigator Award" in rendered
+        assert "–present)" not in rendered.split("## Distinctions")[1].split("## ")[0]
+
+
+def test_affiliations_carry_the_disambiguated_organization_id():
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {
+            "employments": {
+                "affiliation-group": [{
+                    "summaries": [{
+                        "employment-summary": {
+                            "role-title": "Researcher",
+                            "organization": {
+                                "name": "Example University",
+                                "disambiguated-organization": {
+                                    "disambiguated-organization-identifier": "https://ror.org/019whta54",
+                                    "disambiguation-source": "ROR",
+                                },
+                            },
+                        }
+                    }]
+                }]
+            }
+        },
+    }
+    employment = build_biosketch(record)["employment"][0]
+    assert employment["organization_id"] == "https://ror.org/019whta54"
+    assert employment["organization_id_source"] == "ROR"

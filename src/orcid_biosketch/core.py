@@ -12,6 +12,9 @@ from typing import Any
 
 API = "https://pub.orcid.org/v3.0"
 SANDBOX_API = "https://pub.sandbox.orcid.org/v3.0"
+# Upper bound on any single retry sleep, including a server-supplied Retry-After.
+MAX_RETRY_DELAY = 30.0
+
 RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 
 
@@ -87,12 +90,12 @@ def fetch_orcid_record(
                 ) from error
             if error.code not in RETRY_STATUSES or attempt == retries:
                 raise OrcidError(f"ORCID returned HTTP {error.code} for {orcid}") from error
-            delay = _retry_after(error) or 2.0 ** attempt
+            delay = min(_retry_after(error) or 2.0 ** attempt, MAX_RETRY_DELAY)
         except (urllib.error.URLError, TimeoutError) as error:
             if attempt == retries:
                 reason = getattr(error, "reason", error)
                 raise OrcidError(f"Could not reach {base_url}: {reason}") from error
-            delay = 2.0 ** attempt
+            delay = min(2.0 ** attempt, MAX_RETRY_DELAY)
         time.sleep(delay)
     raise OrcidError(f"Gave up fetching ORCID {orcid} after {retries} retries")
 
@@ -115,8 +118,11 @@ def _affiliations(groups: list[dict[str, Any]], kind: str) -> list[dict[str, Any
         for wrapped in group.get("summaries") or []:
             summary = wrapped.get(f"{kind}-summary") or {}
             org = summary.get("organization") or {}
+            disambiguated = org.get("disambiguated-organization") or {}
             items.append({
                 "organization": org.get("name"),
+                "organization_id": disambiguated.get("disambiguated-organization-identifier"),
+                "organization_id_source": disambiguated.get("disambiguation-source"),
                 "role": summary.get("role-title"),
                 "department": summary.get("department-name"),
                 "start_date": _date(summary.get("start-date")),
@@ -344,16 +350,23 @@ def to_jsonld(bio: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _period(item: dict[str, Any]) -> str:
-    return "–".join(filter(None, [item.get("start_date"), item.get("end_date") or "present"]))
+def _period(item: dict[str, Any], ongoing: bool = True) -> str:
+    """Render a date range. Only ongoing-by-nature sections imply "present"."""
+    start, end = item.get("start_date"), item.get("end_date")
+    if not start and not end:
+        return ""
+    if start and not end:
+        return f"{start}–present" if ongoing else start
+    return "–".join(filter(None, [start, end]))
 
 
-def _affiliation_lines(items: list[dict[str, Any]]) -> list[str]:
+def _affiliation_lines(items: list[dict[str, Any]], ongoing: bool = True) -> list[str]:
     lines = []
     for item in items:
         organization = item.get("organization") or ""
         label = f"**{item['role']}**, {organization}" if item.get("role") else f"**{organization}**"
-        lines.append(f"- {label} ({_period(item)})")
+        period = _period(item, ongoing)
+        lines.append(f"- {label} ({period})" if period else f"- {label}")
     return lines
 
 
@@ -391,8 +404,12 @@ def render_markdown(bio: dict[str, Any], max_works: int = 10) -> str:
             reviews = "review" if item["review_count"] == 1 else "reviews"
             lines.append(f"- {item['organization']} — {item['review_count']} {reviews} as {item['role'] or 'reviewer'}{latest}")
         lines.append("")
-    for heading, key in (("Distinctions", "distinctions"), ("Memberships", "memberships"), ("Service", "services")):
+    for heading, key, ongoing in (
+        ("Distinctions", "distinctions", False),
+        ("Memberships", "memberships", True),
+        ("Service", "services", True),
+    ):
         if bio.get(key):
-            lines.extend([f"## {heading}", "", *_affiliation_lines(bio[key]), ""])
+            lines.extend([f"## {heading}", "", *_affiliation_lines(bio[key], ongoing), ""])
     lines.append(f"_Generated from ORCID; synchronized {bio['provenance']['generated_at']}._")
     return "\n".join(lines) + "\n"
