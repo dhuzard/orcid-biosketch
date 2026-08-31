@@ -43,12 +43,12 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | INF-01 | Fetch robustness, offline input, iD validation | P0 | done | session |
 | INF-02 | CLI subcommand architecture | P0 | in-progress | session |
 | INF-03 | Verify shapes against a live ORCID record | P1 | planned | — |
-| FUN-01 | Academic Wrapped | P2 | in-progress | agent/fun |
-| FUN-02 | ORCID trading card | P3 | in-progress | agent/fun |
-| FUN-03 | Publication contribution heatmap | P3 | in-progress | agent/fun |
+| FUN-01 | Academic Wrapped | P2 | in-review | agent/fun |
+| FUN-02 | ORCID trading card | P3 | in-review | agent/fun |
+| FUN-03 | Publication contribution heatmap | P3 | in-review | agent/fun |
 | FUN-04 | Career sonification (MIDI) | P3 | planned | — |
 | FUN-05 | Conference badge / vCard / email signature | P2 | planned | — |
-| FUN-06 | `fortune` — a paper of your own in your shell | P3 | in-progress | agent/fun |
+| FUN-06 | `fortune` — a paper of your own in your shell | P3 | in-review | agent/fun |
 | FUN-07 | Collaborator distance | P3 | deferred | — |
 | FUN-08 | Deterministic career poster | P3 | deferred | — |
 | FUN-09 | Academic family tree | P3 | deferred | — |
@@ -292,7 +292,7 @@ The CLI is a single flat command. Every feature above needs a verb.
 
 ## FUN-01 — Academic Wrapped
 
-- **Priority** P2 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
+- **Priority** P2 · **Status** in-review · **Owner** agent/fun · **Rev** r3
 - **Files** `src/orcid_biosketch/fun.py` (new)
 
 Spotify-style year in review: top venue, most prolific month, longest gap,
@@ -300,36 +300,43 @@ keyword drift, co-authors met for the first time. Highest shareability per line
 of code in the entire backlog. Ship in December.
 
 **Acceptance criteria**
-- [ ] Terminal, JSON and shareable-card outputs.
-- [ ] Every statistic derived from asserted data; nothing invented.
-- [ ] Graceful with sparse records — a two-paper year still produces something
+- [x] Terminal, JSON and shareable-card outputs.
+- [x] Every statistic derived from asserted data; nothing invented.
+- [x] Graceful with sparse records — a two-paper year still produces something
       kind rather than something bleak.
+
+---
+
+**Notes** — The card discloses its own method (gaps in months, year-only dates
+counted as January, undated outputs named and excluded) so no figure is mistaken
+for a claim the record does not support. Sparse years render factually, without
+commentary on productivity.
 
 ---
 
 ## FUN-02 — ORCID trading card
 
-- **Priority** P3 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
+- **Priority** P3 · **Status** in-review · **Owner** agent/fun · **Rev** r3
 
 A printable stat card: years active as HP, output count as attack, a "special
 ability" drawn from the record's own keywords. QR to the ORCID record.
 
 **Acceptance criteria**
-- [ ] Self-contained SVG, print-ready, no external assets.
-- [ ] Stats traceable to record fields.
+- [x] Self-contained SVG, print-ready, no external assets.
+- [x] Stats traceable to record fields.
 
 ---
 
 ## FUN-03 — Publication contribution heatmap
 
-- **Priority** P3 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
+- **Priority** P3 · **Status** in-review · **Owner** agent/fun · **Rev** r3
 
 The GitHub green-squares grid for publication dates. Instantly legible, and
 quietly humane: it shows the fallow years that polished CVs hide.
 
 **Acceptance criteria**
-- [ ] Self-contained SVG, readable in light and dark contexts.
-- [ ] Sensible with decade-spanning records.
+- [x] Self-contained SVG, readable in light and dark contexts.
+- [x] Sensible with decade-spanning records.
 
 ---
 
@@ -361,14 +368,14 @@ with QR and top outputs, a vCard, and an HTML email signature.
 
 ## FUN-06 — `fortune`
 
-- **Priority** P3 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
+- **Priority** P3 · **Status** in-review · **Owner** agent/fun · **Rev** r3
 
 Print a random one of your own paper titles in your shell. Twenty lines, pure
 joy.
 
 **Acceptance criteria**
-- [ ] Reads a generated biosketch; no network access at call time.
-- [ ] Fast enough for a shell startup file.
+- [x] Reads a generated biosketch; no network access at call time.
+- [x] Fast enough for a shell startup file.
 
 ---
 
@@ -439,3 +446,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | KF-05 | ROR check deferred to not-applicable until affiliations carry organisation identifiers | scope |
 | 2026-08-31 | INF-01 | Checksum validation, offline --record loading, retry/backoff, sandbox URL; 8 tests added | in-progress → done |
 | 2026-08-31 | KF-03 | CSL-JSON, BibTeX and RIS exporters plus nih/erc/horizon templates; 12 tests green | in-progress → in-review |
+| 2026-08-31 | FUN-01, FUN-02, FUN-03, FUN-06 | Wrapped, trading card, heatmap and fortune implemented; 27 tests green | in-progress → in-review |
+| 2026-08-31 | FUN-01 | Verified on the committed record: keyword drift and gap analysis derived only from asserted dates and titles | — |
