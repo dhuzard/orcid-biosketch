@@ -32,7 +32,7 @@ ORCID API response) or `--biosketch` (an already-generated `biosketch.json`).
 |---|---|
 | `generate` | Write `biosketch.json`, `.jsonld` and `.md` |
 | `lint` | Score the record and say what to fix; `--fail-under N` exits non-zero |
-| `export` | `--format csl\|bibtex\|ris`, or `--format template --template nih\|erc\|horizon` |
+| `export` | `--format csl\|bibtex\|ris`, or `--template nih\|erc\|horizon` for a funder biosketch |
 | `wrapped` | A year in review, computed only from asserted data |
 | `card` | Printable trading card (SVG) |
 | `heatmap` | Publication heatmap (SVG) |
@@ -42,13 +42,50 @@ ORCID API response) or `--biosketch` (an already-generated `biosketch.json`).
 ```bash
 orcid-biosketch lint 0000-0003-4820-7951            # what to fix, and why
 orcid-biosketch export 0000-0003-4820-7951 --format bibtex > refs.bib
-orcid-biosketch export 0000-0003-4820-7951 --format template --template nih
+orcid-biosketch export 0000-0003-4820-7951 --template nih   # NIH-format biosketch
 ```
 
 ORCID iDs are checksum-validated before any request, so a typo fails
 immediately rather than as a confusing 404. Transient failures retry with
 exponential backoff and honour `Retry-After`; `--sandbox` targets ORCID's
 sandbox API.
+
+## Playful reuses of an ORCID record
+
+An ORCID record is a decade of someone's working life expressed as structured
+data, and almost nobody looks at it twice. These commands re-present what is
+already asserted there — under the same rule as everything else in this tool:
+**every number and string is traceable to a field in the record. Nothing is
+invented, inferred or embellished.**
+
+```bash
+orcid-biosketch wrapped 0000-0003-4820-7951 --year 2025   # a year in review
+orcid-biosketch card    0000-0003-4820-7951 -o card.svg   # printable stat card
+orcid-biosketch heatmap 0000-0003-4820-7951 -o years.svg  # publication grid
+orcid-biosketch fortune --biosketch generated/biosketch.json
+```
+
+**`wrapped`** — a year in review: output count, top venue, most prolific month,
+longest gap between outputs, busiest year of the career, first-time venues, and
+how the vocabulary of your titles drifted between your early work and your
+recent work. It is deliberately kind about sparse years: a two-paper year is
+reported as two papers, not as a verdict.
+
+**`card`** — a printable trading card. Years active as HP, output count as
+attack, and a "special ability" drawn from the record's own keywords. Print a
+stack for a lab door or a conference table.
+
+**`heatmap`** — the contribution-grid idea applied to publication dates. It is
+honest about fallow years, which is the part a formatted CV quietly hides.
+
+**`fortune`** — prints one of your own titles. Put it in your shell startup
+file and get reminded, at random, of something you wrote and forgot.
+
+Ideas tracked but not yet built ([BACKLOG.md](BACKLOG.md)): career sonification
+to MIDI (FUN-04), a conference badge with QR plus vCard and email signature
+(FUN-05), Erdős-style collaborator distance between two iDs (FUN-07),
+deterministic generative art seeded from the iD itself (FUN-08), and academic
+family trees reconstructed from education entries (FUN-09).
 
 ## Automatic synchronization
 
