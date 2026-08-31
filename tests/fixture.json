@@ -11,7 +11,239 @@
   "activities-summary": {
     "employments": {"affiliation-group": []},
     "educations": {"affiliation-group": []},
-    "works": {"group": [{"work-summary": [{"title": {"title": {"value": "A paper"}}, "type": "journal-article", "publication-date": {"year": {"value": "2026"}}, "external-ids": {"external-id": [{"external-id-type": "doi", "external-id-value": "10.1/test"}]}, "put-code": 1}]}]}
+    "works": {"group": [{"work-summary": [{"title": {"title": {"value": "A paper"}}, "type": "journal-article", "publication-date": {"year": {"value": "2026"}}, "external-ids": {"external-id": [{"external-id-type": "doi", "external-id-value": "10.1/test"}]}, "put-code": 1}]}]},
+    "fundings": {
+      "group": [
+        {
+          "external-ids": {"external-id": [{"external-id-type": "grant_number", "external-id-value": "ANR-20-CE37-0001", "external-id-relationship": "self"}]},
+          "funding-summary": [
+            {
+              "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+              "title": {"title": {"value": "Stress resilience across the lifespan"}},
+              "external-ids": {"external-id": [
+                {"external-id-type": "grant_number", "external-id-value": "ANR-20-CE37-0001", "external-id-relationship": "self"},
+                {"external-id-type": "grant_url", "external-id-value": "https://anr.fr/Project-ANR-20-CE37-0001", "external-id-relationship": "self"}
+              ]},
+              "type": "grant",
+              "start-date": {"year": {"value": "2020"}, "month": {"value": "01"}, "day": {"value": "01"}},
+              "end-date": {"year": {"value": "2023"}, "month": {"value": "12"}, "day": {"value": "31"}},
+              "amount": {"value": "250000", "currency-code": "EUR"},
+              "organization": {"name": "Agence Nationale de la Recherche", "address": {"city": "Paris", "country": "FR"}, "disambiguated-organization": {"disambiguated-organization-identifier": "https://ror.org/00rbzpz17", "disambiguation-source": "ROR"}},
+              "url": {"value": "https://anr.fr/Project-ANR-20-CE37-0001"},
+              "put-code": 4001,
+              "visibility": "public"
+            }
+          ]
+        },
+        {
+          "external-ids": {"external-id": []},
+          "funding-summary": [
+            {
+              "source": {"source-client-id": {"path": "0000-0002-3054-1567"}, "source-name": {"value": "Université de Montpellier"}},
+              "title": {"title": {"value": "Doctoral fellowship"}},
+              "external-ids": {"external-id": []},
+              "type": "salary-award",
+              "start-date": {"year": {"value": "2014"}, "month": {"value": "10"}},
+              "end-date": null,
+              "organization": {"name": "Université de Montpellier", "address": {"city": "Montpellier", "country": "FR"}},
+              "put-code": 4002,
+              "visibility": "public"
+            }
+          ]
+        }
+      ]
+    },
+    "peer-reviews": {
+      "group": [
+        {
+          "external-ids": {"external-id": [{"external-id-type": "peer-review", "external-id-value": "issn:0306-4530", "external-id-relationship": "self"}]},
+          "peer-review-group": [
+            {
+              "external-ids": {"external-id": [{"external-id-type": "source-work-id", "external-id-value": "PSYNEUEN-D-21-00123", "external-id-relationship": "self"}]},
+              "peer-review-summary": [
+                {
+                  "source": {"source-client-id": {"path": "APP-9BPBSFDLMEHSVTNM"}, "source-name": {"value": "Publons"}},
+                  "reviewer-role": "reviewer",
+                  "external-ids": {"external-id": [{"external-id-type": "source-work-id", "external-id-value": "PSYNEUEN-D-21-00123", "external-id-relationship": "self"}]},
+                  "review-url": {"value": "https://publons.com/review/1234567"},
+                  "review-type": "review",
+                  "completion-date": {"year": {"value": "2021"}, "month": {"value": "03"}, "day": {"value": "14"}},
+                  "review-group-id": "issn:0306-4530",
+                  "convening-organization": {"name": "Psychoneuroendocrinology", "address": {"city": "Oxford", "country": "GB"}},
+                  "put-code": 5001,
+                  "visibility": "public"
+                }
+              ]
+            },
+            {
+              "external-ids": {"external-id": [{"external-id-type": "source-work-id", "external-id-value": "PSYNEUEN-D-22-00456", "external-id-relationship": "self"}]},
+              "peer-review-summary": [
+                {
+                  "source": {"source-client-id": {"path": "APP-9BPBSFDLMEHSVTNM"}, "source-name": {"value": "Publons"}},
+                  "reviewer-role": "reviewer",
+                  "external-ids": {"external-id": []},
+                  "review-type": "review",
+                  "completion-date": {"year": {"value": "2022"}, "month": {"value": "11"}, "day": {"value": "02"}},
+                  "review-group-id": "issn:0306-4530",
+                  "convening-organization": {"name": "Psychoneuroendocrinology", "address": {"city": "Oxford", "country": "GB"}},
+                  "put-code": 5002,
+                  "visibility": "public"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "external-ids": {"external-id": [{"external-id-type": "peer-review", "external-id-value": "issn:1662-5153", "external-id-relationship": "self"}]},
+          "peer-review-group": [
+            {
+              "external-ids": {"external-id": []},
+              "peer-review-summary": [
+                {
+                  "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+                  "reviewer-role": "editor",
+                  "review-type": "evaluation",
+                  "completion-date": {"year": {"value": "2019"}, "month": {"value": "06"}, "day": {"value": "01"}},
+                  "review-group-id": "issn:1662-5153",
+                  "convening-organization": {"name": "Frontiers in Behavioral Neuroscience", "address": {"city": "Lausanne", "country": "CH"}},
+                  "put-code": 5003,
+                  "visibility": "public"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "distinctions": {
+      "affiliation-group": [
+        {
+          "external-ids": {"external-id": []},
+          "summaries": [
+            {
+              "distinction-summary": {
+                "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+                "role-title": "Young Investigator Award",
+                "department-name": null,
+                "start-date": {"year": {"value": "2018"}},
+                "end-date": null,
+                "organization": {"name": "European Behavioural Pharmacology Society", "address": {"city": "Bern", "country": "CH"}},
+                "put-code": 6001,
+                "visibility": "public"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "memberships": {
+      "affiliation-group": [
+        {
+          "external-ids": {"external-id": []},
+          "summaries": [
+            {
+              "membership-summary": {
+                "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+                "role-title": "Member",
+                "department-name": null,
+                "start-date": {"year": {"value": "2016"}, "month": {"value": "01"}},
+                "end-date": null,
+                "organization": {"name": "Society for Neuroscience", "address": {"city": "Washington", "country": "US"}},
+                "put-code": 7001,
+                "visibility": "public"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "services": {
+      "affiliation-group": [
+        {
+          "external-ids": {"external-id": []},
+          "summaries": [
+            {
+              "service-summary": {
+                "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+                "role-title": "Scientific advisor",
+                "department-name": "Data stewardship",
+                "start-date": {"year": {"value": "2021"}, "month": {"value": "09"}},
+                "end-date": {"year": {"value": "2024"}, "month": {"value": "06"}},
+                "organization": {"name": "Neuronautix", "address": {"city": "Montpellier", "country": "FR"}},
+                "put-code": 8001,
+                "visibility": "public"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "qualifications": {
+      "affiliation-group": [
+        {
+          "external-ids": {"external-id": []},
+          "summaries": [
+            {
+              "qualification-summary": {
+                "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+                "role-title": "FELASA B certification",
+                "department-name": null,
+                "start-date": {"year": {"value": "2013"}},
+                "end-date": null,
+                "organization": {"name": "Université de Lausanne", "address": {"city": "Lausanne", "country": "CH"}},
+                "put-code": 9001,
+                "visibility": "public"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "invited-positions": {
+      "affiliation-group": [
+        {
+          "external-ids": {"external-id": []},
+          "summaries": [
+            {
+              "invited-position-summary": {
+                "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+                "role-title": "Visiting researcher",
+                "department-name": "Behavioural Genetics",
+                "start-date": {"year": {"value": "2017"}, "month": {"value": "04"}},
+                "end-date": {"year": {"value": "2017"}, "month": {"value": "09"}},
+                "organization": {"name": "ETH Zurich", "address": {"city": "Zurich", "country": "CH"}},
+                "put-code": 9101,
+                "visibility": "public"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "research-resources": {
+      "group": [
+        {
+          "external-ids": {"external-id": [{"external-id-type": "proposal-id", "external-id-value": "RR-2022-014", "external-id-relationship": "self"}]},
+          "research-resource-summary": [
+            {
+              "source": {"source-orcid": {"path": "0000-0003-4820-7951"}, "source-name": {"value": "Damien Huzard"}},
+              "proposal": {
+                "title": {"title": {"value": "Longitudinal rodent behaviour imaging platform"}},
+                "hosts": {"organization": [
+                  {"name": "Institut de Génomique Fonctionnelle", "address": {"city": "Montpellier", "country": "FR"}},
+                  {"name": "CNRS", "address": {"city": "Paris", "country": "FR"}}
+                ]},
+                "external-ids": {"external-id": [{"external-id-type": "proposal-id", "external-id-value": "RR-2022-014", "external-id-relationship": "self"}]},
+                "start-date": {"year": {"value": "2022"}, "month": {"value": "02"}},
+                "end-date": {"year": {"value": "2022"}, "month": {"value": "08"}},
+                "url": {"value": "https://example.org/resources/RR-2022-014"}
+              },
+              "put-code": 9201,
+              "visibility": "public"
+            }
+          ]
+        }
+      ]
+    }
   }
 }
-

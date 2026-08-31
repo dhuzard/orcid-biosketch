@@ -31,7 +31,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 
 | ID | Title | Priority | Status | Owner |
 |---|---|---|---|---|
-| KF-01 | Complete the ORCID activities surface | P0 | in-progress | agent/core-surface |
+| KF-01 | Complete the ORCID activities surface | P0 | in-review | agent/core-surface |
 | KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
 | KF-03 | Citation and funder-format exporters | P0 | in-progress | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
@@ -56,7 +56,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 
 ## KF-01 — Complete the ORCID activities surface
 
-- **Priority** P0 · **Status** in-progress · **Owner** agent/core-surface · **Rev** r2
+- **Priority** P0 · **Status** in-review · **Owner** agent/core-surface · **Rev** r3
 - **Files** `src/orcid_biosketch/core.py`, `schema/biosketch.schema.json`, `tests/`
 
 `build_biosketch` currently reads only `person`, `employments`, `educations` and
@@ -65,14 +65,16 @@ Funding and service are what make a document a *biosketch* rather than a
 publication list — no funder template can be filled without them.
 
 **Acceptance criteria**
-- [ ] Parse `fundings`, `peer-reviews`, `distinctions`, `memberships`,
+- [x] Parse `fundings`, `peer-reviews`, `distinctions`, `memberships`,
       `services`, `qualifications`, `invited-positions`, `research-resources`.
-- [ ] `_affiliations()` generalised across the five affiliation-shaped sections.
-- [ ] Funding retains amount, funder, grant number and external IDs.
-- [ ] Peer review aggregated per reviewer group with review counts.
-- [ ] Schema updated; every new section documented and validated.
-- [ ] Markdown and JSON-LD renderers surface the new sections.
-- [ ] Sections absent from a record degrade to empty lists, never `KeyError`.
+- [x] `_affiliations()` generalised across the five affiliation-shaped sections.
+- [x] Funding retains amount, funder, grant number and external IDs.
+- [x] Peer review aggregated per reviewer group with review counts.
+- [x] Schema updated; every new section documented and validated.
+- [x] Markdown and JSON-LD renderers surface the new sections.
+- [ ] Markdown coverage for `qualifications`, `invited_positions` and
+      `research_resources` (parsed and exported, not yet rendered).
+- [x] Sections absent from a record degrade to empty lists, never `KeyError`.
 
 **Notes** — Peer review is the only machine-readable record of academic
 invisible labour that exists anywhere. Surface it prominently.
@@ -367,3 +369,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | FUN-01, FUN-02, FUN-03, FUN-06 | Assigned to one subagent; owns fun.py | planned → in-progress |
 | 2026-08-31 | INF-01, INF-02 | Retained by session; sequenced after KF-01 to keep core.py single-owner | planned → in-progress |
 | 2026-08-31 | KF-01 | schema_version raised to 0.2.0 as part of the contract extension | scope |
+| 2026-08-31 | KF-01 | Activities surface implemented; 10 core tests green, schema validates | in-progress → in-review |
+| 2026-08-31 | KF-01 | Markdown rendering of qualifications/invited positions/research resources split out as remaining work | scope |

@@ -35,9 +35,9 @@ def _date(node: dict[str, Any] | None) -> str | None:
 def _affiliations(groups: list[dict[str, Any]], kind: str) -> list[dict[str, Any]]:
     items = []
     for group in groups or []:
-        for wrapped in group.get("summaries", []):
-            summary = wrapped.get(f"{kind}-summary", {})
-            org = summary.get("organization", {})
+        for wrapped in group.get("summaries") or []:
+            summary = wrapped.get(f"{kind}-summary") or {}
+            org = summary.get("organization") or {}
             items.append({
                 "organization": org.get("name"),
                 "role": summary.get("role-title"),
@@ -81,6 +81,81 @@ def _works(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sorted(works, key=lambda x: x.get("publication_date") or "", reverse=True)
 
 
+def _external_ids(node: dict[str, Any]) -> dict[str, Any]:
+    items = (node.get("external-ids") or {}).get("external-id") or []
+    return {
+        item.get("external-id-type", "unknown"): item.get("external-id-value")
+        for item in items if isinstance(item, dict) and item.get("external-id-value")
+    }
+
+
+def _section(activities: dict[str, Any], name: str, key: str) -> list[dict[str, Any]]:
+    return (activities.get(name) or {}).get(key) or []
+
+
+def _fundings(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    items = []
+    for group in groups or []:
+        for summary in group.get("funding-summary") or []:
+            amount = summary.get("amount") or {}
+            identifiers = _external_ids(summary)
+            items.append({
+                "title": _value((summary.get("title") or {}).get("title")),
+                "type": summary.get("type"),
+                "organization": (summary.get("organization") or {}).get("name"),
+                "start_date": _date(summary.get("start-date")),
+                "end_date": _date(summary.get("end-date")),
+                "amount": _value(amount) or None,
+                "currency": amount.get("currency-code"),
+                "grant_number": identifiers.get("grant_number"),
+                "identifiers": identifiers,
+                "url": _value(summary.get("url")) or None,
+                "source": _source(summary),
+                "orcid_put_code": summary.get("put-code"),
+            })
+    return sorted(items, key=lambda x: x.get("start_date") or "", reverse=True)
+
+
+def _peer_reviews(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    reviews: dict[str, dict[str, Any]] = {}
+    for group in groups or []:
+        # ORCID nests summaries one level deeper than the other activity groups.
+        for subgroup in group.get("peer-review-group") or [group]:
+            for summary in subgroup.get("peer-review-summary") or []:
+                org = (summary.get("convening-organization") or {}).get("name") or "Unknown organization"
+                entry = reviews.setdefault(org, {
+                    "organization": org,
+                    "review_count": 0,
+                    "review_type": summary.get("review-type"),
+                    "role": summary.get("reviewer-role"),
+                    "review_group_id": summary.get("review-group-id"),
+                    "last_completed": None,
+                    "source": _source(summary),
+                })
+                entry["review_count"] += 1
+                completed = _date(summary.get("completion-date"))
+                if completed and completed > (entry["last_completed"] or ""):
+                    entry["last_completed"] = completed
+    return sorted(reviews.values(), key=lambda x: (x["review_count"], x["organization"]), reverse=True)
+
+
+def _research_resources(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    items = []
+    for group in groups or []:
+        for summary in group.get("research-resource-summary") or []:
+            proposal = summary.get("proposal") or summary
+            hosts = (proposal.get("hosts") or {}).get("organization") or []
+            items.append({
+                "title": _value((proposal.get("title") or {}).get("title")),
+                "hosts": [host.get("name") for host in hosts if host.get("name")],
+                "start_date": _date(proposal.get("start-date")),
+                "end_date": _date(proposal.get("end-date")),
+                "source": _source(summary),
+                "orcid_put_code": summary.get("put-code"),
+            })
+    return items
+
+
 def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
     result = dict(base)
     for key, value in override.items():
@@ -106,8 +181,9 @@ def build_biosketch(record: dict[str, Any], override: dict[str, Any] | None = No
         datetime.fromtimestamp(modified_ms / 1000, timezone.utc).isoformat()
         if modified_ms else None
     )
+    peer_review_groups = _section(activities, "peer-reviews", "group") or _section(activities, "peer-review", "group")
     result = {
-        "schema_version": "0.1.0",
+        "schema_version": "0.2.0",
         "person": {
             "name": " ".join(filter(None, [_value(name.get("given-names")), _value(name.get("family-name"))])),
             "given_names": _value(name.get("given-names")),
@@ -123,6 +199,14 @@ def build_biosketch(record: dict[str, Any], override: dict[str, Any] | None = No
         "employment": _affiliations(activities.get("employments", {}).get("affiliation-group", []), "employment"),
         "education": _affiliations(activities.get("educations", {}).get("affiliation-group", []), "education"),
         "works": _works(activities.get("works", {}).get("group", [])),
+        "fundings": _fundings(_section(activities, "fundings", "group")),
+        "peer_reviews": _peer_reviews(peer_review_groups),
+        "distinctions": _affiliations(_section(activities, "distinctions", "affiliation-group"), "distinction"),
+        "memberships": _affiliations(_section(activities, "memberships", "affiliation-group"), "membership"),
+        "services": _affiliations(_section(activities, "services", "affiliation-group"), "service"),
+        "qualifications": _affiliations(_section(activities, "qualifications", "affiliation-group"), "qualification"),
+        "invited_positions": _affiliations(_section(activities, "invited-positions", "affiliation-group"), "invited-position"),
+        "research_resources": _research_resources(_section(activities, "research-resources", "group")),
         "provenance": {
             "primary_source": f"https://orcid.org/{orcid}",
             "orcid_api_version": "3.0",
@@ -134,8 +218,40 @@ def build_biosketch(record: dict[str, Any], override: dict[str, Any] | None = No
     return _deep_merge(result, override or {})
 
 
+def _grant_jsonld(item: dict[str, Any]) -> dict[str, Any]:
+    grant: dict[str, Any] = {
+        "@type": "MonetaryGrant" if item.get("amount") else "Grant",
+        "name": item.get("title"),
+    }
+    if item.get("organization"):
+        grant["funder"] = {"@type": "Organization", "name": item["organization"]}
+    if item.get("grant_number"):
+        grant["identifier"] = item["grant_number"]
+    if item.get("amount"):
+        grant["amount"] = {
+            "@type": "MonetaryAmount",
+            "value": item["amount"],
+            "currency": item.get("currency"),
+        }
+    if item.get("url"):
+        grant["url"] = item["url"]
+    return grant
+
+
 def to_jsonld(bio: dict[str, Any]) -> dict[str, Any]:
     person = bio["person"]
+    awards = [
+        ", ".join(filter(None, [item.get("role"), item.get("organization")]))
+        for item in bio.get("distinctions", [])
+    ]
+    extras: dict[str, Any] = {
+        "funding": [_grant_jsonld(item) for item in bio.get("fundings", [])],
+        "memberOf": [
+            {"@type": "Organization", "name": item["organization"]}
+            for item in bio.get("memberships", []) if item.get("organization")
+        ],
+        "award": [award for award in awards if award],
+    }
     return {
         "@context": "https://schema.org",
         "@type": "Person",
@@ -147,7 +263,21 @@ def to_jsonld(bio: dict[str, Any]) -> dict[str, Any]:
         "sameAs": [person["orcid_url"], *[v for v in person["urls"].values() if v]],
         "knowsAbout": person["keywords"],
         "alumniOf": [x["organization"] for x in bio["education"] if x["organization"]],
+        **{key: value for key, value in extras.items() if value},
     }
+
+
+def _period(item: dict[str, Any]) -> str:
+    return "–".join(filter(None, [item.get("start_date"), item.get("end_date") or "present"]))
+
+
+def _affiliation_lines(items: list[dict[str, Any]]) -> list[str]:
+    lines = []
+    for item in items:
+        organization = item.get("organization") or ""
+        label = f"**{item['role']}**, {organization}" if item.get("role") else f"**{organization}**"
+        lines.append(f"- {label} ({_period(item)})")
+    return lines
 
 
 def render_markdown(bio: dict[str, Any], max_works: int = 10) -> str:
@@ -169,5 +299,23 @@ def render_markdown(bio: dict[str, Any], max_works: int = 10) -> str:
             title = f"[{work['title']}]({target})" if target else work["title"]
             lines.append(f"- {title} ({(work['publication_date'] or '')[:4]})")
         lines.append("")
+    if bio.get("fundings"):
+        lines.extend(["## Funding", ""])
+        for item in bio["fundings"]:
+            funder = f", {item['organization']}" if item.get("organization") else ""
+            amount = f" — {item['amount']} {item['currency'] or ''}".rstrip() if item.get("amount") else ""
+            grant = f" [{item['grant_number']}]" if item.get("grant_number") else ""
+            lines.append(f"- **{item['title'] or 'Grant'}**{funder} ({_period(item)}){amount}{grant}")
+        lines.append("")
+    if bio.get("peer_reviews"):
+        lines.extend(["## Peer review", ""])
+        for item in bio["peer_reviews"]:
+            latest = f", most recent {item['last_completed']}" if item.get("last_completed") else ""
+            reviews = "review" if item["review_count"] == 1 else "reviews"
+            lines.append(f"- {item['organization']} — {item['review_count']} {reviews} as {item['role'] or 'reviewer'}{latest}")
+        lines.append("")
+    for heading, key in (("Distinctions", "distinctions"), ("Memberships", "memberships"), ("Service", "services")):
+        if bio.get(key):
+            lines.extend([f"## {heading}", "", *_affiliation_lines(bio[key]), ""])
     lines.append(f"_Generated from ORCID; synchronized {bio['provenance']['generated_at']}._")
     return "\n".join(lines) + "\n"
