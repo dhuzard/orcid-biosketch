@@ -130,3 +130,109 @@ def test_renderers_surface_new_sections():
     }
     assert jsonld["memberOf"] == [{"@type": "Organization", "name": "Society for Neuroscience"}]
     assert jsonld["award"] == ["Young Investigator Award, European Behavioural Pharmacology Society"]
+
+
+import io
+import urllib.error
+from email.message import Message
+
+import pytest
+from orcid_biosketch import core
+from orcid_biosketch.core import OrcidError, load_record, normalize_orcid
+
+
+def test_normalizes_orcid_ids_and_urls():
+    assert normalize_orcid("0000-0002-1825-0097") == "0000-0002-1825-0097"
+    assert normalize_orcid("0000000218250097") == "0000-0002-1825-0097"
+    assert normalize_orcid("https://orcid.org/0000-0003-4820-7951") == "0000-0003-4820-7951"
+
+
+@pytest.mark.parametrize("bad", [
+    "0000-0002-1825-0098",  # checksum failure, a plausible typo
+    "0000-0003-4820-795",   # too short
+    "0000-000X-1825-0097",  # X outside the final position
+    "not-an-orcid",
+    "",
+])
+def test_rejects_malformed_orcid_ids(bad):
+    with pytest.raises(OrcidError):
+        normalize_orcid(bad)
+
+
+def test_loads_a_saved_record_offline(tmp_path):
+    path = tmp_path / "record.json"
+    path.write_text('{"orcid-identifier": {"path": "0000-0003-4820-7951"}}')
+    assert load_record(path)["orcid-identifier"]["path"] == "0000-0003-4820-7951"
+    with pytest.raises(OrcidError):
+        load_record(tmp_path / "missing.json")
+    (tmp_path / "bad.json").write_text("{not json")
+    with pytest.raises(OrcidError):
+        load_record(tmp_path / "bad.json")
+
+
+def _http_error(code, retry_after=None):
+    headers = Message()
+    if retry_after:
+        headers["Retry-After"] = retry_after
+    return urllib.error.HTTPError("https://pub.orcid.org", code, "boom", headers, None)
+
+
+class _Response(io.BytesIO):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+
+def test_retries_transient_failures_then_succeeds(monkeypatch):
+    attempts, slept = [], []
+    def urlopen(request, timeout=None):
+        attempts.append(request.full_url)
+        if len(attempts) < 3:
+            raise _http_error(503)
+        return _Response(b'{"orcid-identifier": {"path": "0000-0003-4820-7951"}}')
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(core.time, "sleep", slept.append)
+    record = core.fetch_orcid_record("0000-0003-4820-7951")
+    assert record["orcid-identifier"]["path"] == "0000-0003-4820-7951"
+    assert len(attempts) == 3 and slept == [1.0, 2.0]
+
+
+def test_honours_retry_after_and_gives_up_with_a_clear_message(monkeypatch):
+    slept = []
+    monkeypatch.setattr(core.urllib.request, "urlopen",
+                        lambda request, timeout=None: (_ for _ in ()).throw(_http_error(429, "5")))
+    monkeypatch.setattr(core.time, "sleep", slept.append)
+    with pytest.raises(OrcidError, match="HTTP 429"):
+        core.fetch_orcid_record("0000-0003-4820-7951", retries=2)
+    assert slept == [5.0, 5.0]
+
+
+@pytest.mark.parametrize("code,message", [(404, "no public record"), (403, "may be private")])
+def test_does_not_retry_permanent_failures(monkeypatch, code, message):
+    calls = []
+    def urlopen(request, timeout=None):
+        calls.append(request)
+        raise _http_error(code)
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    with pytest.raises(OrcidError, match=message):
+        core.fetch_orcid_record("0000-0003-4820-7951")
+    assert len(calls) == 1
+
+
+def test_rejects_a_bad_orcid_before_any_network_call(monkeypatch):
+    monkeypatch.setattr(core.urllib.request, "urlopen",
+                        lambda *a, **k: pytest.fail("must validate before fetching"))
+    with pytest.raises(OrcidError):
+        core.fetch_orcid_record("0000-0002-1825-0098")
+
+
+def test_sandbox_base_url_is_honoured(monkeypatch):
+    seen = {}
+    def urlopen(request, timeout=None):
+        seen["url"] = request.full_url
+        return _Response(b"{}")
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    core.fetch_orcid_record("0000-0003-4820-7951", base_url=core.SANDBOX_API)
+    assert seen["url"] == "https://pub.sandbox.orcid.org/v3.0/0000-0003-4820-7951/record"

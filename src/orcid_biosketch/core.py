@@ -2,22 +2,99 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 API = "https://pub.orcid.org/v3.0"
+SANDBOX_API = "https://pub.sandbox.orcid.org/v3.0"
+RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 
 
-def fetch_orcid_record(orcid: str, token: str | None = None) -> dict[str, Any]:
-    """Fetch the public ORCID 3.0 record as JSON."""
-    headers = {"Accept": "application/json", "User-Agent": "orcid-biosketch/0.1"}
+class OrcidError(RuntimeError):
+    """A problem reaching, identifying or reading an ORCID record."""
+
+
+def _check_digit(digits: str) -> str:
+    """ISO 7064 MOD 11-2, the checksum behind an ORCID iD's final character."""
+    total = 0
+    for digit in digits:
+        total = (total + int(digit)) * 2
+    remainder = (12 - total % 11) % 11
+    return "X" if remainder == 10 else str(remainder)
+
+
+def normalize_orcid(value: str) -> str:
+    """Validate an ORCID iD, accepting a bare iD or an orcid.org URL."""
+    candidate = re.sub(r"[^0-9X]", "", (value or "").upper())
+    if len(candidate) != 16:
+        raise OrcidError(f"{value!r} is not an ORCID iD; expected 16 digits, like 0000-0002-1825-0097")
+    if "X" in candidate[:15]:
+        raise OrcidError(f"{value!r} is not an ORCID iD; only the final character may be X")
+    if _check_digit(candidate[:15]) != candidate[15]:
+        raise OrcidError(f"{value!r} fails the ORCID checksum; check for a typo")
+    return "-".join(candidate[i:i + 4] for i in range(0, 16, 4))
+
+
+def load_record(path: str | Path) -> dict[str, Any]:
+    """Read a previously saved ORCID record, for offline and CI runs."""
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except FileNotFoundError as error:
+        raise OrcidError(f"No such record file: {path}") from error
+    except json.JSONDecodeError as error:
+        raise OrcidError(f"{path} is not valid JSON: {error}") from error
+
+
+def _retry_after(error: urllib.error.HTTPError) -> float | None:
+    value = error.headers.get("Retry-After") if error.headers else None
+    try:
+        return max(0.0, float(value)) if value else None
+    except (TypeError, ValueError):
+        return None
+
+
+def fetch_orcid_record(
+    orcid: str,
+    token: str | None = None,
+    *,
+    base_url: str = API,
+    retries: int = 3,
+    timeout: int = 30,
+) -> dict[str, Any]:
+    """Fetch the public ORCID 3.0 record as JSON, retrying transient failures."""
+    orcid = normalize_orcid(orcid)
+    headers = {"Accept": "application/json", "User-Agent": "orcid-biosketch/0.2"}
     token = token or os.getenv("ORCID_ACCESS_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(f"{API}/{orcid}/record", headers=headers)
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.load(response)
+    request = urllib.request.Request(f"{base_url}/{orcid}/record", headers=headers)
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404:
+                raise OrcidError(f"ORCID {orcid} has no public record at {base_url}") from error
+            if error.code in (401, 403):
+                raise OrcidError(
+                    f"ORCID refused the request for {orcid} (HTTP {error.code}); "
+                    "the record may be private or ORCID_ACCESS_TOKEN invalid"
+                ) from error
+            if error.code not in RETRY_STATUSES or attempt == retries:
+                raise OrcidError(f"ORCID returned HTTP {error.code} for {orcid}") from error
+            delay = _retry_after(error) or 2.0 ** attempt
+        except (urllib.error.URLError, TimeoutError) as error:
+            if attempt == retries:
+                reason = getattr(error, "reason", error)
+                raise OrcidError(f"Could not reach {base_url}: {reason}") from error
+            delay = 2.0 ** attempt
+        time.sleep(delay)
+    raise OrcidError(f"Gave up fetching ORCID {orcid} after {retries} retries")
 
 
 def _value(node: Any, default: str = "") -> str:
