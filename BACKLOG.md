@@ -31,7 +31,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 
 | ID | Title | Priority | Status | Owner |
 |---|---|---|---|---|
-| KF-01 | Complete the ORCID activities surface | P0 | in-review | agent/core-surface |
+| KF-01 | Complete the ORCID activities surface | P0 | done | agent/core-surface |
 | KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
 | KF-03 | Citation and funder-format exporters | P0 | in-progress | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
@@ -42,6 +42,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-09 | Agent-facing surface (MCP + well-known) | P2 | planned | — |
 | INF-01 | Fetch robustness, offline input, iD validation | P0 | in-progress | session |
 | INF-02 | CLI subcommand architecture | P0 | in-progress | session |
+| INF-03 | Verify shapes against a live ORCID record | P1 | planned | — |
 | FUN-01 | Academic Wrapped | P2 | in-progress | agent/fun |
 | FUN-02 | ORCID trading card | P3 | in-progress | agent/fun |
 | FUN-03 | Publication contribution heatmap | P3 | in-progress | agent/fun |
@@ -56,7 +57,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 
 ## KF-01 — Complete the ORCID activities surface
 
-- **Priority** P0 · **Status** in-review · **Owner** agent/core-surface · **Rev** r3
+- **Priority** P0 · **Status** done · **Owner** agent/core-surface · **Rev** r4
 - **Files** `src/orcid_biosketch/core.py`, `schema/biosketch.schema.json`, `tests/`
 
 `build_biosketch` currently reads only `person`, `employments`, `educations` and
@@ -79,6 +80,14 @@ publication list — no funder template can be filled without them.
 **Notes** — Peer review is the only machine-readable record of academic
 invisible labour that exists anywhere. Surface it prominently.
 
+Landed in `1c04d87`. Peer review nests two levels deep
+(`peer-reviews.group[].peer-review-group[].peer-review-summary[]`), unlike
+works or affiliations; `research-resource-summary` wraps its content in a
+`proposal` object. Both are handled with a fallback to the flatter shape.
+**Caveat:** `pub.orcid.org` is unreachable from the build environment, so
+the fixture was written from the documented v3.0 schemas and not verified
+against a live record — see INF-03.
+
 ---
 
 ## KF-02 — Full work records via the bulk works endpoint
@@ -97,6 +106,9 @@ per request and returns contributors, abstract and language.
 - [ ] Contributors normalised to ordered author lists with roles and ORCID iDs.
 - [ ] Opt-out flag for callers who want the cheap summary-only fetch.
 - [ ] Degrades to summary data when the detail fetch fails.
+- [ ] Fetch funding amounts per put-code. `funding-summary` very likely does
+      not carry `amount`; KF-01 parses it defensively, so amounts stay `None`
+      until this batching lands.
 
 ---
 
@@ -352,6 +364,28 @@ Chain `educations` across ORCID iDs to reconstruct advisor lineages.
 
 ---
 
+## INF-03 — Verify normalized shapes against a live ORCID record
+
+- **Priority** P1 · **Status** planned · **Owner** — · **Rev** r1
+- **Files** `tests/fixture.json`, `tests/test_core.py`
+
+`pub.orcid.org:443` is refused by the egress proxy in the environment where
+KF-01 was implemented (`CONNECT tunnel failed, 403` — a network policy denial,
+not a TLS or credential problem). The KF-01 fixture is therefore derived from
+ORCID's documented v3.0 schemas rather than from a real response. The parsers
+are defensive and degrade to empty lists, so a shape mismatch would silently
+produce empty sections rather than an error — which is exactly the failure mode
+worth closing.
+
+**Acceptance criteria**
+- [ ] Fetch a real public record containing funding, peer review, service and
+      research-resource entries from a host with ORCID egress allowed.
+- [ ] Diff the live shapes against `tests/fixture.json`; correct any divergence.
+- [ ] Confirm whether `funding-summary` carries `amount` (feeds KF-02).
+- [ ] Consider a slow-marked integration test, skipped when ORCID is unreachable.
+
+---
+
 ## Change log
 
 Append-only. Newest entries at the bottom. One line per status or scope change.
@@ -371,3 +405,7 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | KF-01 | schema_version raised to 0.2.0 as part of the contract extension | scope |
 | 2026-08-31 | KF-01 | Activities surface implemented; 10 core tests green, schema validates | in-progress → in-review |
 | 2026-08-31 | KF-01 | Markdown rendering of qualifications/invited positions/research resources split out as remaining work | scope |
+| 2026-08-31 | KF-01 | Agent reported complete; reviewed and landed in 1c04d87 | in-review → done |
+| 2026-08-31 | INF-03 | Opened: ORCID egress blocked, so KF-01 fixture is unverified against a live record | — → planned |
+| 2026-08-31 | KF-02 | Absorbed funding-amount fetching, which needs per-put-code batching | scope |
+| 2026-08-31 | KF-05 | Implementation green locally, awaiting agent report | — |
