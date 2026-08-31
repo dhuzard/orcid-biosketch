@@ -31,23 +31,23 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 
 | ID | Title | Priority | Status | Owner |
 |---|---|---|---|---|
-| KF-01 | Complete the ORCID activities surface | P0 | planned | — |
+| KF-01 | Complete the ORCID activities surface | P0 | in-progress | agent/core-surface |
 | KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
-| KF-03 | Citation and funder-format exporters | P0 | planned | — |
+| KF-03 | Citation and funder-format exporters | P0 | in-progress | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
-| KF-05 | `lint` — ORCID record quality report | P1 | planned | — |
+| KF-05 | `lint` — ORCID record quality report | P1 | in-progress | agent/lint |
 | KF-06 | Assertion trust layer | P2 | planned | — |
 | KF-07 | Lab / multi-researcher mode | P2 | planned | — |
 | KF-08 | Change feed and publication Atom feed | P2 | planned | — |
 | KF-09 | Agent-facing surface (MCP + well-known) | P2 | planned | — |
-| INF-01 | Fetch robustness, offline input, iD validation | P0 | planned | — |
-| INF-02 | CLI subcommand architecture | P0 | planned | — |
-| FUN-01 | Academic Wrapped | P2 | planned | — |
-| FUN-02 | ORCID trading card | P3 | planned | — |
-| FUN-03 | Publication contribution heatmap | P3 | planned | — |
+| INF-01 | Fetch robustness, offline input, iD validation | P0 | in-progress | session |
+| INF-02 | CLI subcommand architecture | P0 | in-progress | session |
+| FUN-01 | Academic Wrapped | P2 | in-progress | agent/fun |
+| FUN-02 | ORCID trading card | P3 | in-progress | agent/fun |
+| FUN-03 | Publication contribution heatmap | P3 | in-progress | agent/fun |
 | FUN-04 | Career sonification (MIDI) | P3 | planned | — |
 | FUN-05 | Conference badge / vCard / email signature | P2 | planned | — |
-| FUN-06 | `fortune` — a paper of your own in your shell | P3 | planned | — |
+| FUN-06 | `fortune` — a paper of your own in your shell | P3 | in-progress | agent/fun |
 | FUN-07 | Collaborator distance | P3 | deferred | — |
 | FUN-08 | Deterministic career poster | P3 | deferred | — |
 | FUN-09 | Academic family tree | P3 | deferred | — |
@@ -56,7 +56,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 
 ## KF-01 — Complete the ORCID activities surface
 
-- **Priority** P0 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P0 · **Status** in-progress · **Owner** agent/core-surface · **Rev** r2
 - **Files** `src/orcid_biosketch/core.py`, `schema/biosketch.schema.json`, `tests/`
 
 `build_biosketch` currently reads only `person`, `employments`, `educations` and
@@ -100,7 +100,7 @@ per request and returns contributors, abstract and language.
 
 ## KF-03 — Citation and funder-format exporters
 
-- **Priority** P0 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P0 · **Status** in-progress · **Owner** agent/exporters · **Rev** r2
 - **Files** `src/orcid_biosketch/exporters.py` (new), `tests/test_exporters.py`
 
 `render_markdown` is the only renderer. The adoption argument is not "a nicer
@@ -138,7 +138,7 @@ external data enters the pipeline.
 
 ## KF-05 — `lint`: ORCID record quality report
 
-- **Priority** P1 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P1 · **Status** in-progress · **Owner** agent/lint · **Rev** r2
 - **Files** `src/orcid_biosketch/lint.py` (new), `tests/test_lint.py`
 
 Score a record and say exactly what to fix. The only item here with standalone
@@ -219,7 +219,7 @@ machine-*readable* to machine-*actionable*.
 
 ## INF-01 — Fetch robustness, offline input, iD validation
 
-- **Priority** P0 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P0 · **Status** in-progress · **Owner** session · **Rev** r2
 - **Files** `src/orcid_biosketch/core.py`, `src/orcid_biosketch/cli.py`
 
 `fetch_orcid_record` has no retries, no caching and no rate-limit handling. The
@@ -238,7 +238,7 @@ error rather than a clear message.
 
 ## INF-02 — CLI subcommand architecture
 
-- **Priority** P0 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P0 · **Status** in-progress · **Owner** session · **Rev** r2
 - **Files** `src/orcid_biosketch/cli.py`
 
 The CLI is a single flat command. Every feature above needs a verb.
@@ -252,7 +252,7 @@ The CLI is a single flat command. Every feature above needs a verb.
 
 ## FUN-01 — Academic Wrapped
 
-- **Priority** P2 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P2 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
 - **Files** `src/orcid_biosketch/fun.py` (new)
 
 Spotify-style year in review: top venue, most prolific month, longest gap,
@@ -269,7 +269,7 @@ of code in the entire backlog. Ship in December.
 
 ## FUN-02 — ORCID trading card
 
-- **Priority** P3 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P3 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
 
 A printable stat card: years active as HP, output count as attack, a "special
 ability" drawn from the record's own keywords. QR to the ORCID record.
@@ -282,7 +282,7 @@ ability" drawn from the record's own keywords. QR to the ORCID record.
 
 ## FUN-03 — Publication contribution heatmap
 
-- **Priority** P3 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P3 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
 
 The GitHub green-squares grid for publication dates. Instantly legible, and
 quietly humane: it shows the fallow years that polished CVs hide.
@@ -321,7 +321,7 @@ with QR and top outputs, a vCard, and an HTML email signature.
 
 ## FUN-06 — `fortune`
 
-- **Priority** P3 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P3 · **Status** in-progress · **Owner** agent/fun · **Rev** r2
 
 Print a random one of your own paper titles in your shell. Twenty lines, pure
 joy.
@@ -361,3 +361,9 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | INF-01, INF-02 | Infrastructure prerequisites identified while scoping KF-02/03/05 | — → planned |
 | 2026-08-31 | FUN-01…FUN-06 | Playful reuses entered | — → planned |
 | 2026-08-31 | FUN-07, FUN-08, FUN-09 | Sequenced behind enrichment and multi-record work | — → deferred |
+| 2026-08-31 | KF-01 | Assigned to subagent; owns core.py, schema, core tests | planned → in-progress |
+| 2026-08-31 | KF-03 | Assigned to subagent; owns exporters.py + templates/ | planned → in-progress |
+| 2026-08-31 | KF-05 | Assigned to subagent; owns lint.py | planned → in-progress |
+| 2026-08-31 | FUN-01, FUN-02, FUN-03, FUN-06 | Assigned to one subagent; owns fun.py | planned → in-progress |
+| 2026-08-31 | INF-01, INF-02 | Retained by session; sequenced after KF-01 to keep core.py single-owner | planned → in-progress |
+| 2026-08-31 | KF-01 | schema_version raised to 0.2.0 as part of the contract extension | scope |
