@@ -35,7 +35,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
 | KF-03 | Citation and funder-format exporters | P0 | in-progress | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
-| KF-05 | `lint` — ORCID record quality report | P1 | in-progress | agent/lint |
+| KF-05 | `lint` — ORCID record quality report | P1 | in-review | agent/lint |
 | KF-06 | Assertion trust layer | P2 | planned | — |
 | KF-07 | Lab / multi-researcher mode | P2 | planned | — |
 | KF-08 | Change feed and publication Atom feed | P2 | planned | — |
@@ -152,7 +152,7 @@ external data enters the pipeline.
 
 ## KF-05 — `lint`: ORCID record quality report
 
-- **Priority** P1 · **Status** in-progress · **Owner** agent/lint · **Rev** r2
+- **Priority** P1 · **Status** in-review · **Owner** agent/lint · **Rev** r3
 - **Files** `src/orcid_biosketch/lint.py` (new), `tests/test_lint.py`
 
 Score a record and say exactly what to fix. The only item here with standalone
@@ -160,13 +160,27 @@ reach: useful to people who will never generate a biosketch, which is precisely
 what draws them into the rest of the tool.
 
 **Acceptance criteria**
-- [ ] Checks: missing DOIs, missing publication dates, missing venue, empty
+- [x] Checks: missing DOIs, missing publication dates, missing venue, empty
       biography, no keywords, no funding, orgs lacking ROR/disambiguation,
       self-asserted-only works, duplicate work groups, stale record.
-- [ ] Weighted score with a documented, reproducible rubric.
-- [ ] Human-readable report and machine-readable JSON.
-- [ ] shields.io-compatible badge endpoint JSON for READMEs.
-- [ ] Non-zero exit under a configurable threshold, for CI use.
+- [x] Weighted score with a documented, reproducible rubric.
+- [x] Human-readable report and machine-readable JSON.
+- [x] shields.io-compatible badge endpoint JSON for READMEs.
+- [ ] Non-zero exit under a configurable threshold, for CI use (blocked on
+      INF-02; `lint()["percentage"]` is the value to compare).
+
+---
+
+**Notes** — Scoring is out of 100 weights, but a check the contract cannot
+express is marked not-applicable and subtracted from `max_score` as well as
+`score`, so a percentage is never diluted by something unmeasurable. The ROR
+check is n/a today because `_affiliations()` emits no organisation identifier;
+it lights up on its own once one appears. Duplicate detection is a union-find
+over both normalised titles and DOIs, so a manual entry and its Crossref twin
+collapse into one group even when only one copy carries the DOI.
+
+Against the committed `generated/biosketch.json`: **86% (B)**, 4 duplicate
+groups, 10 self-asserted works, no funding recorded.
 
 ---
 
@@ -409,3 +423,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | INF-03 | Opened: ORCID egress blocked, so KF-01 fixture is unverified against a live record | — → planned |
 | 2026-08-31 | KF-02 | Absorbed funding-amount fetching, which needs per-put-code batching | scope |
 | 2026-08-31 | KF-05 | Implementation green locally, awaiting agent report | — |
+| 2026-08-31 | KF-05 | Implemented: 14-check weighted rubric, report and shields badge; 21 tests green | in-progress → in-review |
+| 2026-08-31 | KF-05 | ROR check deferred to not-applicable until affiliations carry organisation identifiers | scope |
