@@ -475,3 +475,7 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | FUN-01, FUN-02, FUN-03, FUN-06 | Reviewed and landed | in-review → done |
 | 2026-08-31 | KF-05 | CI gate criterion satisfied by `lint --fail-under` | — |
 | 2026-08-31 | INF-04 | Opened: published generated/ outputs still declare schema_version 0.1.0 | — → planned |
+| 2026-08-31 | KF-01, KF-03, KF-05, FUN-01/02/03/06 | Code review at high effort; six findings plus an export mode-selection bug fixed on the branch | done → done (reviewed) |
+| 2026-08-31 | KF-05 | affiliations.org_ids was unassessable because core dropped the disambiguated org id; core now carries it and the rubric reaches its documented 100 points | fix |
+| 2026-08-31 | KF-01, KF-03 | Point-in-time sections no longer rendered as ongoing; a distinction with no end date reads 2018, not 2018–present | fix |
+| 2026-08-31 | — | README documents the playful reuses and links the backlog | docs |
