@@ -33,22 +33,23 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 |---|---|---|---|---|
 | KF-01 | Complete the ORCID activities surface | P0 | done | agent/core-surface |
 | KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
-| KF-03 | Citation and funder-format exporters | P0 | in-review | agent/exporters |
+| KF-03 | Citation and funder-format exporters | P0 | done | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
-| KF-05 | `lint` — ORCID record quality report | P1 | in-review | agent/lint |
+| KF-05 | `lint` — ORCID record quality report | P1 | done | agent/lint |
 | KF-06 | Assertion trust layer | P2 | planned | — |
 | KF-07 | Lab / multi-researcher mode | P2 | planned | — |
 | KF-08 | Change feed and publication Atom feed | P2 | planned | — |
 | KF-09 | Agent-facing surface (MCP + well-known) | P2 | planned | — |
 | INF-01 | Fetch robustness, offline input, iD validation | P0 | done | session |
-| INF-02 | CLI subcommand architecture | P0 | in-progress | session |
+| INF-02 | CLI subcommand architecture | P0 | done | session |
 | INF-03 | Verify shapes against a live ORCID record | P1 | planned | — |
-| FUN-01 | Academic Wrapped | P2 | in-review | agent/fun |
-| FUN-02 | ORCID trading card | P3 | in-review | agent/fun |
-| FUN-03 | Publication contribution heatmap | P3 | in-review | agent/fun |
+| INF-04 | Regenerate published outputs for schema 0.2.0 | P1 | planned | — |
+| FUN-01 | Academic Wrapped | P2 | done | agent/fun |
+| FUN-02 | ORCID trading card | P3 | done | agent/fun |
+| FUN-03 | Publication contribution heatmap | P3 | done | agent/fun |
 | FUN-04 | Career sonification (MIDI) | P3 | planned | — |
 | FUN-05 | Conference badge / vCard / email signature | P2 | planned | — |
-| FUN-06 | `fortune` — a paper of your own in your shell | P3 | in-review | agent/fun |
+| FUN-06 | `fortune` — a paper of your own in your shell | P3 | done | agent/fun |
 | FUN-07 | Collaborator distance | P3 | deferred | — |
 | FUN-08 | Deterministic career poster | P3 | deferred | — |
 | FUN-09 | Academic family tree | P3 | deferred | — |
@@ -114,7 +115,7 @@ per request and returns contributors, abstract and language.
 
 ## KF-03 — Citation and funder-format exporters
 
-- **Priority** P0 · **Status** in-review · **Owner** agent/exporters · **Rev** r3
+- **Priority** P0 · **Status** done · **Owner** agent/exporters · **Rev** r4
 - **Files** `src/orcid_biosketch/exporters.py` (new), `tests/test_exporters.py`
 
 `render_markdown` is the only renderer. The adoption argument is not "a nicer
@@ -159,7 +160,7 @@ external data enters the pipeline.
 
 ## KF-05 — `lint`: ORCID record quality report
 
-- **Priority** P1 · **Status** in-review · **Owner** agent/lint · **Rev** r3
+- **Priority** P1 · **Status** done · **Owner** agent/lint · **Rev** r4
 - **Files** `src/orcid_biosketch/lint.py` (new), `tests/test_lint.py`
 
 Score a record and say exactly what to fix. The only item here with standalone
@@ -173,8 +174,8 @@ what draws them into the rest of the tool.
 - [x] Weighted score with a documented, reproducible rubric.
 - [x] Human-readable report and machine-readable JSON.
 - [x] shields.io-compatible badge endpoint JSON for READMEs.
-- [ ] Non-zero exit under a configurable threshold, for CI use (blocked on
-      INF-02; `lint()["percentage"]` is the value to compare).
+- [x] Non-zero exit under a configurable threshold, for CI use
+      (`lint --fail-under N`, landed with INF-02).
 
 ---
 
@@ -278,21 +279,21 @@ and never retried; 429 and 5xx back off exponentially and honour `Retry-After`.
 
 ## INF-02 — CLI subcommand architecture
 
-- **Priority** P0 · **Status** in-progress · **Owner** session · **Rev** r2
+- **Priority** P0 · **Status** done · **Owner** session · **Rev** r3
 - **Files** `src/orcid_biosketch/cli.py`
 
 The CLI is a single flat command. Every feature above needs a verb.
 
 **Acceptance criteria**
-- [ ] Subcommands: `generate`, `lint`, `export`, `wrapped`, `fortune`, `badge`.
-- [ ] `orcid-biosketch <ORCID>` keeps working unchanged (back-compat).
-- [ ] Shared options factored into a common parent parser.
+- [x] Subcommands: `generate`, `lint`, `export`, `wrapped`, `fortune`, `badge`.
+- [x] `orcid-biosketch <ORCID>` keeps working unchanged (back-compat).
+- [x] Shared options factored into a common parent parser.
 
 ---
 
 ## FUN-01 — Academic Wrapped
 
-- **Priority** P2 · **Status** in-review · **Owner** agent/fun · **Rev** r3
+- **Priority** P2 · **Status** done · **Owner** agent/fun · **Rev** r4
 - **Files** `src/orcid_biosketch/fun.py` (new)
 
 Spotify-style year in review: top venue, most prolific month, longest gap,
@@ -316,7 +317,7 @@ commentary on productivity.
 
 ## FUN-02 — ORCID trading card
 
-- **Priority** P3 · **Status** in-review · **Owner** agent/fun · **Rev** r3
+- **Priority** P3 · **Status** done · **Owner** agent/fun · **Rev** r4
 
 A printable stat card: years active as HP, output count as attack, a "special
 ability" drawn from the record's own keywords. QR to the ORCID record.
@@ -329,7 +330,7 @@ ability" drawn from the record's own keywords. QR to the ORCID record.
 
 ## FUN-03 — Publication contribution heatmap
 
-- **Priority** P3 · **Status** in-review · **Owner** agent/fun · **Rev** r3
+- **Priority** P3 · **Status** done · **Owner** agent/fun · **Rev** r4
 
 The GitHub green-squares grid for publication dates. Instantly legible, and
 quietly humane: it shows the fallow years that polished CVs hide.
@@ -368,7 +369,7 @@ with QR and top outputs, a vCard, and an HTML email signature.
 
 ## FUN-06 — `fortune`
 
-- **Priority** P3 · **Status** in-review · **Owner** agent/fun · **Rev** r3
+- **Priority** P3 · **Status** done · **Owner** agent/fun · **Rev** r4
 
 Print a random one of your own paper titles in your shell. Twenty lines, pure
 joy.
@@ -419,6 +420,27 @@ worth closing.
 
 ---
 
+## INF-04 — Regenerate published outputs for schema 0.2.0
+
+- **Priority** P1 · **Status** planned · **Owner** — · **Rev** r1
+- **Files** `generated/`
+
+KF-01 raised the contract to `schema_version` 0.2.0, but `generated/biosketch.json`
+in the repository still declares 0.1.0 and lacks the new sections. Anyone
+validating the *published* artifact against the *published* schema therefore
+fails until the outputs are regenerated. This could not be fixed in the branch:
+regeneration needs a live ORCID fetch, and `pub.orcid.org` is unreachable from
+the build environment (INF-03).
+
+**Acceptance criteria**
+- [ ] Run the sync workflow (Actions → Synchronize ORCID biosketch) so
+      `generated/` is rebuilt on 0.2.0, or regenerate locally where ORCID is
+      reachable.
+- [ ] Confirm the rebuilt `biosketch.json` validates against the 0.2.0 schema.
+- [ ] Confirm the web component renders the new sections without change.
+
+---
+
 ## Change log
 
 Append-only. Newest entries at the bottom. One line per status or scope change.
@@ -448,3 +470,8 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | KF-03 | CSL-JSON, BibTeX and RIS exporters plus nih/erc/horizon templates; 12 tests green | in-progress → in-review |
 | 2026-08-31 | FUN-01, FUN-02, FUN-03, FUN-06 | Wrapped, trading card, heatmap and fortune implemented; 27 tests green | in-progress → in-review |
 | 2026-08-31 | FUN-01 | Verified on the committed record: keyword drift and gap analysis derived only from asserted dates and titles | — |
+| 2026-08-31 | INF-02 | CLI restructured into eight subcommands; back-compat shim and 14 CLI tests | in-progress → done |
+| 2026-08-31 | KF-03, KF-05 | Reviewed, smoke-tested against the real record and landed | in-review → done |
+| 2026-08-31 | FUN-01, FUN-02, FUN-03, FUN-06 | Reviewed and landed | in-review → done |
+| 2026-08-31 | KF-05 | CI gate criterion satisfied by `lint --fail-under` | — |
+| 2026-08-31 | INF-04 | Opened: published generated/ outputs still declare schema_version 0.1.0 | — → planned |
