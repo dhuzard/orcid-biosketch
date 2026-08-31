@@ -8,10 +8,12 @@ The central design rule is simple: **ORCID supplies structured assertions; the r
 
 ```bash
 python -m pip install -e .
-orcid-biosketch 0000-0003-4820-7951 \
+orcid-biosketch generate 0000-0003-4820-7951 \
   --config config/biosketch.json \
   --output generated
 ```
+
+`orcid-biosketch <ORCID>` still generates, as before subcommands existed.
 
 Outputs:
 
@@ -20,6 +22,70 @@ Outputs:
 - `generated/biosketch.md` — website- and CV-ready Markdown
 
 Only public ORCID data are retrieved. An optional `ORCID_ACCESS_TOKEN` environment variable is supported; never commit access tokens.
+
+## Commands
+
+Every command accepts an ORCID iD, or works offline from `--record` (a saved
+ORCID API response) or `--biosketch` (an already-generated `biosketch.json`).
+
+| Command | Purpose |
+|---|---|
+| `generate` | Write `biosketch.json`, `.jsonld` and `.md` |
+| `lint` | Score the record and say what to fix; `--fail-under N` exits non-zero |
+| `export` | `--format csl\|bibtex\|ris`, or `--template nih\|erc\|horizon` for a funder biosketch |
+| `wrapped` | A year in review, computed only from asserted data |
+| `card` | Printable trading card (SVG) |
+| `heatmap` | Publication heatmap (SVG) |
+| `fortune` | Print one of your own titles, for a shell startup file |
+| `badge` | shields.io endpoint JSON for the lint score |
+
+```bash
+orcid-biosketch lint 0000-0003-4820-7951            # what to fix, and why
+orcid-biosketch export 0000-0003-4820-7951 --format bibtex > refs.bib
+orcid-biosketch export 0000-0003-4820-7951 --template nih   # NIH-format biosketch
+```
+
+ORCID iDs are checksum-validated before any request, so a typo fails
+immediately rather than as a confusing 404. Transient failures retry with
+exponential backoff and honour `Retry-After`; `--sandbox` targets ORCID's
+sandbox API.
+
+## Playful reuses of an ORCID record
+
+An ORCID record is a decade of someone's working life expressed as structured
+data, and almost nobody looks at it twice. These commands re-present what is
+already asserted there — under the same rule as everything else in this tool:
+**every number and string is traceable to a field in the record. Nothing is
+invented, inferred or embellished.**
+
+```bash
+orcid-biosketch wrapped 0000-0003-4820-7951 --year 2025   # a year in review
+orcid-biosketch card    0000-0003-4820-7951 -o card.svg   # printable stat card
+orcid-biosketch heatmap 0000-0003-4820-7951 -o years.svg  # publication grid
+orcid-biosketch fortune --biosketch generated/biosketch.json
+```
+
+**`wrapped`** — a year in review: output count, top venue, most prolific month,
+longest gap between outputs, busiest year of the career, first-time venues, and
+how the vocabulary of your titles drifted between your early work and your
+recent work. It is deliberately kind about sparse years: a two-paper year is
+reported as two papers, not as a verdict.
+
+**`card`** — a printable trading card. Years active as HP, output count as
+attack, and a "special ability" drawn from the record's own keywords. Print a
+stack for a lab door or a conference table.
+
+**`heatmap`** — the contribution-grid idea applied to publication dates. It is
+honest about fallow years, which is the part a formatted CV quietly hides.
+
+**`fortune`** — prints one of your own titles. Put it in your shell startup
+file and get reminded, at random, of something you wrote and forgot.
+
+Ideas tracked but not yet built ([BACKLOG.md](BACKLOG.md)): career sonification
+to MIDI (FUN-04), a conference badge with QR plus vCard and email signature
+(FUN-05), Erdős-style collaborator distance between two iDs (FUN-07),
+deterministic generative art seeded from the iD itself (FUN-08), and academic
+family trees reconstructed from education entries (FUN-09).
 
 ## Automatic synchronization
 
@@ -61,6 +127,9 @@ Pass a JSON document with `--config`. It is recursively merged onto the normaliz
 
 ## Data quality and provenance
 
+- The contract is `schema_version` 0.2.0, covering funding, peer review,
+  distinctions, memberships, services, qualifications, invited positions and
+  research resources alongside works and affiliations.
 - ORCID visibility rules are respected: private and trusted-party-only information is not available through the public endpoint.
 - Each work and affiliation retains its ORCID source and put-code where available.
 - Duplicate ORCID work groups are represented by their preferred summary.
@@ -86,10 +155,16 @@ pytest -q
 
 ## Roadmap
 
-- Crossref/OpenAlex enrichment without overwriting ORCID assertions
+Tracked in [BACKLOG.md](BACKLOG.md), which carries status, acceptance criteria
+and an append-only change log for every item. Next up:
+
+- Full work records, including authors, via the bulk works endpoint (KF-02)
+- Crossref/OpenAlex enrichment, labelled per field so ORCID assertions stay
+  distinguishable and are never overwritten (KF-04)
+- Assertion trust layer: self-asserted versus publisher-asserted works (KF-06)
+- Lab and multi-researcher mode (KF-07)
+- Change feed and publication Atom feed (KF-08)
 - Named short, medium and long approved biography variants
-- CSL-JSON and DOCX exporters
-- Selection rules for works and grants
 - Optional ORCID OAuth and premium webhook adapter
 
 ## License

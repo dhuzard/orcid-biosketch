@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "orcid-biosketch"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generate provenance-aware, website-ready biosketches from ORCID"
 readme = "README.md"
 requires-python = ">=3.10"

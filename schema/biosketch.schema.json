@@ -5,7 +5,7 @@
   "type": "object",
   "required": ["schema_version", "person", "employment", "education", "works", "provenance"],
   "properties": {
-    "schema_version": {"const": "0.1.0"},
+    "schema_version": {"const": "0.2.0"},
     "person": {
       "type": "object",
       "required": ["name", "orcid", "orcid_url", "biography", "keywords", "urls"],
@@ -22,6 +22,14 @@
     "employment": {"type": "array"},
     "education": {"type": "array"},
     "works": {"type": "array"},
+    "fundings": {"type": "array", "description": "Grants and awards, with funder, amount and grant identifiers."},
+    "peer_reviews": {"type": "array", "description": "Peer review activity aggregated per convening organization."},
+    "distinctions": {"type": "array"},
+    "memberships": {"type": "array"},
+    "services": {"type": "array"},
+    "qualifications": {"type": "array"},
+    "invited_positions": {"type": "array"},
+    "research_resources": {"type": "array"},
     "selection": {
       "type": "object",
       "description": "Researcher-controlled output selection policy and annotations.",
