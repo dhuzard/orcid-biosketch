@@ -7,6 +7,7 @@ from the record is omitted rather than guessed.
 
 from __future__ import annotations
 
+import base64
 import random
 import textwrap
 from typing import Any
@@ -417,8 +418,11 @@ def _pair_wrapped(label: str, value: str) -> list[str]:
 
 # --- FUN-02: trading card -------------------------------------------------
 
-def trading_card_svg(bio: dict) -> str:
+def trading_card_svg(bio: dict, qr_png: bytes | None = None) -> str:
     """A printable, self-contained trading card built only from asserted fields."""
+    if qr_png is not None and not qr_png.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("The trading-card QR asset must be a PNG file")
+    qr_data = base64.b64encode(qr_png).decode("ascii") if qr_png else None
     person = _person(bio)
     outputs = _outputs(bio)
     name = _text(person.get("name")) or "Unnamed record"
@@ -471,13 +475,22 @@ def trading_card_svg(bio: dict) -> str:
     y += 6
 
     parts.append(f'<rect x="20" y="{y}" width="280" height="86" rx="6" fill="#0a1826" stroke="#2b4763"/>')
-    for cell in range(48):
-        column, row = cell % 12, cell // 12
+    pattern_columns = 8 if qr_data else 12
+    for cell in range(pattern_columns * 4):
+        column, row = cell % pattern_columns, cell // pattern_columns
         digit = _stable_index(f"{orcid or name}:{cell}", 10)
         radius = 1.5 + digit * 0.32
         cx, cy = 34 + column * 23, y + 18 + row * 21
         parts.append(
             f'<circle cx="{cx}" cy="{cy}" r="{radius:.2f}" fill="#4f9ad1" opacity="{0.18 + digit * 0.07:.2f}"/>'
+        )
+    if qr_data:
+        parts.append(f'<text class="lbl" x="32" y="{y + 33}">SCAN MY ORCID</text>')
+        parts.append(f'<text class="h" x="32" y="{y + 50}">Open the public record</text>')
+        parts.append(f'<rect x="214" y="{y + 4}" width="82" height="78" rx="4" fill="#fff"/>')
+        parts.append(
+            f'<image x="218" y="{y + 8}" width="74" height="70" preserveAspectRatio="xMidYMid meet" '
+            f'style="image-rendering:pixelated" href="data:image/png;base64,{qr_data}"/>'
         )
     y += 100
 

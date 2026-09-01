@@ -324,7 +324,7 @@ commentary on productivity.
 
 ## FUN-02 — ORCID trading card
 
-- **Priority** P3 · **Status** done · **Owner** agent/fun · **Rev** r4
+- **Priority** P3 · **Status** done · **Owner** agent/fun · **Rev** r5
 
 A printable stat card: years active as HP, output count as attack, a "special
 ability" drawn from the record's own keywords. QR to the ORCID record.
@@ -332,6 +332,8 @@ ability" drawn from the record's own keywords. QR to the ORCID record.
 **Acceptance criteria**
 - [x] Self-contained SVG, print-ready, no external assets.
 - [x] Stats traceable to record fields.
+- [x] Optionally embed the record holder's official ORCID QR-code PNG without
+      modifying its pixels; the published card uses Damien's supplied asset.
 
 ---
 

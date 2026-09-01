@@ -64,7 +64,7 @@ invented, inferred or embellished.**
 
 ```bash
 orcid-biosketch wrapped 0000-0003-4820-7951 --year 2025   # a year in review
-orcid-biosketch card    0000-0003-4820-7951 -o card.svg   # printable stat card
+orcid-biosketch card    0000-0003-4820-7951 --qr ORCID.png -o card.svg
 orcid-biosketch heatmap 0000-0003-4820-7951 -o years.svg  # publication grid
 orcid-biosketch fortune --biosketch generated/biosketch.json
 ```
@@ -77,7 +77,10 @@ reported as two papers, not as a verdict.
 
 **`card`** — a printable trading card. Years active as HP, output count as
 attack, and a "special ability" drawn from the record's own keywords. Print a
-stack for a lab door or a conference table.
+stack for a lab door or a conference table. To include your official QR code,
+sign in to ORCID and go to **Account Settings → Sharing → Get a QR code for
+your ORCID iD**, download the PNG, and pass it with `--qr`. See
+[ORCID's official QR-code guide](https://support.orcid.org/hc/en-us/articles/360006897654-Create-your-personal-ORCID-iD-QR-Code).
 
 **`heatmap`** — the contribution-grid idea applied to publication dates. It is
 honest about fallow years, which is the part a formatted CV quietly hides.
