@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "person": {
     "name": "Damien Huzard",
     "given_names": "Damien",
@@ -29,6 +29,8 @@
   "employment": [
     {
       "organization": "Metadatapp (MAPP)",
+      "organization_id": null,
+      "organization_id_source": null,
       "role": "Founder, CSO, CE0",
       "department": null,
       "start_date": "2025-02",
@@ -41,6 +43,8 @@
     },
     {
       "organization": "neuronautix",
+      "organization_id": null,
+      "organization_id_source": null,
       "role": "Lead Scientist",
       "department": null,
       "start_date": "2024-12",
@@ -53,6 +57,8 @@
     },
     {
       "organization": "Institut de Génomique Fonctionnelle",
+      "organization_id": "131795",
+      "organization_id_source": "RINGGOLD",
       "role": null,
       "department": null,
       "start_date": "2019-02",
@@ -65,6 +71,8 @@
     },
     {
       "organization": "École Polytechnique Fédérale de Lausanne",
+      "organization_id": "http://dx.doi.org/10.13039/501100001703",
+      "organization_id_source": "FUNDREF",
       "role": "PhD candidates",
       "department": "Brain Mind Institute",
       "start_date": "2014-03",
@@ -79,6 +87,8 @@
   "education": [
     {
       "organization": "École Polytechnique Fédérale de Lausanne",
+      "organization_id": "27218",
+      "organization_id_source": "RINGGOLD",
       "role": "MSc",
       "department": "Life Sciences",
       "start_date": "2008-08-08",
@@ -596,6 +606,32 @@
       "orcid_put_code": 210055261
     }
   ],
+  "fundings": [
+    {
+      "title": "Toucher plaisant et modèle murins",
+      "type": "salary-award",
+      "organization": "Fondation Lefoulon-Delalande",
+      "start_date": "2021-07",
+      "end_date": "2022-06",
+      "amount": null,
+      "currency": null,
+      "grant_number": null,
+      "identifiers": {},
+      "url": "https://www.fondation-lefoulon-delalande.fr/bourses-de-recherche/",
+      "source": {
+        "name": "Damien Huzard",
+        "id": "0000-0003-4820-7951"
+      },
+      "orcid_put_code": 2310853
+    }
+  ],
+  "peer_reviews": [],
+  "distinctions": [],
+  "memberships": [],
+  "services": [],
+  "qualifications": [],
+  "invited_positions": [],
+  "research_resources": [],
   "provenance": {
     "primary_source": "https://orcid.org/0000-0003-4820-7951",
     "orcid_api_version": "3.0",

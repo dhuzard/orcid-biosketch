@@ -24,5 +24,16 @@
   ],
   "alumniOf": [
     "École Polytechnique Fédérale de Lausanne"
+  ],
+  "funding": [
+    {
+      "@type": "Grant",
+      "name": "Toucher plaisant et modèle murins",
+      "funder": {
+        "@type": "Organization",
+        "name": "Fondation Lefoulon-Delalande"
+      },
+      "url": "https://www.fondation-lefoulon-delalande.fr/bourses-de-recherche/"
+    }
   ]
 }
