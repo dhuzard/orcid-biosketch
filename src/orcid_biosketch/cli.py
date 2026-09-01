@@ -29,6 +29,12 @@ def _source_parser() -> argparse.ArgumentParser:
     parser.add_argument("--biosketch", type=Path, help="Read an already-generated biosketch.json")
     parser.add_argument("--config", type=Path, help="Optional JSON overrides")
     parser.add_argument("--sandbox", action="store_true", help="Use the ORCID sandbox API")
+    parser.add_argument(
+        "--summary-only",
+        action="store_true",
+        help=("Skip activity-detail fetching (faster, but work contributors and funding "
+              "amounts may be omitted)"),
+    )
     return parser
 
 
@@ -44,7 +50,14 @@ def _biosketch(args: argparse.Namespace) -> dict[str, Any]:
     if not args.orcid:
         raise OrcidError("Provide an ORCID iD, or --record / --biosketch to work offline")
     base_url = SANDBOX_API if args.sandbox else API
-    return build_biosketch(fetch_orcid_record(args.orcid, base_url=base_url), override)
+    return build_biosketch(
+        fetch_orcid_record(
+            args.orcid,
+            base_url=base_url,
+            include_work_details=not args.summary_only,
+        ),
+        override,
+    )
 
 
 def _emit(text: str, destination: Path | None) -> None:
@@ -81,10 +94,11 @@ def _export(args: argparse.Namespace) -> int:
     fmt = args.format or ("template" if args.template else "bibtex")
     if fmt == "template":
         template = args.template or "nih"
-        available = exporters.available_templates()
-        if template not in available:
-            raise OrcidError(f"Unknown template {template!r}; available: {', '.join(available)}")
-        _emit(exporters.render_template(bio, template), args.out)
+        try:
+            rendered = exporters.render_template(bio, template)
+        except ValueError as error:
+            raise OrcidError(str(error)) from error
+        _emit(rendered, args.out)
         return 0
     if fmt == "csl":
         text = json.dumps(exporters.to_csl_json(bio), indent=2, ensure_ascii=False)

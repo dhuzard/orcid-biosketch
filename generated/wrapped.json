@@ -1,0 +1,131 @@
+{
+  "person": {
+    "name": "Damien Huzard",
+    "orcid": "0000-0003-4820-7951"
+  },
+  "year": 2026,
+  "output_count": 5,
+  "outputs": [
+    {
+      "title": "Data Sharing and Metadata",
+      "date": "2026",
+      "venue": "Home Cage Monitoring in Rodents: A Global Effort",
+      "type": "book-chapter"
+    },
+    {
+      "title": "Data welfare is animal welfare: Building a WellFAIR research ecosystem",
+      "date": "2026",
+      "venue": "Neuroscience Applied",
+      "type": "journal-article"
+    },
+    {
+      "title": "Technologies for Home Cage Monitoring in Preclinical Research",
+      "date": "2026",
+      "venue": "",
+      "type": "book-chapter"
+    },
+    {
+      "title": "Discriminative utility and limitations of the strengths and difficulties questionnaire for ADHD in a referred clinical pediatric sample",
+      "date": "2026-01-01",
+      "venue": "The European Journal of Psychiatry",
+      "type": "journal-article"
+    },
+    {
+      "title": "A FAIR and federated repository prototype for multimodal Home-Cage Monitoring biomedical data",
+      "date": "2026-03-25",
+      "venue": "",
+      "type": "preprint"
+    }
+  ],
+  "totals": {
+    "outputs": 33,
+    "dated": 31,
+    "undated": 2
+  },
+  "output_types": {
+    "book-chapter": 2,
+    "journal-article": 2,
+    "preprint": 1
+  },
+  "top_venue": {
+    "name": "Home Cage Monitoring in Rodents: A Global Effort",
+    "count": 1
+  },
+  "most_prolific_month": {
+    "month": 1,
+    "name": "January",
+    "count": 1
+  },
+  "first_time_venues": [
+    "Home Cage Monitoring in Rodents: A Global Effort",
+    "Neuroscience Applied",
+    "The European Journal of Psychiatry"
+  ],
+  "first_time_coauthors": [
+    "Alexandra Vauclare",
+    "Antoine Bluchet",
+    "Arnaud Carlier",
+    "Benoit Petit-Demoulière",
+    "Christopher K. Adams",
+    "Diane Purper-Ouakil",
+    "Erica Fongaro",
+    "Hala Kerbage",
+    "Hervé Caci",
+    "Judith Brisot-Dubois",
+    "Julio Alvarez",
+    "Kevin Dunglas",
+    "Matt Ruiter",
+    "Michael Florea",
+    "Noah Weber",
+    "Oliver Sturman",
+    "Paul Mieske",
+    "Stefano Gaburro",
+    "Szczepan W. Baran",
+    "Thomas Lorimer"
+  ],
+  "longest_gap": {
+    "months": 25,
+    "from": "2022-11-01",
+    "to": "2024-12-29"
+  },
+  "busiest_year": {
+    "year": 2025,
+    "count": 8
+  },
+  "career": {
+    "first_output_year": 2015,
+    "last_output_year": 2026,
+    "span_years": 12
+  },
+  "keyword_drift": {
+    "early_period": "2015-2019",
+    "early_terms": [
+      "stress",
+      "aggression",
+      "animal",
+      "behavior",
+      "corticosterone"
+    ],
+    "recent_period": "2025-2026",
+    "recent_terms": [
+      "fair",
+      "monitoring",
+      "research",
+      "federated",
+      "home-cage"
+    ],
+    "emerged": [
+      "fair",
+      "monitoring",
+      "research",
+      "federated",
+      "home-cage"
+    ],
+    "enduring": []
+  },
+  "notes": [
+    "3 of this year's outputs record a year but no month.",
+    "Gaps are measured in months; year-only dates count as January.",
+    "2 output(s) carry no publication date and are not placed on the timeline."
+  ]
+}

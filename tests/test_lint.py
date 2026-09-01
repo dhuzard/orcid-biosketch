@@ -149,6 +149,16 @@ def test_self_assertion_detected_only_against_own_orcid():
     assert "works.self_asserted" not in checks(lint(perfect_bio(), now=NOW))
 
 
+def test_self_assertion_uses_every_source_in_the_work_group():
+    bio = perfect_bio()
+    bio["works"][0]["source"] = {"name": "Researcher", "id": ORCID}
+    bio["works"][0]["assertion_sources"] = [
+        {"name": "Researcher", "id": ORCID},
+        {"name": "Crossref", "id": "APP-CROSSREF"},
+    ]
+    assert "works.self_asserted" not in checks(lint(bio, now=NOW))
+
+
 def test_stale_record_scored_by_age():
     bio = perfect_bio()
     bio["provenance"] = {"generated_at": "2024-01-01T00:00:00+00:00"}
@@ -170,10 +180,18 @@ def test_empty_record_does_not_crash():
     assert result["score"] == 0
     assert result["grade"] == "F"
     assert "works.missing" in checks(result)
-    # Work-level checks are skipped rather than failed when there are no works.
-    skipped = [c["check"] for c in result["checks"] if not c["applicable"]]
-    assert "works.identifiers" in skipped
+    failed = [c for c in result["checks"] if c["check"].startswith("works.")]
+    assert failed and all(c["applicable"] and c["points"] == 0 for c in failed)
     assert render_report(result)
+
+
+def test_otherwise_complete_record_without_works_cannot_pass():
+    bio = perfect_bio()
+    bio["works"] = []
+    result = lint(bio, now=NOW)
+    assert result["percentage"] < 60
+    assert result["grade"] == "F"
+    assert checks(result)["works.missing"]["points_lost"] == 50
 
 
 def test_junk_shaped_contract_does_not_crash():

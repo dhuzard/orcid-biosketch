@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 from orcid_biosketch import build_biosketch, render_markdown, to_jsonld
 
 
 def fixture():
-    return json.loads((Path(__file__).parent / "fixture.json").read_text())
+    return json.loads((Path(__file__).parent / "fixture.json").read_text(encoding="utf-8"))
 
 
 def test_builds_normalized_biosketch():
@@ -17,6 +17,51 @@ def test_builds_normalized_biosketch():
     assert bio["provenance"]["override_applied"] is True
 
 
+def test_work_groups_keep_all_assertions_and_preferred_contributors():
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {"works": {"group": [{"work-summary": [
+            {
+                "display-index": "0",
+                "put-code": 1,
+                "title": {"title": {"value": "Publisher version"}},
+                "source": {
+                    "source-client-id": {"path": "APP-PUBLISHER"},
+                    "source-name": {"value": "Publisher"},
+                },
+            },
+            {
+                "display-index": "1",
+                "put-code": 2,
+                "title": {"title": {"value": "Preferred version"}},
+                "source": {
+                    "source-orcid": {"path": "0000-0003-4820-7951"},
+                    "source-name": {"value": "Researcher"},
+                },
+                "contributors": {"contributor": [{
+                    "credit-name": {"value": "Ada Example"},
+                    "contributor-orcid": {"path": "0000-0002-1825-0097"},
+                    "contributor-attributes": {
+                        "contributor-role": "author",
+                        "contributor-sequence": "first",
+                    },
+                }]},
+            },
+        ]}]}},
+    }
+    work = build_biosketch(record)["works"][0]
+    assert work["title"] == "Preferred version"
+    assert work["authors"] == [{
+        "name": "Ada Example",
+        "orcid": "0000-0002-1825-0097",
+        "role": "author",
+        "sequence": "first",
+    }]
+    assert {source["id"] for source in work["assertion_sources"]} == {
+        "APP-PUBLISHER", "0000-0003-4820-7951",
+    }
+
+
 def test_renders_machine_and_human_formats():
     bio = build_biosketch(fixture())
     assert to_jsonld(bio)["@type"] == "Person"
@@ -25,8 +70,21 @@ def test_renders_machine_and_human_formats():
 
 def test_output_matches_public_schema():
     bio = build_biosketch(fixture(), {"selection": {"max_works": 5}})
-    schema = json.loads((Path(__file__).parents[1] / "schema" / "biosketch.schema.json").read_text())
-    Draft202012Validator(schema).validate(bio)
+    schema = json.loads(
+        (Path(__file__).parents[1] / "schema" / "biosketch.schema.json").read_text(encoding="utf-8")
+    )
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(bio)
+
+
+def test_public_schema_rejects_structurally_invalid_entries():
+    schema = json.loads(
+        (Path(__file__).parents[1] / "schema" / "biosketch.schema.json").read_text(encoding="utf-8")
+    )
+    bio = build_biosketch(fixture())
+    bio["works"] = [None]
+    bio["employment"] = [42]
+    bio["provenance"]["generated_at"] = False
+    assert len(list(Draft202012Validator(schema).iter_errors(bio))) >= 3
 
 
 def test_parses_funding_with_amount_and_grant_number():
@@ -89,8 +147,10 @@ def test_minimal_record_degrades_to_empty_lists():
     ):
         assert bio[key] == []
     assert bio["schema_version"] == "0.2.0"
-    schema = json.loads((Path(__file__).parents[1] / "schema" / "biosketch.schema.json").read_text())
-    Draft202012Validator(schema).validate(bio)
+    schema = json.loads(
+        (Path(__file__).parents[1] / "schema" / "biosketch.schema.json").read_text(encoding="utf-8")
+    )
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(bio)
     assert "## Funding" not in render_markdown(bio)
     assert to_jsonld(bio)["@type"] == "Person"
 
@@ -134,7 +194,9 @@ def test_renderers_surface_new_sections():
 
 import io
 import urllib.error
+from datetime import datetime, timedelta, timezone
 from email.message import Message
+from email.utils import format_datetime
 
 import pytest
 from orcid_biosketch import core
@@ -161,11 +223,11 @@ def test_rejects_malformed_orcid_ids(bad):
 
 def test_loads_a_saved_record_offline(tmp_path):
     path = tmp_path / "record.json"
-    path.write_text('{"orcid-identifier": {"path": "0000-0003-4820-7951"}}')
+    path.write_text('{"orcid-identifier": {"path": "0000-0003-4820-7951"}}', encoding="utf-8")
     assert load_record(path)["orcid-identifier"]["path"] == "0000-0003-4820-7951"
     with pytest.raises(OrcidError):
         load_record(tmp_path / "missing.json")
-    (tmp_path / "bad.json").write_text("{not json")
+    (tmp_path / "bad.json").write_text("{not json", encoding="utf-8")
     with pytest.raises(OrcidError):
         load_record(tmp_path / "bad.json")
 
@@ -207,6 +269,177 @@ def test_honours_retry_after_and_gives_up_with_a_clear_message(monkeypatch):
     with pytest.raises(OrcidError, match="HTTP 429"):
         core.fetch_orcid_record("0000-0003-4820-7951", retries=2)
     assert slept == [5.0, 5.0]
+
+
+def test_honours_zero_retry_after(monkeypatch):
+    slept = []
+    monkeypatch.setattr(core.urllib.request, "urlopen",
+                        lambda request, timeout=None: (_ for _ in ()).throw(_http_error(429, "0")))
+    monkeypatch.setattr(core.time, "sleep", slept.append)
+    with pytest.raises(OrcidError, match="HTTP 429"):
+        core.fetch_orcid_record("0000-0003-4820-7951", retries=1)
+    assert slept == [0.0]
+
+
+def test_parses_http_date_retry_after():
+    stamp = format_datetime(datetime.now(timezone.utc) + timedelta(seconds=120), usegmt=True)
+    delay = core._retry_after(_http_error(429, stamp))
+    assert delay is not None and 115 <= delay <= 120
+
+
+def test_fetches_bulk_work_details_and_can_opt_out(monkeypatch):
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {"works": {"group": [{"work-summary": [{
+            "put-code": 42,
+            "title": {"title": {"value": "Detailed paper"}},
+        }]}]}},
+    }
+    calls = []
+
+    def urlopen(request, timeout=None):
+        calls.append(request.full_url)
+        if request.full_url.endswith("/record"):
+            return _Response(json.dumps(record).encode())
+        return _Response(json.dumps({"bulk": [{"work": {
+            "put-code": 42,
+            "contributors": {"contributor": [{
+                "credit-name": {"value": "Ada Example"},
+                "contributor-orcid": {"path": None},
+                "contributor-attributes": {"contributor-role": "author"},
+            }]},
+        }}]}).encode())
+
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    detailed = core.fetch_orcid_record("0000-0003-4820-7951")
+    assert build_biosketch(detailed)["works"][0]["authors"][0]["name"] == "Ada Example"
+    assert calls[-1].endswith("/works/42")
+
+    calls.clear()
+    summary = core.fetch_orcid_record("0000-0003-4820-7951", include_work_details=False)
+    assert build_biosketch(summary)["works"][0]["authors"] == []
+    assert len(calls) == 1
+
+
+def test_fetches_preferred_funding_details_and_can_opt_out(monkeypatch):
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {"fundings": {"group": [{"funding-summary": [
+            {
+                "display-index": "0",
+                "put-code": 41,
+                "title": {"title": {"value": "Publisher assertion"}},
+            },
+            {
+                "display-index": "1",
+                "put-code": 42,
+                "title": {"title": {"value": "Preferred grant"}},
+            },
+        ]}]}},
+    }
+    calls = []
+
+    def urlopen(request, timeout=None):
+        calls.append(request.full_url)
+        if request.full_url.endswith("/record"):
+            return _Response(json.dumps(record).encode())
+        return _Response(json.dumps({
+            "put-code": 42,
+            "amount": {"value": "57000.0", "currency-code": "EUR"},
+            "url": {"value": "https://example.org/grants/42"},
+        }).encode())
+
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    detailed = core.fetch_orcid_record("0000-0003-4820-7951")
+    funding = build_biosketch(detailed)["fundings"]
+    assert len(funding) == 1
+    assert funding[0]["title"] == "Preferred grant"
+    assert (funding[0]["amount"], funding[0]["currency"]) == ("57000.0", "EUR")
+    assert funding[0]["url"] == "https://example.org/grants/42"
+    assert calls[-1].endswith("/funding/42")
+
+    calls.clear()
+    summary = core.fetch_orcid_record("0000-0003-4820-7951", include_work_details=False)
+    assert build_biosketch(summary)["fundings"][0]["amount"] is None
+    assert len(calls) == 1
+
+
+def test_funding_detail_failure_degrades_and_continues(monkeypatch):
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {"fundings": {"group": [
+            {"funding-summary": [{
+                "put-code": 41,
+                "title": {"title": {"value": "Unavailable detail"}},
+            }]},
+            {"funding-summary": [{
+                "put-code": 42,
+                "title": {"title": {"value": "Available detail"}},
+            }]},
+        ]}},
+    }
+
+    def urlopen(request, timeout=None):
+        if request.full_url.endswith("/record"):
+            return _Response(json.dumps(record).encode())
+        if request.full_url.endswith("/funding/41"):
+            raise _http_error(503)
+        return _Response(json.dumps({
+            "put-code": 42,
+            "amount": {"value": "1000", "currency-code": "USD"},
+        }).encode())
+
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    fetched = core.fetch_orcid_record("0000-0003-4820-7951", retries=0)
+    funding = {item["title"]: item for item in build_biosketch(fetched)["fundings"]}
+    assert funding["Unavailable detail"]["amount"] is None
+    assert funding["Available detail"]["amount"] == "1000"
+
+
+def test_bulk_work_requests_are_batched_at_one_hundred(monkeypatch):
+    groups = [{"work-summary": [{
+        "put-code": code,
+        "title": {"title": {"value": f"Work {code}"}},
+    }]} for code in range(1, 102)]
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {"works": {"group": groups}},
+    }
+    calls = []
+
+    def urlopen(request, timeout=None):
+        calls.append(request.full_url)
+        payload = record if request.full_url.endswith("/record") else {"bulk": []}
+        return _Response(json.dumps(payload).encode())
+
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    core.fetch_orcid_record("0000-0003-4820-7951")
+    batches = [url.rsplit("/", 1)[-1].split(",") for url in calls if "/works/" in url]
+    assert [len(batch) for batch in batches] == [100, 1]
+
+
+def test_work_detail_failure_degrades_to_summaries(monkeypatch):
+    record = {
+        "orcid-identifier": {"path": "0000-0003-4820-7951"},
+        "activities-summary": {"works": {"group": [{"work-summary": [{
+            "put-code": 42,
+            "title": {"title": {"value": "Summary survives"}},
+        }]}]}},
+    }
+    calls = []
+
+    def urlopen(request, timeout=None):
+        calls.append(request.full_url)
+        if request.full_url.endswith("/record"):
+            return _Response(json.dumps(record).encode())
+        raise _http_error(503)
+
+    monkeypatch.setattr(core.urllib.request, "urlopen", urlopen)
+    fetched = core.fetch_orcid_record("0000-0003-4820-7951", retries=0)
+    work = build_biosketch(fetched)["works"][0]
+    assert work["title"] == "Summary survives"
+    assert work["authors"] == []
+    assert len(calls) == 2
 
 
 @pytest.mark.parametrize("code,message", [(404, "no public record"), (403, "may be private")])
@@ -252,6 +485,16 @@ def test_markdown_does_not_mark_distinctions_as_ongoing():
         rendered = render_markdown(bio)
         assert "Young Investigator Award" in rendered
         assert "–present)" not in rendered.split("## Distinctions")[1].split("## ")[0]
+
+
+def test_markdown_does_not_invent_present_without_any_dates():
+    bio = build_biosketch(fixture())
+    bio["employment"] = [{
+        "role": "Researcher", "organization": "Example University",
+        "start_date": None, "end_date": None,
+    }]
+    employment = render_markdown(bio).split("## Employment")[1].split("## ")[0]
+    assert "present" not in employment
 
 
 def test_affiliations_carry_the_disambiguated_organization_id():

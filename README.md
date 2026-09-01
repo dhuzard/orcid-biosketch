@@ -22,6 +22,10 @@ Outputs:
 - `generated/biosketch.md` — website- and CV-ready Markdown
 
 Only public ORCID data are retrieved. An optional `ORCID_ACCESS_TOKEN` environment variable is supported; never commit access tokens.
+By default the tool also batches selected work put-codes through ORCID's bulk
+works endpoint so citation exports include contributors, and fetches preferred
+funding entries so amounts and currencies are preserved. Pass `--summary-only`
+to skip those detail requests when a faster summary is sufficient.
 
 ## Commands
 
@@ -131,7 +135,8 @@ Pass a JSON document with `--config`. It is recursively merged onto the normaliz
   distinctions, memberships, services, qualifications, invited positions and
   research resources alongside works and affiliations.
 - ORCID visibility rules are respected: private and trusted-party-only information is not available through the public endpoint.
-- Each work and affiliation retains its ORCID source and put-code where available.
+- Each work and affiliation retains its ORCID source and put-code where available;
+  work groups retain every assertion source and live fetches include contributors.
 - Duplicate ORCID work groups are represented by their preferred summary.
 - ORCID is not a complete CV. Software, supervision, project narratives and selected-output policies usually require researcher-controlled additions.
 - The generated timestamp reflects ORCID's record modification time, so identical source records produce identical outputs.

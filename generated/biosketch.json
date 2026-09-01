@@ -110,10 +110,36 @@
       "identifiers": {
         "doi": "10.5281/ZENODO.19221771"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Antoine Bluchet",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Kevin Dunglas",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 213096926
     },
     {
@@ -125,10 +151,70 @@
       "identifiers": {
         "doi": "10.1016/j.ejpsy.2025.100333"
       },
+      "authors": [
+        {
+          "name": "Erica Fongaro",
+          "orcid": "0000-0001-5113-1244",
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Arnaud Carlier",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Alexandra Vauclare",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Judith Brisot-Dubois",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Hervé Caci",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Hala Kerbage",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Diane Purper-Ouakil",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 210055284
     },
     {
@@ -141,10 +227,48 @@
         "doi": "10.1007/978-3-032-19781-8_10",
         "isbn": "9783032197818"
       },
+      "authors": [
+        {
+          "name": "Hamish Forrest",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Leonardo Restivo",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Szczepan W. Baran",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Benoit Petit-Demoulière",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 213087436
     },
     {
@@ -156,10 +280,30 @@
       "identifiers": {
         "doi": "10.1016/j.nsa.2026.106998"
       },
+      "authors": [
+        {
+          "name": "Benoit Petit-Demoulière",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        }
+      ],
       "orcid_put_code": 208491871
     },
     {
@@ -171,10 +315,84 @@
       "identifiers": {
         "doi": "10.1007/978-3-032-19781-8_7"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Christopher K. Adams",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Julio Alvarez",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Michael Florea",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Stefano Gaburro",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Thomas Lorimer",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Paul Mieske",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Matt Ruiter",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Oliver Sturman",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Noah Weber",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Davor Virag",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        }
+      ],
       "orcid_put_code": 212061505
     },
     {
@@ -186,10 +404,28 @@
       "identifiers": {
         "doi": "10.5281/zenodo.17909111"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": "first"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 210055254
     },
     {
@@ -201,10 +437,28 @@
       "identifiers": {
         "doi": "10.5281/zenodo.17807455"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": "first"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 210055256
     },
     {
@@ -216,10 +470,64 @@
       "identifiers": {
         "doi": "10.5281/zenodo.18439585"
       },
+      "authors": [
+        {
+          "name": "Petit-Demouliere, Benoit",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Huzard, Damien",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Forrest, Hamish",
+          "orcid": "0009-0008-3120-8054",
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Kalliokoski, Otto",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Bains, Rasneer Sonia",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Restivo, Leonardo",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Girard, Benoit",
+          "orcid": "0000-0002-3914-6483",
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 210055283
     },
     {
@@ -231,10 +539,24 @@
       "identifiers": {
         "doi": "10.5281/zenodo.17248808"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055259
     },
     {
@@ -246,10 +568,88 @@
       "identifiers": {
         "doi": "10.1038/s41398-025-03461-w"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Giulia Oliva",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Mélanie Marias",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Chloé Granat",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Vanessa Soubeyre",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Glaécia do Nascimento Pereira",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Ahmed Negm",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Gawain Grellier",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Jérôme Devaux",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Emmanuel Bourinet",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Amaury François",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 188763996
     },
     {
@@ -261,10 +661,110 @@
       "identifiers": {
         "doi": "10.31219/osf.io/fsg83_v1"
       },
+      "authors": [
+        {
+          "name": "Rasneer Sonia Bains",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "James Edgar McCutcheon",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Pawel Boguszewski",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Davor Virag",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Leonardo Restivo",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Lars Lewejohann",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Michael Ashby",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Jan Rozman",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "RIVALAN Marion",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Hilary Gates",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Hamish Forrest",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Otto Kalliokoski",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Benoît Girard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
       "orcid_put_code": 184652961
     },
     {
@@ -276,10 +776,30 @@
       "identifiers": {
         "doi": "10.17605/osf.io/7u2v3"
       },
+      "authors": [
+        {
+          "name": "Bains, Rasneer Sonia",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Huzard, Damien",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055264
     },
     {
@@ -291,10 +811,42 @@
       "identifiers": {
         "doi": "10.17605/osf.io/s8kr9"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Rivalan, Marion",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Restivo, Leonardo",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "SOUNCHIO, Serge SONFACK",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055270
     },
     {
@@ -306,10 +858,82 @@
       "identifiers": {
         "doi": "10.1101/2024.12.29.630575"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Mélanie Marias",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Chloé Granat",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Giulia Oliva",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Vanessa Soubeyre",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Gawain Grellier",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Ahmed Negm",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Jérôme Devaux",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Emmanuel Bourinet",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Amaury François",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 178515199
     },
     {
@@ -321,10 +945,30 @@
       "identifiers": {
         "doi": "10.3917/cerpsy.148.0012"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Amaury François",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055263
     },
     {
@@ -337,10 +981,80 @@
         "doi": "10.1126/sciadv.abo7566",
         "issn": "2375-2548"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Miquel Martin",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "François Maingret",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Jean Chemin",
+          "orcid": "0000-0002-6089-5964",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Freddy Jeanneteau",
+          "orcid": "0000-0002-9606-2892",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Pierre-François Mery",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Pascal Fossat",
+          "orcid": "0000-0001-5117-0817",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Emmanuel Bourinet",
+          "orcid": "0000-0001-8021-0419",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Amaury François",
+          "orcid": "0000-0003-1171-7974",
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870924
     },
     {
@@ -353,10 +1067,68 @@
         "doi": "10.1080/10253890.2020.1806226",
         "issn": "1607-8888"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Virginie Rappeneau",
+          "orcid": "0000-0001-5773-1275",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Onno C. Meijer",
+          "orcid": "0000-0002-8394-6859",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Chadi Touma",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Margarita Arango-Lievano",
+          "orcid": "0000-0002-9611-8032",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Michael J. Garabedian",
+          "orcid": "0000-0001-8915-7378",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Freddy Jeanneteau",
+          "orcid": "0000-0002-9606-2892",
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870967
     },
     {
@@ -368,10 +1140,62 @@
       "identifiers": {
         "doi": "10.1101/2021.01.13.426492"
       },
+      "authors": [
+        {
+          "name": "Emmanuel Bourinet",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Miquel Martin",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Freddy Jeanneteau",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Pierre-Francois Mery",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Amaury François",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "HAL",
+          "id": "APP-9FEWIBQL5AKDGY7L"
+        }
+      ],
       "orcid_put_code": 178515196
     },
     {
@@ -384,10 +1208,58 @@
         "doi": "10.1080/10253890.2019.1625885",
         "issn": "1607-8888"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Avgoustinos Vouros",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Silvia Monari",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Simone Astori",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Eleni Vasilaki",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        }
+      ],
       "orcid_put_code": 147870976
     },
     {
@@ -399,10 +1271,48 @@
       "identifiers": {
         "doi": "10.13140/rg.2.2.32366.23362"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Arango-Lievano, Margarita",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Borie, Amélie",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Dromard, Yann",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Jeanneteau, Freddy",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055273
     },
     {
@@ -414,10 +1324,100 @@
       "identifiers": {
         "doi": "10.1101/800425"
       },
+      "authors": [
+        {
+          "name": "Borie, Amelie M",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Dromard, Yann",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Dufner, Djodi",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Pollozi, Emi",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Huzard, Damien",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Tomboli, Csaba",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Olma, Alexandra",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Manning, Maurice",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Colson, Pascal",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Guillon, Gilles",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Muscatelli, Francoise",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Desarmenien, Michel G",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Jeanneteau, Freddy",
+          "orcid": "0000-0002-9606-2892",
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        },
+        {
+          "name": "HAL",
+          "id": "APP-9FEWIBQL5AKDGY7L"
+        }
+      ],
       "orcid_put_code": 210055321
     },
     {
@@ -429,10 +1429,54 @@
       "identifiers": {
         "doi": "10.1101/579508"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Avgoustinos Vouros",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Silvia Monari",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Simone Astori",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Eleni Vasilaki",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Crossref",
         "id": "0000-0001-9884-1913"
       },
+      "assertion_sources": [
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        }
+      ],
       "orcid_put_code": 178515191
     },
     {
@@ -445,10 +1489,62 @@
         "doi": "10.1016/j.psyneuen.2018.11.003",
         "issn": "0306-4530"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": "0000-0003-4820-7951",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Sriparna Ghosal",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Jocelyn Grosse",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Luca Carnevali",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Andrea Sgoifo",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "Crossref",
+          "id": "0000-0001-9884-1913"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870994
     },
     {
@@ -460,10 +1556,96 @@
       "identifiers": {
         "doi": "10.1016/j.euroneuro.2018.08.291"
       },
+      "authors": [
+        {
+          "name": "Joana Viana",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Georgina Mansell",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Amanda Jager",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Floriana Mogavero",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Sophie Walker",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Francesca Zoratto",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Simone Macrì",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Eilis Hannon",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Giovanni Laviola",
+          "orcid": "0000-0003-0388-0835",
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Jeffrey Glennon",
+          "orcid": "0000-0002-2371-0422",
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Jonathan Mill",
+          "orcid": "0000-0003-1115-3224",
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055317
     },
     {
@@ -476,10 +1658,46 @@
         "doi": "10.1016/j.neubiorev.2016.10.008",
         "issn": "0149-7634"
       },
+      "authors": [
+        {
+          "name": "Sophie E. Walker",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Aurélie Papilloud",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870871
     },
     {
@@ -491,10 +1709,24 @@
       "identifiers": {
         "doi": "10.26226/morressier.5b31ec742afeeb001345b512"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055260
     },
     {
@@ -506,10 +1738,24 @@
       "identifiers": {
         "doi": "10.5075/epfl-thesis-8551"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien Sébastien",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055262
     },
     {
@@ -522,10 +1768,64 @@
         "doi": "10.1371/journal.pone.0188907",
         "issn": "1932-6203"
       },
+      "authors": [
+        {
+          "name": "Giovanni Laviola",
+          "orcid": "0000-0003-0388-0835",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Francesca Zoratto",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Danilo Ingiosi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Valentina Carito",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Marco Fiore",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Simone Macrì",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870904
     },
     {
@@ -538,10 +1838,106 @@
         "doi": "10.1038/nm.4132",
         "issn": "1546-170X"
       },
+      "authors": [
+        {
+          "name": "Dongryeol Ryu",
+          "orcid": "0000-0001-5905-6760",
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Laurent Mouchiroud",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Pénélope A Andreux",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Elena Katsyuba",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Norman Moullan",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Amandine A Nicolet-dit-Félix",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Evan G Williams",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Pooja Jha",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Giuseppe Lo Sasso",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Patrick Aebischer",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Chris Rinsch",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Johan Auwerx",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870507
     },
     {
@@ -553,10 +1949,42 @@
       "identifiers": {
         "doi": "10.13140/rg.2.1.2983.3200"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "A. Papilloud",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "S. Walker",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Sandi, Carmen",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055266
     },
     {
@@ -569,10 +1997,52 @@
         "doi": "10.1016/j.physbeh.2015.07.018",
         "issn": "0031-9384"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Dave G. Mumby",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Carmen Sandi",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Guillaume L. Poirier",
+          "orcid": null,
+          "role": "author",
+          "sequence": null
+        },
+        {
+          "name": "Michael A. van der Kooij",
+          "orcid": "0000-0001-7415-1379",
+          "role": "author",
+          "sequence": null
+        }
+      ],
       "source": {
         "name": "Damien Huzard",
         "id": "0000-0003-4820-7951"
       },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        },
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 147870958
     },
     {
@@ -584,10 +2054,36 @@
       "identifiers": {
         "doi": "10.5281/zenodo.19221772"
       },
+      "authors": [
+        {
+          "name": "Huzard, Damien",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        },
+        {
+          "name": "Bluchet, Antoine",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        },
+        {
+          "name": "Dunglas, Kevin",
+          "orcid": null,
+          "role": "author",
+          "sequence": "additional"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055265
     },
     {
@@ -599,10 +2095,24 @@
       "identifiers": {
         "doi": "10.5281/zenodo.18925285"
       },
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": null,
+          "role": "author",
+          "sequence": "first"
+        }
+      ],
       "source": {
         "name": "OpenAIRE",
         "id": "APP-IN0O56SBVVTB7NN4"
       },
+      "assertion_sources": [
+        {
+          "name": "OpenAIRE",
+          "id": "APP-IN0O56SBVVTB7NN4"
+        }
+      ],
       "orcid_put_code": 210055261
     }
   ],
@@ -613,8 +2123,8 @@
       "organization": "Fondation Lefoulon-Delalande",
       "start_date": "2021-07",
       "end_date": "2022-06",
-      "amount": null,
-      "currency": null,
+      "amount": "57000.0",
+      "currency": "EUR",
       "grant_number": null,
       "identifiers": {},
       "url": "https://www.fondation-lefoulon-delalande.fr/bourses-de-recherche/",

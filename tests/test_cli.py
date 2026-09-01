@@ -82,6 +82,16 @@ def test_naming_a_template_selects_template_mode(tmp_path, capsys):
     assert "NIH Biographical Sketch" in out.read_text(encoding="utf-8")
 
 
+def test_custom_template_path_is_accepted(tmp_path):
+    template = tmp_path / "custom.md"
+    template.write_text("# {{ person.name }}\n", encoding="utf-8")
+    out = tmp_path / "custom-output.md"
+    assert cli.main([
+        "export", "--record", str(FIXTURE), "--template", str(template), "-o", str(out),
+    ]) == 0
+    assert out.read_text(encoding="utf-8").startswith("# Damien Huzard")
+
+
 def test_unknown_template_is_a_clean_error(capsys):
     assert cli.main(["export", "--record", str(FIXTURE), "--template", "nope"]) == 2
     assert "Unknown template" in capsys.readouterr().err

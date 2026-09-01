@@ -540,7 +540,8 @@ def heatmap_svg(bio: dict) -> str:
     for output in dated:
         key = (output["year"], output["month"] or 0)
         grid[key] = grid.get(key, 0) + 1
-    years = sorted({o["year"] for o in dated})
+    observed_years = sorted({o["year"] for o in dated})
+    years = list(range(observed_years[0], observed_years[-1] + 1)) if observed_years else []
     columns = list(range(1, 13)) + ([0] if no_month else [])
     peak = max(grid.values()) if grid else 0
 

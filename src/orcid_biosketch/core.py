@@ -7,6 +7,7 @@ import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
@@ -55,10 +56,136 @@ def load_record(path: str | Path) -> dict[str, Any]:
 
 def _retry_after(error: urllib.error.HTTPError) -> float | None:
     value = error.headers.get("Retry-After") if error.headers else None
-    try:
-        return max(0.0, float(value)) if value else None
-    except (TypeError, ValueError):
+    if not value:
         return None
+    try:
+        return max(0.0, float(value))
+    except (TypeError, ValueError):
+        try:
+            moment = parsedate_to_datetime(value)
+            if moment.tzinfo is None:
+                moment = moment.replace(tzinfo=timezone.utc)
+            return max(0.0, (moment - datetime.now(timezone.utc)).total_seconds())
+        except (TypeError, ValueError, OverflowError):
+            return None
+
+
+def _request_json(
+    url: str,
+    headers: dict[str, str],
+    *,
+    retries: int,
+    timeout: int,
+) -> dict[str, Any]:
+    request = urllib.request.Request(url, headers=headers)
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                payload = json.load(response)
+                if not isinstance(payload, dict):
+                    raise OrcidError(f"ORCID returned a non-object JSON response for {url}")
+                return payload
+        except urllib.error.HTTPError as error:
+            if error.code == 404:
+                raise OrcidError(f"ORCID has no public record or resource at {url}") from error
+            if error.code in (401, 403):
+                raise OrcidError(
+                    f"ORCID refused the request (HTTP {error.code}); the record may be private "
+                    "or ORCID_ACCESS_TOKEN invalid"
+                ) from error
+            if error.code not in RETRY_STATUSES or attempt == retries:
+                raise OrcidError(f"ORCID returned HTTP {error.code} for {url}") from error
+            retry_after = _retry_after(error)
+            delay = min(retry_after if retry_after is not None else 2.0 ** attempt, MAX_RETRY_DELAY)
+        except (urllib.error.URLError, TimeoutError) as error:
+            if attempt == retries:
+                reason = getattr(error, "reason", error)
+                raise OrcidError(f"Could not reach {url}: {reason}") from error
+            delay = min(2.0 ** attempt, MAX_RETRY_DELAY)
+        except json.JSONDecodeError as error:
+            raise OrcidError(f"ORCID returned invalid JSON for {url}: {error}") from error
+        time.sleep(delay)
+    raise OrcidError(f"Gave up fetching {url} after {retries} retries")
+
+
+def _display_index(summary: dict[str, Any]) -> int:
+    try:
+        return int(summary.get("display-index", -1))
+    except (TypeError, ValueError):
+        return -1
+
+
+def _preferred_work_summary(group: dict[str, Any]) -> dict[str, Any] | None:
+    summaries = [item for item in group.get("work-summary") or [] if isinstance(item, dict)]
+    return max(summaries, key=_display_index) if summaries else None
+
+
+def _preferred_funding_summary(group: dict[str, Any]) -> dict[str, Any] | None:
+    summaries = [item for item in group.get("funding-summary") or [] if isinstance(item, dict)]
+    return max(summaries, key=_display_index) if summaries else None
+
+
+def _add_work_details(
+    record: dict[str, Any],
+    orcid: str,
+    headers: dict[str, str],
+    *,
+    base_url: str,
+    retries: int,
+    timeout: int,
+) -> None:
+    groups = ((record.get("activities-summary") or {}).get("works") or {}).get("group") or []
+    selected = [summary for group in groups if isinstance(group, dict)
+                if (summary := _preferred_work_summary(group)) is not None]
+    by_put_code = {str(summary.get("put-code")): summary for summary in selected if summary.get("put-code") is not None}
+    put_codes = list(by_put_code)
+    for offset in range(0, len(put_codes), 100):
+        batch = put_codes[offset:offset + 100]
+        payload = _request_json(
+            f"{base_url.rstrip('/')}/{orcid}/works/{','.join(batch)}",
+            headers,
+            retries=retries,
+            timeout=timeout,
+        )
+        for wrapped in payload.get("bulk") or []:
+            detail = wrapped.get("work") if isinstance(wrapped, dict) else None
+            if not isinstance(detail, dict):
+                continue
+            summary = by_put_code.get(str(detail.get("put-code")))
+            if summary is not None:
+                for key in ("contributors", "short-description", "citation", "language-code"):
+                    if key in detail:
+                        summary[key] = detail[key]
+
+
+def _add_funding_details(
+    record: dict[str, Any],
+    orcid: str,
+    headers: dict[str, str],
+    *,
+    base_url: str,
+    retries: int,
+    timeout: int,
+) -> None:
+    groups = ((record.get("activities-summary") or {}).get("fundings") or {}).get("group") or []
+    selected = [summary for group in groups if isinstance(group, dict)
+                if (summary := _preferred_funding_summary(group)) is not None]
+    for summary in selected:
+        put_code = summary.get("put-code")
+        if put_code is None:
+            continue
+        try:
+            detail = _request_json(
+                f"{base_url.rstrip('/')}/{orcid}/funding/{put_code}",
+                headers,
+                retries=retries,
+                timeout=timeout,
+            )
+        except OrcidError:
+            # One unavailable assertion must not discard other funding details.
+            continue
+        if isinstance(detail, dict):
+            summary.update(detail)
 
 
 def fetch_orcid_record(
@@ -68,36 +195,29 @@ def fetch_orcid_record(
     base_url: str = API,
     retries: int = 3,
     timeout: int = 30,
+    include_work_details: bool = True,
 ) -> dict[str, Any]:
-    """Fetch the public ORCID 3.0 record as JSON, retrying transient failures."""
+    """Fetch the public ORCID 3.0 record and its useful activity details."""
     orcid = normalize_orcid(orcid)
     headers = {"Accept": "application/json", "User-Agent": "orcid-biosketch/0.2"}
     token = token or os.getenv("ORCID_ACCESS_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(f"{base_url}/{orcid}/record", headers=headers)
-    for attempt in range(retries + 1):
+    record = _request_json(
+        f"{base_url.rstrip('/')}/{orcid}/record", headers, retries=retries, timeout=timeout
+    )
+    if include_work_details:
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
-                return json.load(response)
-        except urllib.error.HTTPError as error:
-            if error.code == 404:
-                raise OrcidError(f"ORCID {orcid} has no public record at {base_url}") from error
-            if error.code in (401, 403):
-                raise OrcidError(
-                    f"ORCID refused the request for {orcid} (HTTP {error.code}); "
-                    "the record may be private or ORCID_ACCESS_TOKEN invalid"
-                ) from error
-            if error.code not in RETRY_STATUSES or attempt == retries:
-                raise OrcidError(f"ORCID returned HTTP {error.code} for {orcid}") from error
-            delay = min(_retry_after(error) or 2.0 ** attempt, MAX_RETRY_DELAY)
-        except (urllib.error.URLError, TimeoutError) as error:
-            if attempt == retries:
-                reason = getattr(error, "reason", error)
-                raise OrcidError(f"Could not reach {base_url}: {reason}") from error
-            delay = min(2.0 ** attempt, MAX_RETRY_DELAY)
-        time.sleep(delay)
-    raise OrcidError(f"Gave up fetching ORCID {orcid} after {retries} retries")
+            _add_work_details(
+                record, orcid, headers, base_url=base_url, retries=retries, timeout=timeout
+            )
+        except OrcidError:
+            # The record summary remains useful offline and for non-citation outputs.
+            pass
+        _add_funding_details(
+            record, orcid, headers, base_url=base_url, retries=retries, timeout=timeout
+        )
+    return record
 
 
 def _value(node: Any, default: str = "") -> str:
@@ -139,13 +259,45 @@ def _source(node: dict[str, Any]) -> dict[str, Any]:
     return {"name": _value(source.get("source-name")), "id": origin.get("path")}
 
 
+def _contributors(work: dict[str, Any]) -> list[dict[str, Any]]:
+    raw = (work.get("contributors") or {}).get("contributor") or []
+    items = []
+    for contributor in raw:
+        if not isinstance(contributor, dict):
+            continue
+        attributes = contributor.get("contributor-attributes") or {}
+        name = _value(contributor.get("credit-name"))
+        contributor_orcid = contributor.get("contributor-orcid") or {}
+        if name:
+            items.append({
+                "name": name,
+                "orcid": contributor_orcid.get("path") or None,
+                "role": attributes.get("contributor-role"),
+                "sequence": attributes.get("contributor-sequence"),
+            })
+    return items
+
+
+def _assertion_sources(group: dict[str, Any]) -> list[dict[str, Any]]:
+    sources = []
+    seen = set()
+    for summary in group.get("work-summary") or []:
+        if not isinstance(summary, dict):
+            continue
+        source = _source(summary)
+        key = (source.get("id"), source.get("name"))
+        if key not in seen:
+            seen.add(key)
+            sources.append(source)
+    return sources
+
+
 def _works(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
     works = []
     for group in groups or []:
-        summaries = group.get("work-summary", [])
-        if not summaries:
+        work = _preferred_work_summary(group)
+        if work is None:
             continue
-        work = summaries[0]
         external_ids = work.get("external-ids", {}).get("external-id", [])
         identifiers = {
             item.get("external-id-type", "unknown"): item.get("external-id-value")
@@ -158,7 +310,9 @@ def _works(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "journal": _value(work.get("journal-title")),
             "url": _value(work.get("url")),
             "identifiers": identifiers,
+            "authors": _contributors(work),
             "source": _source(work),
+            "assertion_sources": _assertion_sources(group),
             "orcid_put_code": work.get("put-code"),
         })
     return sorted(works, key=lambda x: x.get("publication_date") or "", reverse=True)
@@ -179,23 +333,25 @@ def _section(activities: dict[str, Any], name: str, key: str) -> list[dict[str, 
 def _fundings(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
     items = []
     for group in groups or []:
-        for summary in group.get("funding-summary") or []:
-            amount = summary.get("amount") or {}
-            identifiers = _external_ids(summary)
-            items.append({
-                "title": _value((summary.get("title") or {}).get("title")),
-                "type": summary.get("type"),
-                "organization": (summary.get("organization") or {}).get("name"),
-                "start_date": _date(summary.get("start-date")),
-                "end_date": _date(summary.get("end-date")),
-                "amount": _value(amount) or None,
-                "currency": amount.get("currency-code"),
-                "grant_number": identifiers.get("grant_number"),
-                "identifiers": identifiers,
-                "url": _value(summary.get("url")) or None,
-                "source": _source(summary),
-                "orcid_put_code": summary.get("put-code"),
-            })
+        summary = _preferred_funding_summary(group)
+        if summary is None:
+            continue
+        amount = summary.get("amount") or {}
+        identifiers = _external_ids(summary)
+        items.append({
+            "title": _value((summary.get("title") or {}).get("title")),
+            "type": summary.get("type"),
+            "organization": (summary.get("organization") or {}).get("name"),
+            "start_date": _date(summary.get("start-date")),
+            "end_date": _date(summary.get("end-date")),
+            "amount": _value(amount) or None,
+            "currency": amount.get("currency-code"),
+            "grant_number": identifiers.get("grant_number"),
+            "identifiers": identifiers,
+            "url": _value(summary.get("url")) or None,
+            "source": _source(summary),
+            "orcid_put_code": summary.get("put-code"),
+        })
     return sorted(items, key=lambda x: x.get("start_date") or "", reverse=True)
 
 
@@ -378,8 +534,9 @@ def render_markdown(bio: dict[str, Any], max_works: int = 10) -> str:
     if bio["employment"]:
         lines.extend(["## Employment", ""])
         for item in bio["employment"]:
-            period = "–".join(filter(None, [item["start_date"], item["end_date"] or "present"]))
-            lines.append(f"- **{item['role'] or 'Position'}**, {item['organization']} ({period})")
+            period = _period(item)
+            suffix = f" ({period})" if period else ""
+            lines.append(f"- **{item['role'] or 'Position'}**, {item['organization']}{suffix}")
         lines.append("")
     if bio["works"]:
         lines.extend(["## Selected works", ""])

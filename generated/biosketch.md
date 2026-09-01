@@ -36,6 +36,6 @@ Throughout my career, I have advocated for rigorous biobehavioral phenotyping an
 
 ## Funding
 
-- **Toucher plaisant et modèle murins**, Fondation Lefoulon-Delalande (2021-07–2022-06)
+- **Toucher plaisant et modèle murins**, Fondation Lefoulon-Delalande (2021-07–2022-06) — 57000.0 EUR
 
 _Generated from ORCID; synchronized 2026-08-27T11:57:37.719000+00:00._

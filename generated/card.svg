@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="440" viewBox="0 0 320 440" role="img" aria-label="ORCID trading card">
+<title>Damien Huzard - ORCID trading card</title>
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b3b5f"/><stop offset="1" stop-color="#0d1f33"/></linearGradient></defs>
+<style>text{font-family:Helvetica,Arial,sans-serif}.n{fill:#f6f4ee;font-size:17px;font-weight:bold}.h{fill:#c8d6e5;font-size:9.5px}.lbl{fill:#7b8b9c;font-size:7.5px;letter-spacing:1.2px}.val{fill:#f6f4ee;font-size:15px;font-weight:bold}.vals{fill:#f6f4ee;font-size:10.5px;font-weight:bold}.body{fill:#e7e5dd;font-size:9px}.foot{fill:#93a3b4;font-size:7.5px}.hp{fill:#ffd27d;font-size:15px;font-weight:bold}</style>
+<rect x="0" y="0" width="320" height="440" rx="14" fill="url(#sky)"/>
+<rect x="6" y="6" width="308" height="428" rx="11" fill="none" stroke="#ffd27d" stroke-width="2"/>
+<text class="n" x="20" y="40">Damien Huzard</text>
+<text class="hp" x="300" y="40" text-anchor="end">19 HP</text>
+<text class="foot" x="300" y="52" text-anchor="end">years asserted 2008-2026</text>
+<text class="h" x="20" y="62">Behavioral neuroscientist and FAIR metadata</text>
+<text class="h" x="20" y="74">consultant</text>
+<rect x="20" y="92" width="280" height="86" rx="6" fill="#0a1826" stroke="#2b4763"/>
+<circle cx="34" cy="110" r="3.74" fill="#4f9ad1" opacity="0.67"/>
+<circle cx="57" cy="110" r="4.06" fill="#4f9ad1" opacity="0.74"/>
+<circle cx="80" cy="110" r="4.38" fill="#4f9ad1" opacity="0.81"/>
+<circle cx="103" cy="110" r="1.50" fill="#4f9ad1" opacity="0.18"/>
+<circle cx="126" cy="110" r="2.46" fill="#4f9ad1" opacity="0.39"/>
+<circle cx="149" cy="110" r="2.78" fill="#4f9ad1" opacity="0.46"/>
+<circle cx="172" cy="110" r="3.10" fill="#4f9ad1" opacity="0.53"/>
+<circle cx="195" cy="110" r="3.42" fill="#4f9ad1" opacity="0.60"/>
+<circle cx="218" cy="110" r="4.38" fill="#4f9ad1" opacity="0.81"/>
+<circle cx="241" cy="110" r="1.50" fill="#4f9ad1" opacity="0.18"/>
+<circle cx="264" cy="110" r="1.50" fill="#4f9ad1" opacity="0.18"/>
+<circle cx="287" cy="110" r="4.38" fill="#4f9ad1" opacity="0.81"/>
+<circle cx="34" cy="131" r="2.14" fill="#4f9ad1" opacity="0.32"/>
+<circle cx="57" cy="131" r="1.82" fill="#4f9ad1" opacity="0.25"/>
+<circle cx="80" cy="131" r="2.78" fill="#4f9ad1" opacity="0.46"/>
+<circle cx="103" cy="131" r="2.46" fill="#4f9ad1" opacity="0.39"/>
+<circle cx="126" cy="131" r="3.42" fill="#4f9ad1" opacity="0.60"/>
+<circle cx="149" cy="131" r="3.10" fill="#4f9ad1" opacity="0.53"/>
+<circle cx="172" cy="131" r="2.14" fill="#4f9ad1" opacity="0.32"/>
+<circle cx="195" cy="131" r="1.82" fill="#4f9ad1" opacity="0.25"/>
+<circle cx="218" cy="131" r="1.82" fill="#4f9ad1" opacity="0.25"/>
+<circle cx="241" cy="131" r="2.14" fill="#4f9ad1" opacity="0.32"/>
+<circle cx="264" cy="131" r="2.46" fill="#4f9ad1" opacity="0.39"/>
+<circle cx="287" cy="131" r="2.78" fill="#4f9ad1" opacity="0.46"/>
+<circle cx="34" cy="152" r="3.74" fill="#4f9ad1" opacity="0.67"/>
+<circle cx="57" cy="152" r="4.06" fill="#4f9ad1" opacity="0.74"/>
+<circle cx="80" cy="152" r="4.38" fill="#4f9ad1" opacity="0.81"/>
+<circle cx="103" cy="152" r="1.50" fill="#4f9ad1" opacity="0.18"/>
+<circle cx="126" cy="152" r="2.46" fill="#4f9ad1" opacity="0.39"/>
+<circle cx="149" cy="152" r="2.78" fill="#4f9ad1" opacity="0.46"/>
+<circle cx="172" cy="152" r="2.14" fill="#4f9ad1" opacity="0.32"/>
+<circle cx="195" cy="152" r="1.82" fill="#4f9ad1" opacity="0.25"/>
+<circle cx="218" cy="152" r="1.50" fill="#4f9ad1" opacity="0.18"/>
+<circle cx="241" cy="152" r="4.38" fill="#4f9ad1" opacity="0.81"/>
+<circle cx="264" cy="152" r="4.06" fill="#4f9ad1" opacity="0.74"/>
+<circle cx="287" cy="152" r="3.74" fill="#4f9ad1" opacity="0.67"/>
+<circle cx="34" cy="173" r="3.42" fill="#4f9ad1" opacity="0.60"/>
+<circle cx="57" cy="173" r="3.10" fill="#4f9ad1" opacity="0.53"/>
+<circle cx="80" cy="173" r="2.78" fill="#4f9ad1" opacity="0.46"/>
+<circle cx="103" cy="173" r="2.46" fill="#4f9ad1" opacity="0.39"/>
+<circle cx="126" cy="173" r="3.10" fill="#4f9ad1" opacity="0.53"/>
+<circle cx="149" cy="173" r="3.42" fill="#4f9ad1" opacity="0.60"/>
+<circle cx="172" cy="173" r="2.46" fill="#4f9ad1" opacity="0.39"/>
+<circle cx="195" cy="173" r="2.78" fill="#4f9ad1" opacity="0.46"/>
+<circle cx="218" cy="173" r="4.38" fill="#4f9ad1" opacity="0.81"/>
+<circle cx="241" cy="173" r="1.50" fill="#4f9ad1" opacity="0.18"/>
+<circle cx="264" cy="173" r="3.74" fill="#4f9ad1" opacity="0.67"/>
+<circle cx="287" cy="173" r="4.06" fill="#4f9ad1" opacity="0.74"/>
+<text class="lbl" x="20" y="192">OUTPUTS</text>
+<text class="val" x="20" y="208">33</text>
+<text class="lbl" x="113" y="192">YEARS ACTIVE</text>
+<text class="val" x="113" y="208">19</text>
+<text class="lbl" x="206" y="192">MOST COMMON</text>
+<text class="vals" x="206" y="208">journal-article</text>
+<rect x="20" y="226" width="280" height="50" rx="6" fill="#12263a" stroke="#2b4763"/>
+<text class="lbl" x="32" y="242">SPECIAL ABILITY</text>
+<text class="val" x="32" y="259">FAIR</text>
+<text class="foot" x="32" y="270">listed as a research keyword on this record</text>
+<text class="lbl" x="20" y="288">RECENT OUTPUTS</text>
+<text class="body" x="20" y="302">2026 A FAIR and federated repository prototype</text>
+<text class="body" x="46" y="313">for multimodal Home-Cage Monitoring ...</text>
+<text class="body" x="20" y="327">2026 Discriminative utility and limitations of</text>
+<text class="body" x="46" y="338">the strengths and difficulties questionna...</text>
+<text class="body" x="20" y="352">2026 Technologies for Home Cage Monitoring in</text>
+<text class="body" x="46" y="363">Preclinical Research</text>
+<text class="foot" x="20" y="422">ORCID 0000-0003-4820-7951</text>
+<text class="foot" x="300" y="422" text-anchor="end">every stat is an ORCID assertion</text>
+</svg>

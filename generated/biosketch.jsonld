@@ -27,11 +27,16 @@
   ],
   "funding": [
     {
-      "@type": "Grant",
+      "@type": "MonetaryGrant",
       "name": "Toucher plaisant et modèle murins",
       "funder": {
         "@type": "Organization",
         "name": "Fondation Lefoulon-Delalande"
+      },
+      "amount": {
+        "@type": "MonetaryAmount",
+        "value": "57000.0",
+        "currency": "EUR"
       },
       "url": "https://www.fondation-lefoulon-delalande.fr/bourses-de-recherche/"
     }

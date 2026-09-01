@@ -10,9 +10,10 @@ Rubric
 ------
 
 Fourteen independent checks, 100 points in total. A check that cannot be
-assessed (its input section is absent from the contract) is *not applicable*:
-it scores nothing and is removed from ``max_score`` as well, so the percentage
-always reflects only what the record could be judged on.
+assessed because its input is not represented by the contract is *not
+applicable*: it scores nothing and is removed from ``max_score`` as well. An
+explicitly empty required section is assessable; in particular, an empty works
+list fails every work-level check rather than producing an inflated grade.
 
 | check                     | weight | scoring                                     |
 |---------------------------|--------|---------------------------------------------|
@@ -135,6 +136,20 @@ def _doi(work: dict[str, Any]) -> str:
 def _source_id(node: dict[str, Any]) -> str:
     source = node.get("source")
     return _text(source.get("id")) if isinstance(source, dict) else ""
+
+
+def _source_ids(node: dict[str, Any]) -> set[str]:
+    sources = node.get("assertion_sources")
+    if isinstance(sources, list):
+        ids = {
+            _text(source.get("id"))
+            for source in sources
+            if isinstance(source, dict) and _text(source.get("id"))
+        }
+        if ids:
+            return ids
+    source_id = _source_id(node)
+    return {source_id} if source_id else set()
 
 
 def _label(work: dict[str, Any]) -> str:
@@ -311,7 +326,7 @@ def _check_self_asserted(bio: dict[str, Any], now: datetime) -> dict[str, Any]:
     orcid = _text(_person(bio).get("orcid"))
     if not works or not orcid:
         return _result(8, None)
-    failing = [w for w in works if _source_id(w) == orcid]
+    failing = [w for w in works if _source_ids(w) == {orcid}]
     return _result(
         8,
         1 - len(failing) / len(works),
@@ -596,8 +611,13 @@ def lint(bio: dict[str, Any], *, now: datetime | None = None) -> dict[str, Any]:
     findings: list[dict[str, Any]] = []
     earned = 0.0
     available = 0.0
+    has_works = bool(_works(bio))
     for name, weight, check in CHECKS:
-        outcome = check(bio, moment)
+        outcome = (
+            _result(weight, 0.0)
+            if not has_works and name.startswith("works.")
+            else check(bio, moment)
+        )
         earned += outcome["points"]
         available += outcome["max_points"]
         breakdown.append({
@@ -613,15 +633,16 @@ def lint(bio: dict[str, Any], *, now: datetime | None = None) -> dict[str, Any]:
             finding["points_lost"] = round(outcome["max_points"] - outcome["points"], 2)
             findings.append(finding)
 
-    if not _works(bio):
+    if not has_works:
+        missing_weight = sum(weight for name, weight, _ in CHECKS if name.startswith("works."))
         findings.append(_finding(
             "works.missing",
             "error",
-            "The record contains no works at all, so every work-level check was skipped.",
+            "The record contains no works at all, so it cannot satisfy any work-level check.",
             "In ORCID, use Add works > Search & link and import your outputs from Crossref, "
             "DataCite, Scopus or Europe PMC. Manual entry is the last resort.",
             0,
-        ) | {"weight": 0, "points_lost": 0.0})
+        ) | {"weight": missing_weight, "points_lost": float(missing_weight)})
 
     findings.sort(key=lambda f: (-f["points_lost"], SEVERITY_ORDER.get(f["severity"], 9), f["check"]))
     percentage = int(round(100 * earned / available)) if available else 0
