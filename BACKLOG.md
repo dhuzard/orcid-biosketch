@@ -32,7 +32,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | ID | Title | Priority | Status | Owner |
 |---|---|---|---|---|
 | KF-01 | Complete the ORCID activities surface | P0 | done | agent/core-surface |
-| KF-02 | Full work records via the bulk works endpoint | P1 | planned | — |
+| KF-02 | Full work records via the bulk works endpoint | P0 | done | session |
 | KF-03 | Citation and funder-format exporters | P0 | done | agent/exporters |
 | KF-04 | Per-field enrichment with source labelling | P1 | planned | — |
 | KF-05 | `lint` — ORCID record quality report | P1 | done | agent/lint |
@@ -42,8 +42,11 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-09 | Agent-facing surface (MCP + well-known) | P2 | planned | — |
 | INF-01 | Fetch robustness, offline input, iD validation | P0 | done | session |
 | INF-02 | CLI subcommand architecture | P0 | done | session |
-| INF-03 | Verify shapes against a live ORCID record | P1 | planned | — |
-| INF-04 | Regenerate published outputs for schema 0.2.0 | P1 | planned | — |
+| INF-03 | Verify shapes against a live ORCID record | P1 | in-progress | session |
+| INF-04 | Regenerate published outputs for schema 0.2.0 | P1 | done | session |
+| INF-05 | Enforce the biosketch contract | P0 | done | session |
+| INF-06 | Harden the web component trust boundary | P1 | done | session |
+| INF-07 | Cross-platform CLI and test correctness | P2 | done | session |
 | FUN-01 | Academic Wrapped | P2 | done | agent/fun |
 | FUN-02 | ORCID trading card | P3 | done | agent/fun |
 | FUN-03 | Publication contribution heatmap | P3 | done | agent/fun |
@@ -93,7 +96,7 @@ against a live record — see INF-03.
 
 ## KF-02 — Full work records via the bulk works endpoint
 
-- **Priority** P1 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P0 · **Status** done · **Owner** session · **Rev** r3
 - **Files** `src/orcid_biosketch/core.py`
 - **Blocked by** INF-01 (retry/backoff needed before multi-request fetching)
 
@@ -103,13 +106,14 @@ biosketch whose publications have no author list cannot be pasted into a CV.
 per request and returns contributors, abstract and language.
 
 **Acceptance criteria**
-- [ ] Batch put-codes 100 at a time; whole record in a small number of requests.
-- [ ] Contributors normalised to ordered author lists with roles and ORCID iDs.
-- [ ] Opt-out flag for callers who want the cheap summary-only fetch.
-- [ ] Degrades to summary data when the detail fetch fails.
-- [ ] Fetch funding amounts per put-code. `funding-summary` very likely does
-      not carry `amount`; KF-01 parses it defensively, so amounts stay `None`
-      until this batching lands.
+- [x] Batch put-codes 100 at a time; whole record in a small number of requests.
+- [x] Contributors normalised to ordered author lists with roles and ORCID iDs.
+- [x] Opt-out flag for callers who want the cheap summary-only fetch.
+- [x] Degrades to summary data when the detail fetch fails.
+- [x] Fetch funding amounts per preferred put-code. Live verification confirmed
+      `funding-summary` omits `amount` while `/funding/{put-code}` supplies it.
+- [x] Retain every assertion source in a work group so `lint` never mistakes a
+      preferred self-assertion for the only assertion.
 
 ---
 
@@ -176,6 +180,9 @@ what draws them into the rest of the tool.
 - [x] shields.io-compatible badge endpoint JSON for READMEs.
 - [x] Non-zero exit under a configurable threshold, for CI use
       (`lint --fail-under N`, landed with INF-02).
+- [x] A record with no works cannot earn a passing grade or badge.
+- [x] `works.self_asserted` considers every source retained from the ORCID work
+      group, not only the preferred summary.
 
 ---
 
@@ -338,6 +345,8 @@ quietly humane: it shows the fallow years that polished CVs hide.
 **Acceptance criteria**
 - [x] Self-contained SVG, readable in light and dark contexts.
 - [x] Sensible with decade-spanning records.
+- [x] Include every year between the first and last dated output, including
+      zero-output years.
 
 ---
 
@@ -411,18 +420,24 @@ are defensive and degrade to empty lists, so a shape mismatch would silently
 produce empty sections rather than an error — which is exactly the failure mode
 worth closing.
 
+The 2026-09-01 review environment could reach the public API and verified the
+record, work-summary, bulk-work contributor, funding-summary, and full funding
+shapes. Peer-review, service, and research-resource live-shape verification
+remains.
+
 **Acceptance criteria**
 - [ ] Fetch a real public record containing funding, peer review, service and
       research-resource entries from a host with ORCID egress allowed.
 - [ ] Diff the live shapes against `tests/fixture.json`; correct any divergence.
-- [ ] Confirm whether `funding-summary` carries `amount` (feeds KF-02).
+- [x] Confirm whether `funding-summary` carries `amount` (feeds KF-02): it does
+      not; the full funding endpoint returned `57000.0 EUR` for the live record.
 - [ ] Consider a slow-marked integration test, skipped when ORCID is unreachable.
 
 ---
 
 ## INF-04 — Regenerate published outputs for schema 0.2.0
 
-- **Priority** P1 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P1 · **Status** done · **Owner** session · **Rev** r2
 - **Files** `generated/`
 
 KF-01 raised the contract to `schema_version` 0.2.0, but `generated/biosketch.json`
@@ -433,11 +448,66 @@ regeneration needs a live ORCID fetch, and `pub.orcid.org` is unreachable from
 the build environment (INF-03).
 
 **Acceptance criteria**
-- [ ] Run the sync workflow (Actions → Synchronize ORCID biosketch) so
-      `generated/` is rebuilt on 0.2.0, or regenerate locally where ORCID is
-      reachable.
-- [ ] Confirm the rebuilt `biosketch.json` validates against the 0.2.0 schema.
-- [ ] Confirm the web component renders the new sections without change.
+- [x] Regenerate `generated/` from the live public record on schema 0.2.0.
+- [x] Confirm the rebuilt `biosketch.json` validates against the 0.2.0 schema.
+- [x] Confirm the web component accepts the regenerated artifact in its test.
+
+---
+
+## INF-05 — Enforce the biosketch contract
+
+- **Priority** P0 · **Status** done · **Owner** session · **Rev** r2
+- **Files** `schema/biosketch.schema.json`, `tests/test_core.py`
+
+The published schema currently validates malformed list entries and untyped
+provenance values that crash or mislead downstream consumers. The schema is a
+runtime integration boundary, not only documentation, and must reject documents
+that the Python renderers and web component cannot consume.
+
+**Acceptance criteria**
+- [x] Define reusable schemas for dates, sources, affiliations, works and
+      provenance rather than unconstrained arrays.
+- [x] Reject null/scalar entries in every structured section.
+- [x] Validate URI-bearing fields and required work fields.
+- [x] Keep researcher-controlled extension fields possible where documented.
+
+---
+
+## INF-06 — Harden the web component trust boundary
+
+- **Priority** P1 · **Status** done · **Owner** session · **Rev** r2
+- **Files** `web/orcid-biosketch.js`, `tests/`
+
+The component can load remote researcher-controlled JSON but currently assigns
+record URLs directly to anchors. It also assumes that shallowly validated work
+entries are objects. Treat loaded JSON as untrusted input even when it claims to
+follow the biosketch schema.
+
+**Acceptance criteria**
+- [x] Only `http:` and `https:` URLs become clickable links.
+- [x] Invalid work entries cannot crash rendering or PDF export.
+- [x] Attribute changes cannot let a stale fetch overwrite a newer `src`.
+- [x] Add browser-facing regression tests or a deterministic testable helper.
+
+---
+
+## INF-07 — Cross-platform CLI and test correctness
+
+- **Priority** P2 · **Status** done · **Owner** session · **Rev** r2
+- **Files** `src/orcid_biosketch/cli.py`, `src/orcid_biosketch/core.py`,
+  `tests/`, `.github/workflows/ci.yml`
+
+The review found several platform and command-path inconsistencies: fixtures use
+the process default encoding, custom template paths are accepted by the library
+but rejected by the CLI, and missing affiliation dates are rendered as
+`present`. These are small defects with visible user-facing consequences.
+
+**Acceptance criteria**
+- [x] All repository text fixtures are read explicitly as UTF-8.
+- [x] CI covers Windows as well as Linux.
+- [x] The CLI accepts custom template file paths supported by the exporter.
+- [x] Missing start and end dates render no period; no output invents `present`.
+- [x] `Retry-After: 0` and HTTP-date values are honoured correctly.
 
 ---
 
@@ -479,3 +549,14 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-08-31 | KF-05 | affiliations.org_ids was unassessable because core dropped the disambiguated org id; core now carries it and the rubric reaches its documented 100 points | fix |
 | 2026-08-31 | KF-01, KF-03 | Point-in-time sections no longer rendered as ongoing; a distinction with no end date reads 2018, not 2018–present | fix |
 | 2026-08-31 | — | README documents the playful reuses and links the backlog | docs |
+| 2026-09-01 | KF-02, KF-05, FUN-03, INF-05…INF-07 | Code/tool review recorded nine correctness, security and portability findings | scope |
+| 2026-09-01 | KF-02 | Authorless citation exports promoted from roadmap enhancement to adoption blocker; implementation started | planned/P1 → in-progress/P0 |
+| 2026-09-01 | INF-05, INF-06, INF-07 | Contract, web trust-boundary and cross-platform hardening opened from review | — → in-progress |
+| 2026-09-01 | KF-02 | Bulk work detail fetch implemented and live-verified: 33/33 current works carry contributors; funding detail remains | in-progress → in-progress |
+| 2026-09-01 | INF-03 | Public API egress restored; record and bulk-work shapes verified, remaining activity shapes still pending | scope |
+| 2026-09-01 | KF-05 | Empty-work scoring and multi-source assertion classification corrected | fix |
+| 2026-09-01 | FUN-03 | Heatmap now renders intervening zero-output years instead of hiding them | fix |
+| 2026-09-01 | INF-05, INF-06, INF-07 | Strict schema, safe/race-proof web loading, and cross-platform CLI/test fixes verified | in-progress → done |
+| 2026-09-01 | KF-02 | Preferred funding details fetched and live-verified at `57000.0 EUR`; work authors and graceful fallbacks retained | in-progress → done |
+| 2026-09-01 | INF-03 | Live `funding-summary` and full funding response shapes verified; remaining uncommon activity shapes stay open | planned → in-progress |
+| 2026-09-01 | INF-04 | Published outputs regenerated at schema 0.2.0 and playful website artifacts added to daily sync | planned → done |

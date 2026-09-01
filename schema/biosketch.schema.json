@@ -3,39 +3,196 @@
   "$id": "https://github.com/dhuzard/orcid-biosketch/raw/main/schema/biosketch.schema.json",
   "title": "ORCID Biosketch",
   "type": "object",
-  "required": ["schema_version", "person", "employment", "education", "works", "provenance"],
+  "required": [
+    "schema_version", "person", "employment", "education", "works", "fundings",
+    "peer_reviews", "distinctions", "memberships", "services", "qualifications",
+    "invited_positions", "research_resources", "provenance"
+  ],
+  "$defs": {
+    "nullableString": {"type": ["string", "null"]},
+    "uriOrEmpty": {
+      "anyOf": [{"const": ""}, {"type": "string", "format": "uri"}]
+    },
+    "nullableUri": {
+      "anyOf": [{"type": "null"}, {"type": "string", "format": "uri"}]
+    },
+    "date": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^[0-9]{4}(?:-[0-9]{2}(?:-[0-9]{2})?)?$"}
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": ["name", "id"],
+      "properties": {
+        "name": {"type": "string"},
+        "id": {"$ref": "#/$defs/nullableString"}
+      },
+      "additionalProperties": false
+    },
+    "putCode": {"type": ["integer", "null"]},
+    "affiliation": {
+      "type": "object",
+      "required": [
+        "organization", "organization_id", "organization_id_source", "role",
+        "department", "start_date", "end_date", "source", "orcid_put_code"
+      ],
+      "properties": {
+        "organization": {"$ref": "#/$defs/nullableString"},
+        "organization_id": {"$ref": "#/$defs/nullableString"},
+        "organization_id_source": {"$ref": "#/$defs/nullableString"},
+        "role": {"$ref": "#/$defs/nullableString"},
+        "department": {"$ref": "#/$defs/nullableString"},
+        "start_date": {"$ref": "#/$defs/date"},
+        "end_date": {"$ref": "#/$defs/date"},
+        "source": {"$ref": "#/$defs/source"},
+        "orcid_put_code": {"$ref": "#/$defs/putCode"}
+      },
+      "additionalProperties": true
+    },
+    "author": {
+      "type": "object",
+      "required": ["name", "orcid", "role", "sequence"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "orcid": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "string", "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"}
+          ]
+        },
+        "role": {"$ref": "#/$defs/nullableString"},
+        "sequence": {"$ref": "#/$defs/nullableString"}
+      },
+      "additionalProperties": true
+    },
+    "work": {
+      "type": "object",
+      "required": [
+        "title", "type", "publication_date", "journal", "url", "identifiers",
+        "source", "orcid_put_code"
+      ],
+      "properties": {
+        "title": {"type": "string"},
+        "type": {"$ref": "#/$defs/nullableString"},
+        "publication_date": {"$ref": "#/$defs/date"},
+        "journal": {"type": "string"},
+        "url": {"$ref": "#/$defs/uriOrEmpty"},
+        "identifiers": {"type": "object", "additionalProperties": {"type": "string"}},
+        "authors": {"type": "array", "items": {"$ref": "#/$defs/author"}},
+        "source": {"$ref": "#/$defs/source"},
+        "assertion_sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+        "orcid_put_code": {"$ref": "#/$defs/putCode"}
+      },
+      "additionalProperties": true
+    },
+    "funding": {
+      "type": "object",
+      "required": [
+        "title", "type", "organization", "start_date", "end_date", "amount",
+        "currency", "grant_number", "identifiers", "url", "source", "orcid_put_code"
+      ],
+      "properties": {
+        "title": {"type": "string"},
+        "type": {"$ref": "#/$defs/nullableString"},
+        "organization": {"$ref": "#/$defs/nullableString"},
+        "start_date": {"$ref": "#/$defs/date"},
+        "end_date": {"$ref": "#/$defs/date"},
+        "amount": {"$ref": "#/$defs/nullableString"},
+        "currency": {"$ref": "#/$defs/nullableString"},
+        "grant_number": {"$ref": "#/$defs/nullableString"},
+        "identifiers": {"type": "object", "additionalProperties": {"type": "string"}},
+        "url": {"$ref": "#/$defs/nullableUri"},
+        "source": {"$ref": "#/$defs/source"},
+        "orcid_put_code": {"$ref": "#/$defs/putCode"}
+      },
+      "additionalProperties": true
+    },
+    "peerReview": {
+      "type": "object",
+      "required": [
+        "organization", "review_count", "review_type", "role", "review_group_id",
+        "last_completed", "source"
+      ],
+      "properties": {
+        "organization": {"type": "string"},
+        "review_count": {"type": "integer", "minimum": 1},
+        "review_type": {"$ref": "#/$defs/nullableString"},
+        "role": {"$ref": "#/$defs/nullableString"},
+        "review_group_id": {"$ref": "#/$defs/nullableString"},
+        "last_completed": {"$ref": "#/$defs/date"},
+        "source": {"$ref": "#/$defs/source"}
+      },
+      "additionalProperties": true
+    },
+    "researchResource": {
+      "type": "object",
+      "required": ["title", "hosts", "start_date", "end_date", "source", "orcid_put_code"],
+      "properties": {
+        "title": {"type": "string"},
+        "hosts": {"type": "array", "items": {"type": "string"}},
+        "start_date": {"$ref": "#/$defs/date"},
+        "end_date": {"$ref": "#/$defs/date"},
+        "source": {"$ref": "#/$defs/source"},
+        "orcid_put_code": {"$ref": "#/$defs/putCode"}
+      },
+      "additionalProperties": true
+    }
+  },
   "properties": {
     "schema_version": {"const": "0.2.0"},
     "person": {
       "type": "object",
-      "required": ["name", "orcid", "orcid_url", "biography", "keywords", "urls"],
+      "required": [
+        "name", "given_names", "family_name", "credit_name", "orcid", "orcid_url",
+        "biography", "country", "keywords", "urls"
+      ],
       "properties": {
         "name": {"type": "string"},
+        "given_names": {"type": "string"},
+        "family_name": {"type": "string"},
+        "credit_name": {"$ref": "#/$defs/nullableString"},
         "orcid": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"},
         "orcid_url": {"type": "string", "format": "uri"},
         "biography": {"type": "string"},
+        "country": {"type": "string"},
         "keywords": {"type": "array", "items": {"type": "string"}},
-        "urls": {"type": "object", "additionalProperties": {"type": "string"}}
+        "urls": {"type": "object", "additionalProperties": {"type": "string", "format": "uri"}}
       },
       "additionalProperties": true
     },
-    "employment": {"type": "array"},
-    "education": {"type": "array"},
-    "works": {"type": "array"},
-    "fundings": {"type": "array", "description": "Grants and awards, with funder, amount and grant identifiers."},
-    "peer_reviews": {"type": "array", "description": "Peer review activity aggregated per convening organization."},
-    "distinctions": {"type": "array"},
-    "memberships": {"type": "array"},
-    "services": {"type": "array"},
-    "qualifications": {"type": "array"},
-    "invited_positions": {"type": "array"},
-    "research_resources": {"type": "array"},
+    "employment": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "education": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "works": {"type": "array", "items": {"$ref": "#/$defs/work"}},
+    "fundings": {"type": "array", "items": {"$ref": "#/$defs/funding"}},
+    "peer_reviews": {"type": "array", "items": {"$ref": "#/$defs/peerReview"}},
+    "distinctions": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "memberships": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "services": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "qualifications": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "invited_positions": {"type": "array", "items": {"$ref": "#/$defs/affiliation"}},
+    "research_resources": {"type": "array", "items": {"$ref": "#/$defs/researchResource"}},
     "selection": {
       "type": "object",
       "description": "Researcher-controlled output selection policy and annotations.",
       "additionalProperties": true
     },
-    "provenance": {"type": "object", "required": ["primary_source", "generated_at"]}
+    "provenance": {
+      "type": "object",
+      "required": [
+        "primary_source", "orcid_api_version", "orcid_last_modified", "generated_at",
+        "override_applied"
+      ],
+      "properties": {
+        "primary_source": {"type": "string", "format": "uri"},
+        "orcid_api_version": {"type": "string"},
+        "orcid_last_modified": {"type": ["integer", "null"]},
+        "generated_at": {"anyOf": [{"type": "null"}, {"type": "string", "format": "date-time"}]},
+        "override_applied": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    }
   },
   "additionalProperties": false
 }

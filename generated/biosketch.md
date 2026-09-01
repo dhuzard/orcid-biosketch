@@ -34,4 +34,8 @@ Throughout my career, I have advocated for rigorous biobehavioral phenotyping an
 - [dhuzard/MBO: MBO DOI](https://doi.org/10.5281/zenodo.17248808) (2025)
 - [Primary sensory neuron dysfunction underlying mechanical itch hypersensitivity in a Shank3 mouse model of autism](https://doi.org/10.1038/s41398-025-03461-w) (2025)
 
+## Funding
+
+- **Toucher plaisant et modèle murins**, Fondation Lefoulon-Delalande (2021-07–2022-06) — 57000.0 EUR
+
 _Generated from ORCID; synchronized 2026-08-27T11:57:37.719000+00:00._

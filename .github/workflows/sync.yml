@@ -15,6 +15,12 @@ jobs:
           python-version: "3.12"
       - run: pip install -e .
       - run: orcid-biosketch 0000-0003-4820-7951 --config config/biosketch.json --output generated
+      - name: Generate playful website artifacts
+        run: |
+          orcid-biosketch wrapped --biosketch generated/biosketch.json --json -o generated/wrapped.json
+          orcid-biosketch card --biosketch generated/biosketch.json -o generated/card.svg
+          orcid-biosketch heatmap --biosketch generated/biosketch.json -o generated/heatmap.svg
+          orcid-biosketch fortune --biosketch generated/biosketch.json --seed 0 -o generated/fortune.txt
       - name: Commit changed generated files
         run: |
           git config user.name "github-actions[bot]"

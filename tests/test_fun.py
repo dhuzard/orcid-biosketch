@@ -216,7 +216,7 @@ def test_heatmap_covers_every_year_and_labels_axes():
     svg = heatmap_svg(BIO)
     root = ET.fromstring(svg)
     text = [node.text or "" for node in root.iter()]
-    for year in ("2015", "2016", "2019", "2021"):
+    for year in ("2015", "2016", "2017", "2018", "2019", "2020", "2021"):
         assert year in text
     for month in ("Jan", "Jun", "Dec"):
         assert month in text
