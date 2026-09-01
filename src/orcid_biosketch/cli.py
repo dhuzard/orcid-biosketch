@@ -117,7 +117,8 @@ def _wrapped(args: argparse.Namespace) -> int:
 
 
 def _card(args: argparse.Namespace) -> int:
-    _emit(fun.trading_card_svg(_biosketch(args)), args.out)
+    qr_png = args.qr.read_bytes() if args.qr else None
+    _emit(fun.trading_card_svg(_biosketch(args), qr_png=qr_png), args.out)
     return 0
 
 
@@ -168,6 +169,7 @@ def build_parser() -> argparse.ArgumentParser:
     wrapped.set_defaults(handler=_wrapped)
 
     card = subparsers.add_parser("card", parents=[source], help="Printable trading card (SVG)")
+    card.add_argument("--qr", type=Path, metavar="PNG", help="Embed an official ORCID QR-code PNG")
     card.add_argument("-o", "--out", type=Path)
     card.set_defaults(handler=_card)
 

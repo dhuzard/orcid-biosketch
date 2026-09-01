@@ -204,6 +204,17 @@ def test_trading_card_uses_only_asserted_values():
     assert "Home Cage Monitoring Metadata" in text.replace("  ", " ")
 
 
+def test_trading_card_embeds_an_optional_png_qr_code():
+    png = b"\x89PNG\r\n\x1a\n" + b"official-qr-bytes"
+    svg = trading_card_svg(BIO, qr_png=png)
+    root = ET.fromstring(svg)
+    image = next(node for node in root.iter() if node.tag.endswith("image"))
+    assert image.get("href", "").startswith("data:image/png;base64,")
+    assert "SCAN MY ORCID" in " ".join(node.text or "" for node in root.iter())
+    with pytest.raises(ValueError, match="must be a PNG"):
+        trading_card_svg(BIO, qr_png=b"not a PNG")
+
+
 def test_trading_card_special_ability_comes_from_the_record():
     bio = {"person": {"name": "N", "orcid": "0000-0002-1825-0097", "keywords": ["exactly one keyword"]}}
     text = " ".join(node.text or "" for node in ET.fromstring(trading_card_svg(bio)).iter())

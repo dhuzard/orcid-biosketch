@@ -36,6 +36,16 @@ def test_commands_write_to_a_file(biosketch, tmp_path, command):
     assert target.read_text(encoding="utf-8").strip()
 
 
+def test_card_embeds_a_supplied_orcid_qr_png(biosketch, tmp_path):
+    qr = tmp_path / "orcid.png"
+    qr.write_bytes(b"\x89PNG\r\n\x1a\n" + b"official-qr-bytes")
+    target = tmp_path / "card.svg"
+    assert cli.main([
+        "card", "--biosketch", str(biosketch), "--qr", str(qr), "-o", str(target),
+    ]) == 0
+    assert "data:image/png;base64," in target.read_text(encoding="utf-8")
+
+
 @pytest.mark.parametrize("fmt", ["csl", "bibtex", "ris", "template"])
 def test_export_formats(biosketch, tmp_path, fmt):
     target = tmp_path / fmt
