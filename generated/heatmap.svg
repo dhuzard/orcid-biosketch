@@ -3,7 +3,7 @@
 <style>text{font-family:Helvetica,Arial,sans-serif}.bg{fill:#fbfaf7;stroke:#dedcd4}.ttl{fill:#26251f;font-size:12px;font-weight:bold}.mut{fill:#6f6e66;font-size:8.5px}.ax{fill:#4a4942;font-size:8px}.c0{fill:#e8e7e0}.c1{fill:#c9e6d3}.c2{fill:#8ed3ab}.c3{fill:#4aae7d}.c4{fill:#1d7a4f}@media (prefers-color-scheme: dark){.bg{fill:#14171a;stroke:#2c3238}.ttl{fill:#eceae3}.mut{fill:#9a9a92}.ax{fill:#c3c2ba}.c0{fill:#232830}.c1{fill:#1f4a35}.c2{fill:#2a7049}.c3{fill:#3a9a63}.c4{fill:#59c186}}</style>
 <rect class="bg" x="0.5" y="0.5" width="340" height="389" rx="8"/>
 <text class="ttl" x="16" y="24">Publication activity - Damien Huzard</text>
-<text class="mut" x="16" y="38">31 dated output(s), 2015-2026; 2 without a date</text>
+<text class="mut" x="16" y="38">32 dated output(s), 2015-2026; 2 without a date</text>
 <text class="ax" x="61.0" y="56" text-anchor="middle">Jan</text>
 <text class="ax" x="82.0" y="56" text-anchor="middle">Feb</text>
 <text class="ax" x="103.0" y="56" text-anchor="middle">Mar</text>
@@ -177,7 +177,7 @@
 <rect class="c2" x="94" y="293" width="18" height="18" rx="3"><title>2026 March: 1 output(s)</title></rect>
 <rect class="c0" x="115" y="293" width="18" height="18" rx="3"><title>2026 April: 0 output(s)</title></rect>
 <rect class="c0" x="136" y="293" width="18" height="18" rx="3"><title>2026 May: 0 output(s)</title></rect>
-<rect class="c0" x="157" y="293" width="18" height="18" rx="3"><title>2026 June: 0 output(s)</title></rect>
+<rect class="c2" x="157" y="293" width="18" height="18" rx="3"><title>2026 June: 1 output(s)</title></rect>
 <rect class="c0" x="178" y="293" width="18" height="18" rx="3"><title>2026 July: 0 output(s)</title></rect>
 <rect class="c0" x="199" y="293" width="18" height="18" rx="3"><title>2026 August: 0 output(s)</title></rect>
 <rect class="c0" x="220" y="293" width="18" height="18" rx="3"><title>2026 September: 0 output(s)</title></rect>

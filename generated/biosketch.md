@@ -4,6 +4,8 @@
 
 I am a behavioral neuroscience and research-data consultant with Neuronautix, where I support academic teams, CROs, biotechnology companies, pharmas and research infrastructure projects in improving the reliability, reproducibility, interoperability, and translational value of preclinical research.
 
+I developed the Ethical Debt of Preclinical Research framework in 2026 to describe the ethical liability created when animal-derived evidence loses avoidably reusable scientific value through inadequate metadata, provenance, preservation or reproducibility. The framework derives from the WellFAIR/data welfare concept that I co-developed with Benoit Petit-Demoulière.
+
 My work lies at the intersection of behavior, physiology, data science, and FAIR (meta)data. I have extensive expertise in behavioral studies combined with physiological recordings (including ECG, heart-rate variability and skin–nerve signals). I also develop analytical tools and structured data workflows that make complex experimental datasets easier to interpret, exchange, and reuse.
 
 A major focus of my current work is the development of research metadata standards and machine-actionable scientific infrastructure. This includes approaches for describing experimental context, provenance, methods, claims, evidence, and analytical outputs in forms that can be used reliably by both researchers and AI systems. I previously developed Metadatapp as an API-first platform for preclinical metadata and now continue this work through open-source projects and consulting activities within Neuronautix.
@@ -23,6 +25,7 @@ Throughout my career, I have advocated for rigorous biobehavioral phenotyping an
 
 ## Selected works
 
+- [The Ethical Debt of Preclinical Research](https://www.linkedin.com/pulse/ethical-debt-preclinical-research-when-poor-data-wastes-damien-huzard-bmwae/) (2026)
 - [A FAIR and federated repository prototype for multimodal Home-Cage Monitoring biomedical data](https://doi.org/10.5281/ZENODO.19221771) (2026)
 - [Discriminative utility and limitations of the strengths and difficulties questionnaire for ADHD in a referred clinical pediatric sample](https://doi.org/10.1016/j.ejpsy.2025.100333) (2026)
 - [Data Sharing and Metadata](https://doi.org/10.1007/978-3-032-19781-8_10) (2026)
@@ -32,10 +35,9 @@ Throughout my career, I have advocated for rigorous biobehavioral phenotyping an
 - [Pratiques FAIR pour les 3R et pour une recherche préclinique plus reproductible](https://doi.org/10.5281/zenodo.17807455) (2025)
 - [Federated FAIR Repository for Home-Cage Monitoring and Behaviour: Strategic Roadmap](https://doi.org/10.5281/zenodo.18439585) (2025)
 - [dhuzard/MBO: MBO DOI](https://doi.org/10.5281/zenodo.17248808) (2025)
-- [Primary sensory neuron dysfunction underlying mechanical itch hypersensitivity in a Shank3 mouse model of autism](https://doi.org/10.1038/s41398-025-03461-w) (2025)
 
 ## Funding
 
 - **Toucher plaisant et modèle murins**, Fondation Lefoulon-Delalande (2021-07–2022-06) — 57000.0 EUR
 
-_Generated from ORCID; synchronized 2026-08-27T11:57:37.719000+00:00._
+_Generated from ORCID; synchronized 2026-09-23T13:52:09.256000+00:00._

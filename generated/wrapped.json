@@ -4,7 +4,7 @@
     "orcid": "0000-0003-4820-7951"
   },
   "year": 2026,
-  "output_count": 5,
+  "output_count": 6,
   "outputs": [
     {
       "title": "Data Sharing and Metadata",
@@ -35,20 +35,27 @@
       "date": "2026-03-25",
       "venue": "",
       "type": "preprint"
+    },
+    {
+      "title": "The Ethical Debt of Preclinical Research",
+      "date": "2026-06-25",
+      "venue": "FAIRRR Play newsletter",
+      "type": "blog-post"
     }
   ],
   "totals": {
-    "outputs": 33,
-    "dated": 31,
+    "outputs": 34,
+    "dated": 32,
     "undated": 2
   },
   "output_types": {
     "book-chapter": 2,
     "journal-article": 2,
+    "blog-post": 1,
     "preprint": 1
   },
   "top_venue": {
-    "name": "Home Cage Monitoring in Rodents: A Global Effort",
+    "name": "FAIRRR Play newsletter",
     "count": 1
   },
   "most_prolific_month": {
@@ -57,6 +64,7 @@
     "count": 1
   },
   "first_time_venues": [
+    "FAIRRR Play newsletter",
     "Home Cage Monitoring in Rodents: A Global Effort",
     "Neuroscience Applied",
     "The European Journal of Psychiatry"
@@ -109,17 +117,17 @@
     "recent_period": "2025-2026",
     "recent_terms": [
       "fair",
-      "monitoring",
       "research",
-      "federated",
-      "home-cage"
+      "monitoring",
+      "preclinical",
+      "federated"
     ],
     "emerged": [
       "fair",
-      "monitoring",
       "research",
-      "federated",
-      "home-cage"
+      "monitoring",
+      "preclinical",
+      "federated"
     ],
     "enduring": []
   },

@@ -7,7 +7,7 @@
     "credit_name": null,
     "orcid": "0000-0003-4820-7951",
     "orcid_url": "https://orcid.org/0000-0003-4820-7951",
-    "biography": "I am a behavioral neuroscience and research-data consultant with Neuronautix, where I support academic teams, CROs, biotechnology companies, pharmas and research infrastructure projects in improving the reliability, reproducibility, interoperability, and translational value of preclinical research.\n\nMy work lies at the intersection of behavior, physiology, data science, and FAIR (meta)data. I have extensive expertise in behavioral studies combined with physiological recordings (including ECG, heart-rate variability and skin–nerve signals). I also develop analytical tools and structured data workflows that make complex experimental datasets easier to interpret, exchange, and reuse.\n\nA major focus of my current work is the development of research metadata standards and machine-actionable scientific infrastructure. This includes approaches for describing experimental context, provenance, methods, claims, evidence, and analytical outputs in forms that can be used reliably by both researchers and AI systems. I previously developed Metadatapp as an API-first platform for preclinical metadata and now continue this work through open-source projects and consulting activities within Neuronautix.\n\nI also develop tools and collaborative initiatives for automated behavioral phenotyping and home-cage monitoring. I co-developed LWTools, a Python-based toolkit that makes Live Mouse Tracker data analysis more accessible to non-programmers, and I serve as an administrator of TheBehaviourForum.org, an international community dedicated to advancing methods, standards, and discussion in behavioral science.\n\nBefore founding Neuronautix, I conducted more than ten years of academic research in behavioral neuroscience. My work investigated adaptation, stress, coping strategies, social behavior, cardiac regulation, sensory processing, and the role of the skin as an interface between the environment and behavioral adaptation.\n\nThroughout my career, I have advocated for rigorous biobehavioral phenotyping and for precise description and contextualization of experimental data. My broader goal is to ensure that preclinical research produces reliable, reusable knowledge that can meaningfully contribute to biological understanding and the development of better treatments.",
+    "biography": "I am a behavioral neuroscience and research-data consultant with Neuronautix, where I support academic teams, CROs, biotechnology companies, pharmas and research infrastructure projects in improving the reliability, reproducibility, interoperability, and translational value of preclinical research.\n\nI developed the Ethical Debt of Preclinical Research framework in 2026 to describe the ethical liability created when animal-derived evidence loses avoidably reusable scientific value through inadequate metadata, provenance, preservation or reproducibility. The framework derives from the WellFAIR/data welfare concept that I co-developed with Benoit Petit-Demoulière.\n\nMy work lies at the intersection of behavior, physiology, data science, and FAIR (meta)data. I have extensive expertise in behavioral studies combined with physiological recordings (including ECG, heart-rate variability and skin–nerve signals). I also develop analytical tools and structured data workflows that make complex experimental datasets easier to interpret, exchange, and reuse.\n\nA major focus of my current work is the development of research metadata standards and machine-actionable scientific infrastructure. This includes approaches for describing experimental context, provenance, methods, claims, evidence, and analytical outputs in forms that can be used reliably by both researchers and AI systems. I previously developed Metadatapp as an API-first platform for preclinical metadata and now continue this work through open-source projects and consulting activities within Neuronautix.\n\nI also develop tools and collaborative initiatives for automated behavioral phenotyping and home-cage monitoring. I co-developed LWTools, a Python-based toolkit that makes Live Mouse Tracker data analysis more accessible to non-programmers, and I serve as an administrator of TheBehaviourForum.org, an international community dedicated to advancing methods, standards, and discussion in behavioral science.\n\nBefore founding Neuronautix, I conducted more than ten years of academic research in behavioral neuroscience. My work investigated adaptation, stress, coping strategies, social behavior, cardiac regulation, sensory processing, and the role of the skin as an interface between the environment and behavioral adaptation.\n\nThroughout my career, I have advocated for rigorous biobehavioral phenotyping and for precise description and contextualization of experimental data. My broader goal is to ensure that preclinical research produces reliable, reusable knowledge that can meaningfully contribute to biological understanding and the development of better treatments.",
     "country": "FR",
     "keywords": [
       "neuroscience",
@@ -101,6 +101,33 @@
     }
   ],
   "works": [
+    {
+      "title": "The Ethical Debt of Preclinical Research",
+      "type": "blog-post",
+      "publication_date": "2026-06-25",
+      "journal": "FAIRRR Play newsletter",
+      "url": "https://www.linkedin.com/pulse/ethical-debt-preclinical-research-when-poor-data-wastes-damien-huzard-bmwae/",
+      "identifiers": {},
+      "authors": [
+        {
+          "name": "Damien Huzard",
+          "orcid": "0000-0003-4820-7951",
+          "role": null,
+          "sequence": null
+        }
+      ],
+      "source": {
+        "name": "Damien Huzard",
+        "id": "0000-0003-4820-7951"
+      },
+      "assertion_sources": [
+        {
+          "name": "Damien Huzard",
+          "id": "0000-0003-4820-7951"
+        }
+      ],
+      "orcid_put_code": 227577891
+    },
     {
       "title": "A FAIR and federated repository prototype for multimodal Home-Cage Monitoring biomedical data",
       "type": "preprint",
@@ -2145,8 +2172,8 @@
   "provenance": {
     "primary_source": "https://orcid.org/0000-0003-4820-7951",
     "orcid_api_version": "3.0",
-    "orcid_last_modified": 1787831857719,
-    "generated_at": "2026-08-27T11:57:37.719000+00:00",
+    "orcid_last_modified": 1790171529256,
+    "generated_at": "2026-09-23T13:52:09.256000+00:00",
     "override_applied": true
   },
   "selection": {
