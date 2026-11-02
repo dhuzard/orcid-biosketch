@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { safeUrl, dateLabel, feedEntries, groupWorks, parseOrcidList, groupRoute, allTags, openActions } from './app.js';
+import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, groupWorks, parseOrcidList, groupRoute, allTags, openActions } from './app.js';
 
 test('external links reject executable and relative URLs', () => {
   for (const value of ['javascript:alert(1)', 'data:text/html,hello', '/api/state', '', null]) assert.equal(safeUrl(value), null);
@@ -80,4 +80,74 @@ test('open follow-ups are ordered by due date, undated last, and respect the fil
     c: { actions: [act('hidden', 'open', '2026-01-01')] }
   };
   assert.deepEqual(openActions(contacts, ['a', 'b']).map(x => x.action.id), ['soon', 'late', 'none']);
+});
+
+const circle = {
+  people: [
+    { id: 'a', name: 'Ada', following: true, keywords: ['Open Science', 'imaging'] },
+    { id: 'b', name: 'Ben', following: true, keywords: ['open science '] },
+    { id: 'c', name: 'Cy', following: false, keywords: ['imaging'] }
+  ],
+  works: [
+    { id: 'w1', title: 'Shared paper', type: 'journal-article', date: '2024-05', people_ids: ['a', 'b'] },
+    { id: 'w2', title: 'Ada tool', type: 'software', date: '2025', people_ids: ['a'] },
+    { id: 'w3', title: 'Undated data', type: 'data-set', date: '', people_ids: ['b', 'c'] },
+    { id: 'w4', title: 'Second shared', type: 'journal-article', date: '2023', people_ids: ['a', 'b', 'b'] }
+  ],
+  events: [
+    { work_id: 'w2', people_ids: ['a'], observed_at: '2026-03-01T00:00:00Z' },
+    { work_id: 'w3', people_ids: ['c'], observed_at: '2026-04-01T00:00:00Z' },
+    { work_id: 'w1', people_ids: ['a', 'b'], observed_at: '2026-02-01T00:00:00Z' }
+  ],
+  groups: [{ id: 'g', name: 'Imaging club', member_ids: ['a', 'c'] }],
+  contacts: { b: { tags: ['FENS'] }, c: { tags: ['fens'] } }
+};
+const ids = items => items.map(({ work }) => work.id);
+
+test('feed scope is everyone followed, a group, or a case-insensitive tag', () => {
+  assert.deepEqual([...scopeIds(circle)], ['a', 'b']);
+  assert.deepEqual([...scopeIds(circle, 'group:g')], ['a', 'c']);
+  assert.deepEqual([...scopeIds(circle, 'tag:FENS')].sort(), ['b', 'c']);
+  assert.deepEqual([...scopeIds(circle, 'group:missing')], []);
+});
+
+test('feed views: newly observed, by publication date with undated last, and together', () => {
+  assert.deepEqual(ids(feedItems(circle)), ['w2', 'w1']);
+  assert.deepEqual(ids(feedItems(circle, { scope: 'group:g' })), ['w3', 'w2', 'w1']);
+  assert.deepEqual(ids(feedItems(circle, { view: 'published' })), ['w2', 'w1', 'w4', 'w3']);
+  assert.ok(feedItems(circle, { view: 'published' }).every(item => item.event === null));
+  // Duplicate ids on one output do not count as two people.
+  assert.deepEqual(ids(feedItems(circle, { view: 'together' })), ['w1', 'w4']);
+  assert.deepEqual(ids(feedItems(circle, { view: 'together', scope: 'tag:fens' })), ['w3']);
+});
+
+test('feed filters by output type and by keywords people list', () => {
+  assert.deepEqual(ids(feedItems(circle, { view: 'published', type: 'journal-article' })), ['w1', 'w4']);
+  assert.deepEqual(ids(feedItems(circle, { view: 'published', topic: 'imaging' })), ['w2', 'w1', 'w4']);
+  assert.deepEqual(ids(feedItems(circle, { view: 'published', scope: 'group:g', topic: 'imaging' })), ['w2', 'w1', 'w4', 'w3']);
+  assert.deepEqual(ids(feedItems(circle, { topic: 'unknown' })), []);
+});
+
+test('topics merge case and spacing, most listed first, within the scope', () => {
+  assert.deepEqual(feedTopics(circle).map(t => [t.key, t.label, t.people_ids]), [['open science', 'Open Science', ['a', 'b']], ['imaging', 'imaging', ['a']]]);
+  assert.deepEqual(feedTopics(circle, 'group:g').map(t => [t.key, t.people_ids]), [['imaging', ['a', 'c']], ['open science', ['a']]]);
+});
+
+test('group suggestions carry evidence and skip what is already grouped, tagged or dismissed', () => {
+  const all = groupSuggestions(circle);
+  assert.deepEqual(all.map(s => s.id), ['keyword:open science', 'pair:a|b']);
+  assert.deepEqual(all[1].works.map(w => w.id), ['w1', 'w4']);
+  assert.deepEqual(groupSuggestions(circle, '', ['pair:a|b']).map(s => s.id), ['keyword:open science']);
+  // Ada and Cy share a group; Ben and Cy share a tag (case-insensitive); an existing tag name is taken.
+  const grouped = groupSuggestions(circle, 'group:g');
+  assert.deepEqual(grouped.map(s => s.id), ['keyword:imaging']);
+  assert.deepEqual(groupSuggestions(circle, 'tag:fens').map(s => s.id), []);
+  const tagged = { ...circle, contacts: { ...circle.contacts, a: { tags: ['Open science'] } } };
+  assert.deepEqual(groupSuggestions(tagged).map(s => s.id), ['pair:a|b']);
+});
+
+test('since last visit counts new outputs per group, and nothing on a first visit', () => {
+  assert.equal(sinceLastVisit(circle, null), null);
+  assert.deepEqual(sinceLastVisit(circle, '2026-02-15T00:00:00Z'), { total: 1, groups: [{ id: 'g', name: 'Imaging club', count: 1 }] });
+  assert.deepEqual(sinceLastVisit(circle, '2026-05-01T00:00:00Z'), { total: 0, groups: [] });
 });
