@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#143d37">
+  <meta name="description" content="Help improve a research tool built on public ORCID records. Send private feedback by email, without a GitHub account or an ORCID login.">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/playground.css">
+  <script type="module" src="/feedback.js"></script>
+  <title>Suggest an improvement · ORCID Playground</title>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">o.</span> ORCID Playground</a>
+    <nav aria-label="Main">
+      <a href="/">Studio</a>
+      <a href="/network/">Research network</a>
+      <a href="/group/">Group view</a>
+      <a href="/docs/">Documentation</a>
+      <a href="/feedback/" aria-current="page">Feedback</a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="hero">
+      <div class="eyebrow">SCIENTIST-LED DEVELOPMENT</div>
+      <h1>What should this research tool do better?</h1>
+      <p class="lede">Tell us about a real research task, an incorrect or misleading result, or a missing feature. No GitHub or ORCID account is needed.</p>
+      <p class="muted">Five-minute test: explore a profile, inspect Record check, export a reference, and try a group. What would make you return?</p>
+    </section>
+    <section class="result">
+      <h2>Share your feedback</h2>
+      <p>Your answers stay on this page until you choose to open an <strong>email draft</strong> or copy them. No feedback is sent automatically; no form responses or workspace data are uploaded by this site.</p>
+      <form id="feedback-form" class="stack">
+        <label for="role">My research context (optional)
+          <select id="role" name="role">
+            <option value="">Not specified</option>
+            <option>Researcher</option><option>Lab or consortium coordinator</option>
+            <option>Research software engineer</option><option>Data steward or research librarian</option><option>Other</option>
+          </select>
+        </label>
+        <label for="area">Which feature were you trying?
+          <select id="area" name="area" required>
+            <option value="">Select a feature</option><option>Studio / Record check / exports</option>
+            <option>Research network / People / Feed / Saved</option><option>Contacts</option>
+            <option>Working groups / Group view</option><option>Website embed / CLI</option><option>Other</option>
+          </select>
+        </label>
+        <label for="task">What were you trying to accomplish?
+          <textarea id="task" name="task" maxlength="900" rows="3" required placeholder="For example, I wanted to prepare a team bibliography from our lab's public records."></textarea>
+        </label>
+        <label for="observed">What happened? What did you expect?
+          <textarea id="observed" name="observed" maxlength="900" rows="3" required placeholder="Tell us where you hesitated, what was missing or what might be scientifically misleading."></textarea>
+        </label>
+        <label for="improvement">What would make this genuinely useful? (optional)
+          <textarea id="improvement" name="improvement" maxlength="600" rows="2" placeholder="The one change you would prioritize."></textarea>
+        </label>
+        <div class="disclosure"><strong>Before sharing</strong>
+          <p>Do not include private research records, login tokens, unpublished results, participant data or personal contact notes. If you send an email, your email provider and the recipient will process your message and sender details as an ordinary email. Contact the project maintainer to request deletion. The tool does not access your saved research workspace when composing this message.</p>
+        </div>
+        <div class="result-actions">
+          <button class="button accent" type="submit">Open email draft</button>
+          <button class="button quiet" id="copy-feedback" type="button">Copy my feedback</button>
+        </div>
+        <p id="feedback-status" class="status" aria-live="polite"></p>
+      </form>
+      <p class="small">Prefer GitHub? <a href="https://github.com/dhuzard/orcid-playground/issues/new/choose" target="_blank" rel="noopener noreferrer">Open a structured issue</a>. Want documentation? <a href="/docs/">Read the scientist guide</a>.</p>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Independent open-source experiment, not an official ORCID service. <a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a>. ORCID™ is a trademark of ORCID, Inc.; no endorsement is implied.</p>
+  </footer>
+</body>
+</html>

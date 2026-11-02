@@ -20,7 +20,7 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_SUFFIXES = {".json", ".jsonld", ".md", ".svg", ".txt"}
 PLAYGROUND = ("index.html", "playground.css", "studio.js", "auth.js", "engine.js", "engine-client.js", "network-bridge.js",
-              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png")
+              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png")
 # Fixed timestamp so the same source always produces the same archive.
 ZIP_DATE = (2026, 1, 1, 0, 0, 0)
 
@@ -113,7 +113,7 @@ def network_page(root: Path = ROOT) -> str:
 def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list[str]:
     if out.exists():
         shutil.rmtree(out)
-    for folder in ("generated", "network", "py", "group", "team"):
+    for folder in ("generated", "network", "py", "group", "team", "feedback"):
         (out / folder).mkdir(parents=True)
     copied = []
     for source in sorted((root / "generated").iterdir()):
@@ -129,6 +129,7 @@ def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list
     (out / "network" / "index.html").write_text(network_page(root), encoding="utf-8")
     shutil.copy2(root / "web" / "playground" / "group.html", out / "group" / "index.html")
     shutil.copy2(root / "web" / "playground" / "team.html", out / "team" / "index.html")
+    shutil.copy2(root / "web" / "playground" / "feedback.html", out / "feedback" / "index.html")
     package_archive(out / "py" / "orcid_biosketch.zip", root)
     # The service worker carries a digest of everything else, so any change to the site
     # installs a fresh cache on the next visit.
@@ -148,7 +149,7 @@ def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list
         settings["cloud"] = cloud
     (out / "config.json").write_text(json.dumps(settings) + "\n", encoding="utf-8")
     return copied + [*PLAYGROUND, "orcid-biosketch.js", "orcid-group.js", "network/app.js", "network/style.css",
-                     "network/index.html", "group/index.html", "team/index.html", "py/orcid_biosketch.zip", "sw.js", "config.json"]
+                     "network/index.html", "group/index.html", "team/index.html", "feedback/index.html", "py/orcid_biosketch.zip", "sw.js", "config.json"]
 
 
 if __name__ == "__main__":
