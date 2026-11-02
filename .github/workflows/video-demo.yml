@@ -1,0 +1,66 @@
+name: Render scientist-facing demo videos
+
+on:
+  pull_request:
+    paths:
+      - "demo/**"
+      - "web/**"
+      - "scripts/build_site.py"
+      - ".github/workflows/video-demo.yml"
+  push:
+    branches: [main]
+    paths:
+      - "demo/**"
+      - ".github/workflows/video-demo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Python and browser-video dependencies
+        run: |
+          npm --prefix demo install --ignore-scripts --no-audit --no-fund
+          ./demo/node_modules/.bin/playwright install --with-deps chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - uses: actions/cache@v4
+        with:
+          path: .cache/pyodide-0.26.4
+          key: pyodide-0.26.4-verified-runtime
+      - name: Build application with pinned Pyodide runtime
+        run: python scripts/build_site.py site
+      - name: Capture Studio and research-network demo
+        run: node demo/render.mjs site
+      - name: Capture public group and working-group demo
+        run: node demo/groups.mjs site
+      - name: Capture conference contacts demo
+        run: node demo/contacts.mjs site
+      - name: Capture local backups, encrypted packages and feedback
+        run: node demo/extras.mjs site
+      - name: Assemble chaptered feature tour, invitation and review notes
+        run: node demo/full-tour.mjs site
+      - name: Upload reviewable videos
+        uses: actions/upload-artifact@v4
+        with:
+          name: scientist-demo-video-assets
+          path: |
+            demo/out/*.mp4
+            demo/out/chapters.txt
+            demo/out/video-review-checklist.txt
+          retention-days: 7
+      - name: Report important caveat
+        run: |
+          echo 'The videos are silent with on-screen captions, and may contain clearly labelled fictional Demo records.'
+          echo 'Do not publish before reviewing scientific claims, privacy and ORCID branding.'
