@@ -65,6 +65,27 @@ def test_appending_members_preserves_other_group_fields(tmp_path):
         assert result["description"] == "Keep this purpose"
 
 
+def test_deleting_a_group_keeps_people_outputs_and_contacts(tmp_path):
+    with running_server(tmp_path) as server:
+        state, group = seeded(server)
+        status, state = request(server, "POST", "/api/contacts/tags", {"person_ids": ["demo-ada"], "add": ["FENS"]})
+        assert status == 200
+        status, after = request(server, "POST", "/api/groups/delete", {"id": group["id"]})
+        assert status == 200
+        assert all(g["id"] != group["id"] for g in after["groups"])
+        assert after["people"] == state["people"] and after["works"] == state["works"]
+        assert after["contacts"] == state["contacts"]
+
+
+@pytest.mark.parametrize("payload", [{"id": "missing"}, {"id": ["x"]}, {}])
+def test_deleting_an_unknown_group_changes_nothing(tmp_path, payload):
+    with running_server(tmp_path) as server:
+        initial, _ = seeded(server)
+        status, result = request(server, "POST", "/api/groups/delete", payload)
+        assert status == 400 and result["error"]
+        assert request(server)[1] == initial
+
+
 @pytest.mark.parametrize("endpoint, fields", [
     ("members/add", {"member_ids": ["missing"]}),
     ("members/add", {"member_ids": "demo-ada"}),

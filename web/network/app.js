@@ -1,4 +1,4 @@
-const emptyState = () => ({ people: [], works: [], events: [], groups: [] });
+const emptyState = () => ({ people: [], works: [], events: [], groups: [], contacts: {} });
 let state = emptyState();
 let currentView = 'feed';
 let selectedPerson = null;
@@ -11,6 +11,18 @@ let groupTab = 'roster';
 let bulkRunning = false;
 let activeBulkGroup = null;
 let pendingCreateGroup = false;
+let activeTag = '';
+let feedView = 'new';
+let feedScope = '';
+let feedType = '';
+let feedTopic = '';
+let feedFiltersOpen = false;
+// Long lists render a page of cards at a time; this remembers how far each list was opened.
+const PAGE_SIZE = 50;
+const listLimits = new Map();
+let previousVisit = null;
+let dismissedSuggestions = [];
+const contactDrafts = { meeting: { tag: '', date: '', text: '', bulk: null }, notes: {}, actions: {}, tagInput: {} };
 const groupDrafts = new Map();
 
 export function parseOrcidList(text) {
@@ -38,7 +50,7 @@ export function groupRoute(hash) {
   const [view, encodedId] = hash.replace(/^#/, '').split('/');
   let id = null;
   try { id = view === 'groups' && encodedId ? decodeURIComponent(encodedId) : null; } catch { /* Invalid URL stays at the groups list. */ }
-  return { view: ['feed', 'people', 'groups', 'saved'].includes(view) ? view : 'feed', id };
+  return { view: ['feed', 'people', 'contacts', 'groups', 'saved'].includes(view) ? view : 'feed', id };
 }
 
 function draftsFor(group) {
@@ -62,18 +74,130 @@ export function dateLabel(value) {
   return date.toLocaleDateString('en', { year: 'numeric', month: 'short', ...(isMonth ? {} : { day: 'numeric' }), timeZone: 'UTC' });
 }
 
-export function feedEntries(data) {
-  const following = new Set(data.people.filter(p => p.following).map(p => p.id));
-  const works = new Map(data.works.map(w => [w.id, w]));
-  const entries = new Map();
-  for (const event of data.events) {
-    if (!event.people_ids.some(id => following.has(id))) continue;
-    const work = works.get(event.work_id);
-    if (!work) continue;
-    const previous = entries.get(work.id);
-    if (!previous || event.observed_at > previous.event.observed_at) entries.set(work.id, { work, event });
+// ---- Feed: whose research, which view, and filters. Derived from the local workspace only. ----
+
+// Matches the server's tag key: whitespace collapsed, then Python's str.casefold()
+// (upper-then-lower folds ß to ss and ligatures like the server does).
+export const foldKey = text => text.split(/\s+/).filter(Boolean).join(' ').toUpperCase().toLowerCase();
+
+// Truncate by character, not UTF-16 unit, so an emoji is never split.
+const clip = (text, limit) => Array.from(text).slice(0, limit).join('');
+
+// A scope is '' (everyone followed), 'group:<id>' or 'tag:<name>'.
+export function scopeIds(data, scope = '') {
+  const split = scope.indexOf(':');
+  const kind = scope.slice(0, split);
+  const value = scope.slice(split + 1);
+  if (kind === 'group') return new Set(data.groups.find(g => g.id === value)?.member_ids || []);
+  if (kind === 'tag') {
+    const wanted = foldKey(value);
+    return new Set(Object.entries(data.contacts || {}).filter(([, contact]) => contact.tags.some(t => foldKey(t) === wanted)).map(([id]) => id));
   }
-  return [...entries.values()].sort((a, b) => b.event.observed_at.localeCompare(a.event.observed_at));
+  return new Set(data.people.filter(p => p.following).map(p => p.id));
+}
+
+// Keywords people list on their own ORCID records. They describe the person, not an output.
+export function feedTopics(data, scope = '') {
+  const ids = scopeIds(data, scope);
+  const topics = new Map();
+  for (const person of data.people) {
+    if (!ids.has(person.id)) continue;
+    const own = new Map(person.keywords.map(word => word.split(/\s+/).filter(Boolean).join(' ')).filter(Boolean).map(word => [foldKey(word), word]));
+    for (const [key, label] of own) {
+      if (!topics.has(key)) topics.set(key, { key, label, people_ids: [] });
+      topics.get(key).people_ids.push(person.id);
+    }
+  }
+  return [...topics.values()].sort((a, b) => b.people_ids.length - a.people_ids.length || a.label.localeCompare(b.label));
+}
+
+// 'new': newly observed outputs, latest observation first. 'published': outputs by publication
+// date, undated last. 'together': outputs listing two or more people in scope.
+export function feedItems(data, { view = 'new', scope = '', type = '', topic = '' } = {}) {
+  const ids = scopeIds(data, scope);
+  let items;
+  if (view === 'new') {
+    const works = new Map(data.works.map(w => [w.id, w]));
+    const entries = new Map();
+    for (const event of data.events) {
+      if (!event.people_ids.some(id => ids.has(id))) continue;
+      const work = works.get(event.work_id);
+      if (!work) continue;
+      const previous = entries.get(work.id);
+      if (!previous || event.observed_at > previous.event.observed_at) entries.set(work.id, { work, event });
+    }
+    items = [...entries.values()].sort((a, b) => b.event.observed_at.localeCompare(a.event.observed_at));
+  } else {
+    const needed = view === 'together' ? 2 : 1;
+    items = data.works.filter(work => new Set(work.people_ids.filter(id => ids.has(id))).size >= needed).map(work => ({ work, event: null }))
+      .sort((a, b) => (b.work.date || '').localeCompare(a.work.date || '') || (a.work.title || '').localeCompare(b.work.title || ''));
+  }
+  if (type) items = items.filter(({ work }) => work.type === type);
+  if (topic) {
+    const listers = new Set(feedTopics(data, scope).find(t => t.key === topic)?.people_ids || []);
+    items = items.filter(({ work }) => work.people_ids.some(id => listers.has(id)));
+  }
+  return items;
+}
+
+export const feedEntries = data => feedItems(data);
+
+// Outputs listing more people than this in scope (consortium papers) say little about who
+// works together and would cost O(n²) pairs each, so they do not produce pair suggestions.
+const PAIR_PEOPLE_LIMIT = 25;
+
+// Suggested tags or groups, each with its evidence: a keyword two or more people list, or
+// outputs two people are both listed on. Nothing already grouped, tagged or dismissed.
+export function groupSuggestions(data, scope = '', dismissed = []) {
+  const ids = scopeIds(data, scope);
+  const skip = new Set(dismissed);
+  const contacts = data.contacts || {};
+  const taken = new Set([...data.groups.map(g => g.name), ...allTags(contacts).map(([t]) => t)].map(foldKey));
+  // Every group and tag each person is in, built once so the pair check stays cheap.
+  const circles = new Map();
+  const join = (id, circle) => { if (!circles.has(id)) circles.set(id, new Set()); circles.get(id).add(circle); };
+  for (const group of data.groups) for (const id of group.member_ids) join(id, `group:${group.id}`);
+  for (const [id, contact] of Object.entries(contacts)) for (const t of contact.tags) join(id, `tag:${foldKey(t)}`);
+  const alreadyTogether = (a, b) => [...(circles.get(a) || [])].some(circle => circles.get(b)?.has(circle));
+  const keywords = feedTopics(data, scope).filter(t => t.people_ids.length >= 2 && !taken.has(t.key))
+    .map(t => ({ id: `keyword:${t.key}`, kind: 'keyword', label: t.label, people_ids: t.people_ids, works: [] }));
+  const pairs = new Map();
+  for (const work of data.works) {
+    const listed = [...new Set(work.people_ids.filter(id => ids.has(id)))].sort();
+    if (listed.length > PAIR_PEOPLE_LIMIT) continue;
+    for (let i = 0; i < listed.length; i++) {
+      for (let j = i + 1; j < listed.length; j++) {
+        const key = `${listed[i]}|${listed[j]}`;
+        if (!pairs.has(key)) pairs.set(key, []);
+        pairs.get(key).push(work);
+      }
+    }
+  }
+  const shared = [...pairs].filter(([key]) => !alreadyTogether(...key.split('|')))
+    .map(([key, works]) => ({ id: `pair:${key}`, kind: 'pair', label: '', people_ids: key.split('|'), works }))
+    .sort((a, b) => b.works.length - a.works.length || a.id.localeCompare(b.id));
+  return [...keywords, ...shared].filter(s => !skip.has(s.id));
+}
+
+// Counts the same newly observed outputs the feed shows for this scope and filters.
+export function sinceLastVisit(data, since, options = {}) {
+  if (!since) return null;
+  const fresh = feedItems(data, { ...options, view: 'new' }).filter(({ event }) => event.observed_at > since);
+  const groups = data.groups.map(g => {
+    const members = new Set(g.member_ids);
+    return { id: g.id, name: g.name, count: fresh.filter(({ work }) => work.people_ids.some(id => members.has(id))).length };
+  }).filter(g => g.count).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  return { total: fresh.length, groups };
+}
+
+// The visit before this one survives reloads and extra tabs within half an hour, so
+// "new since your last visit" is not wiped by a refresh.
+export function nextVisit(stored, now, sessionMs = 30 * 60 * 1000) {
+  const valid = value => typeof value === 'string' && !Number.isNaN(Date.parse(value));
+  const seen = valid(stored?.seen) ? stored.seen : null;
+  const previous = valid(stored?.previous) ? stored.previous : null;
+  if (seen && Date.parse(now) - Date.parse(seen) < sessionMs) return { seen: now, previous };
+  return { seen: now, previous: seen };
 }
 
 export function groupWorks(data, memberIds) {
@@ -169,7 +293,11 @@ function toolbar(label, placeholder, refresh) {
   return el('div', { class: 'toolbar' }, el('span', { class: 'section-kicker' }, label), input);
 }
 
-function workCard(work, event = null) {
+// Per-viewer conveniences (last visit, dismissed suggestions); the page works without them.
+const remembered = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
+const remember = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage unavailable; keep it in memory only. */ } };
+
+function workCard(work, event = null, fresh = false) {
   const people = peopleFor(work.people_ids);
   const following = people.filter(p => p.following);
   const url = work.doi ? `https://doi.org/${work.doi.replace(/^https?:\/\/(?:dx\.)?doi\.org\//i, '')}` : work.url;
@@ -177,7 +305,7 @@ function workCard(work, event = null) {
     el('div', { class: 'card-top' },
       el('div', { class: 'people-line' }, el('div', { class: 'avatars' }, people.slice(0, 3).map(p => avatar(p))),
         el('span', {}, people.map(p => p.name).join(' · ') || 'Research output')),
-      work.demo && tag('Demo', true)),
+      el('div', { class: 'chips' }, fresh && tag('New since last visit'), work.demo && tag('Demo', true))),
     tag((work.type || 'Research output').replaceAll('-', ' ')),
     el('h3', {}, externalLink(work.title || 'Untitled output', url)),
     el('div', { class: 'work-meta' }, el('span', {}, `Publication date: ${dateLabel(work.date)}`), event && el('span', {}, `• Observed ${dateLabel(event.observed_at)}`)),
@@ -188,22 +316,159 @@ function workCard(work, event = null) {
       button(work.saved ? '✓ Saved' : '+ Save', () => update('/api/save', { id: work.id, saved: !work.saved }, work.saved ? 'Removed from your reading list.' : 'Saved to your reading list.'), 'quiet small', { 'aria-pressed': String(work.saved), 'aria-label': `${work.saved ? 'Unsave' : 'Save'} ${work.title}` })));
 }
 
+// The server refuses a tag write for everyone if one person would pass this limit.
+const TAG_LIMIT = 20;
+const tagLimitReached = (personId, name) => {
+  const tags = contactOf(personId).tags;
+  return tags.length >= TAG_LIMIT && !tags.some(t => foldKey(t) === foldKey(name));
+};
+
+function suggestionCard(suggestion) {
+  const people = peopleFor(suggestion.people_ids);
+  const names = people.map(p => p.name);
+  const keyword = suggestion.kind === 'keyword';
+  const name = keyword ? suggestion.label : names.join(' & ');
+  const tagName = clip(name, 60);
+  const full = people.filter(p => tagLimitReached(p.id, tagName)).map(p => p.name);
+  const count = suggestion.works.length;
+  const evidence = keyword
+    ? `${names.length} people list “${suggestion.label}” on their ORCID records: ${names.join(', ')}.`
+    : `Both listed on ${count} output${count > 1 ? 's' : ''}: ${suggestion.works.slice(0, 2).map(w => `“${w.title || 'Untitled output'}”`).join(', ')}${count > 2 ? '…' : ''}`;
+  const description = keyword ? `Suggested because each member lists “${suggestion.label}” on their ORCID record.` : `Suggested because both are listed on ${count} shared output${count > 1 ? 's' : ''}.`;
+  return el('div', { class: 'suggestion' }, el('strong', {}, name), el('p', {}, evidence),
+    button('Make it a tag', () => update('/api/contacts/tags', { person_ids: suggestion.people_ids, add: [tagName] }, `Tagged ${names.length} people “${tagName}”. Find them in Contacts.`), 'quiet small', { 'aria-label': `Make a tag: ${name}`, disabled: busy || bulkRunning || full.length > 0 }),
+    full.length > 0 && el('p', { class: 'helper' }, `${full.join(', ')} already ${full.length > 1 ? 'have' : 'has'} ${TAG_LIMIT} tags. Remove one in Contacts first, or make a group instead.`),
+    button('Make it a group', () => update('/api/groups', { name: clip(name, 120), description, member_ids: suggestion.people_ids }, 'Group created. Add roles and requests in Groups.'), 'quiet small', { 'aria-label': `Make a group: ${name}` }),
+    button('Dismiss', () => {
+      dismissedSuggestions = [...dismissedSuggestions, suggestion.id];
+      remember('network-feed-dismissed', dismissedSuggestions);
+      render();
+      (document.querySelector('.suggestion .button') || document.querySelector('#main')).focus();
+    }, 'quiet small', { 'aria-label': `Dismiss suggestion: ${name}` }));
+}
+
+// Pair suggestions are the costliest thing on the page; recompute only when the workspace,
+// scope or dismissals change. Every write replaces `state`, which invalidates this.
+let suggestionCache = {};
+
+function suggestionsPanel() {
+  if (suggestionCache.state !== state || suggestionCache.scope !== feedScope || suggestionCache.dismissed !== dismissedSuggestions) {
+    suggestionCache = { state, scope: feedScope, dismissed: dismissedSuggestions, value: groupSuggestions(state, feedScope, dismissedSuggestions) };
+  }
+  const all = suggestionCache.value;
+  const picks = [...all.filter(s => s.kind === 'keyword').slice(0, 2), ...all.filter(s => s.kind === 'pair').slice(0, 2)];
+  if (!picks.length) return null;
+  return el('aside', { class: 'panel feed-suggest' }, el('div', { class: 'eyebrow' }, 'GROUP SUGGESTIONS'), el('h3', { class: 'panel-title' }, 'Who belongs together?'),
+    picks.map(suggestionCard),
+    el('p', {}, 'Based only on keywords and outputs in the imported records. Nothing is created until you choose, and nobody is notified.'));
+}
+
 function sidePanels() {
   const followed = state.people.filter(p => p.following).slice(0, 4);
-  return el('div', { class: 'stack' },
+  return el('div', { class: 'stack feed-side' },
     el('aside', { class: 'panel' }, el('div', { class: 'eyebrow' }, 'MAKE YOUR CIRCLE'), el('h3', { class: 'panel-title' }, 'Good research starts with people.'), el('p', {}, 'Paste an ORCID iD or profile link to follow their public research record.'), importForm(true), el('p', {}, 'Updates are checked only when you choose Refresh. No background polling.')),
     el('aside', { class: 'panel' }, el('h3', {}, 'In your circle'), followed.length ? el('div', { class: 'small-list' }, followed.map(p => el('div', { class: 'small-person' }, avatar(p), el('div', {}, el('strong', {}, p.name), el('span', {}, p.affiliation || (p.demo ? 'Sample researcher' : 'Imported public record')))))) : el('p', {}, 'Follow your first researcher to start a circle.'), button('Explore people →', () => navigate('people'), 'quiet small')),
     el('aside', { class: 'panel' }, el('h3', {}, 'Less admin. More discovery.'), el('p', {}, 'Bring a working group together and download its member roster, bibliography, and biosketches in one team pack.'), button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small')));
 }
 
+const feedViews = [['new', 'New on ORCID'], ['published', 'Recently published'], ['together', 'Together']];
+
+function feedEmpty() {
+  if (search) return empty('No matching outputs.', 'Try another title or researcher name.');
+  if (feedType || feedTopic) return empty('Nothing matches these filters.', 'Try another output type or topic.');
+  if (feedView === 'together') return empty('No shared outputs here yet.', 'Outputs listed by two or more people in this view appear here. Nothing is inferred beyond the imported records.');
+  if (feedView === 'published') return empty('No outputs here yet.', 'Follow researchers in People, or choose a group or tag with imported records.', button('Browse people →', () => navigate('people'), 'quiet'));
+  return empty('You’re all caught up.', 'The first ORCID import creates a baseline, so older papers do not flood your feed. Refresh a researcher in People to discover newly added works, or switch to Recently published to browse everything imported.', button('Browse people →', () => navigate('people'), 'quiet'));
+}
+
+// The first page of `items` as cards, then a "Show more" button that calls `refresh`
+// (the list's own redraw) so the rest of the page is left alone.
+function paged(key, items, card, refresh) {
+  const limit = listLimits.get(key) || PAGE_SIZE;
+  const rest = items.length - Math.min(limit, items.length);
+  const focusKey = `more-${key}`;
+  return [...items.slice(0, limit).map(card), rest > 0 && button(`Show ${Math.min(PAGE_SIZE, rest)} more (${rest} left)`, () => {
+    listLimits.set(key, limit + PAGE_SIZE);
+    refresh();
+    document.querySelector(`[data-focus="${CSS.escape(focusKey)}"]`)?.focus();
+  }, 'quiet show-more', { 'data-focus': focusKey })].filter(Boolean);
+}
+
+// A control change starts the list again from its first page.
+function changeFeed(apply) {
+  apply();
+  listLimits.delete('feed');
+  render();
+}
+
+function feedControls(types, topics) {
+  const tags = allTags(state.contacts);
+  const scope = el('select', { class: 'input', 'aria-label': 'Whose research', 'data-focus': 'feed-scope', onchange: event => changeFeed(() => { feedScope = event.target.value; feedTopic = ''; }) },
+    el('option', { value: '' }, 'Everyone I follow'),
+    state.groups.length > 0 && el('optgroup', { label: 'Groups' }, state.groups.map(g => el('option', { value: `group:${g.id}` }, g.name))),
+    tags.length > 0 && el('optgroup', { label: 'Tags' }, tags.map(([t]) => el('option', { value: `tag:${t}` }, t))));
+  scope.value = feedScope;
+  const type = el('select', { class: 'input', 'aria-label': 'Output type', 'data-focus': 'feed-type', onchange: event => changeFeed(() => { feedType = event.target.value; }) },
+    el('option', { value: '' }, 'All output types'), types.map(t => el('option', { value: t }, t.replaceAll('-', ' '))));
+  type.value = feedType;
+  const shown = topics.slice(0, 12);
+  const chosen = topics.find(t => t.key === feedTopic);
+  if (chosen && !shown.includes(chosen)) shown.push(chosen);
+  // On phones the filters fold behind a toggle; on wider screens the toggle is hidden by CSS.
+  const active = [feedScope, feedType, feedTopic].filter(Boolean).length;
+  const panel = el('div', { class: `feed-filter-panel${feedFiltersOpen ? ' open' : ''}`, id: 'feed-filter-panel' },
+    el('div', { class: 'feed-filters' }, scope, type),
+    shown.length > 0 && el('div', { class: 'chips', role: 'group', 'aria-label': 'Topics people list on their ORCID records' },
+      el('span', { class: 'section-kicker' }, 'PEOPLE WHO LIST'),
+      button('Any topic', () => changeFeed(() => { feedTopic = ''; }), feedTopic ? 'quiet small' : 'small', { 'aria-pressed': String(!feedTopic), 'data-focus': 'feed-topic-any' }),
+      shown.map(t => button(`${t.label} (${t.people_ids.length})`, () => changeFeed(() => { feedTopic = feedTopic === t.key ? '' : t.key; }), feedTopic === t.key ? 'small' : 'quiet small', { 'aria-pressed': String(feedTopic === t.key), 'data-focus': `feed-topic-${t.key}` }))),
+    chosen && el('p', { class: 'helper' }, `Outputs listing someone who lists “${chosen.label}” on their ORCID record. The keyword describes the person, not necessarily the output.`));
+  const toggle = button(active ? `Filters · ${active} on` : 'Filters', () => {
+    feedFiltersOpen = !feedFiltersOpen;
+    panel.classList.toggle('open', feedFiltersOpen);
+    toggle.setAttribute('aria-expanded', String(feedFiltersOpen));
+  }, 'quiet small filters-toggle', { 'aria-expanded': String(feedFiltersOpen), 'aria-controls': 'feed-filter-panel', 'data-focus': 'feed-filters-toggle' });
+  return el('div', { class: 'feed-controls' },
+    el('div', { class: 'feed-controls-top' },
+      el('div', { class: 'chips', role: 'group', 'aria-label': 'Feed view' }, feedViews.map(([id, label]) =>
+        button(label, () => changeFeed(() => { feedView = id; }), feedView === id ? 'small' : 'quiet small', { 'aria-pressed': String(feedView === id), 'data-focus': `feed-view-${id}` }))),
+      toggle),
+    panel);
+}
+
+function sinceBanner() {
+  const since = feedView === 'new' && sinceLastVisit(state, previousVisit, { scope: feedScope, type: feedType, topic: feedTopic });
+  if (!since?.total) return null;
+  const groups = since.groups.slice(0, 3).map(g => `${g.count} from ${g.name}`);
+  return el('div', { class: 'since-banner', role: 'status' },
+    el('span', {}, el('strong', {}, `${since.total} new since your last visit (${dateLabel(previousVisit)})`), groups.length ? ` · ${groups.join(' · ')}` : ''),
+    button('Mark as seen', () => {
+      previousVisit = new Date().toISOString();
+      remember('network-feed-visit', { seen: previousVisit, previous: previousVisit });
+      render();
+      document.querySelector('#main').focus();
+    }, 'quiet small'));
+}
+
 function renderFeed(view) {
-  const list = el('div', { class: 'stack' });
+  const [kind, value] = [feedScope.slice(0, feedScope.indexOf(':')), feedScope.slice(feedScope.indexOf(':') + 1)];
+  if ((kind === 'group' && !state.groups.some(g => g.id === value)) || (kind === 'tag' && !allTags(state.contacts).some(([t]) => t === value))) feedScope = '';
+  const topics = feedTopics(state, feedScope);
+  if (!topics.some(t => t.key === feedTopic)) feedTopic = '';
+  const base = feedItems(state, { view: feedView, scope: feedScope, topic: feedTopic });
+  const types = [...new Set(base.map(({ work }) => work.type).filter(Boolean))].sort();
+  if (!types.includes(feedType)) feedType = '';
+  const items = feedType ? base.filter(({ work }) => work.type === feedType) : base;
+  const list = el('div', { class: 'stack feed-list' });
   function results() {
-    const all = feedEntries(state);
-    const entries = all.filter(({ work }) => matches(work));
-    list.replaceChildren(...(entries.length ? entries.map(({ work, event }) => workCard(work, event)) : [empty(search ? 'No matching updates.' : 'You’re all caught up.', search ? 'Try another title or researcher name.' : 'The first ORCID import creates a baseline, so older papers do not flood your feed. Refresh a researcher in People to discover newly added works. You can browse all imported works there now.', !search && button('Browse people →', () => navigate('people'), 'quiet'))]));
+    const entries = items.filter(({ work }) => matches(work));
+    list.replaceChildren(...(entries.length ? paged('feed', entries, ({ work, event }) => workCard(work, event, Boolean(event && previousVisit && event.observed_at > previousVisit)), results) : [feedEmpty()]));
   }
-  view.append(toolbar('RESEARCH, WITHOUT THE NOISE', 'Search updates or researchers', results), el('div', { class: 'feed-layout' }, list, sidePanels()));
+  // Suggestions come before the list in the page so narrow screens show them first;
+  // on wide screens CSS grid areas put them at the top of the side column.
+  // Unlike el(), append() would print a missing banner as the text "null".
+  view.append(...[toolbar('RESEARCH, WITHOUT THE NOISE', 'Search updates or researchers', results), feedControls(types, topics), sinceBanner(),
+    el('div', { class: 'feed-layout' }, suggestionsPanel(), list, sidePanels())].filter(Boolean));
   results();
 }
 
@@ -215,9 +480,20 @@ function personGroupPicker(person) {
     panel.hidden = !panel.hidden;
     trigger.setAttribute('aria-expanded', String(!panel.hidden));
   }, 'quiet small person-groups-trigger', {
-    id: triggerId, 'aria-label': `Add ${person.name} to a group`,
-    title: 'Add to a group', 'aria-expanded': 'false', 'aria-controls': panelId,
+    id: triggerId, 'aria-label': `Add ${person.name} to a group or tag`,
+    title: 'Add to a group or tag', 'aria-expanded': 'false', 'aria-controls': panelId,
   });
+  // Re-render, then reopen this person's panel so several additions can follow each other.
+  const saveAndReopen = async (path, body, message) => {
+    if (busy || !await mutate(path, body, message)) return false;
+    render();
+    const nextTrigger = document.getElementById(triggerId);
+    if (nextTrigger) {
+      nextTrigger.click();
+      nextTrigger.focus();
+    }
+    return true;
+  };
   panel.append(el('p', { class: 'person-groups-heading' }, 'Add to an existing group'));
   if (state.groups.length) {
     for (const group of state.groups) {
@@ -225,25 +501,34 @@ function personGroupPicker(person) {
       panel.append(el('div', { class: 'person-group-option' },
         el('span', {}, group.name),
         included ? el('span', { class: 'person-group-added' }, '✓ Added') :
-          button('Add', async () => {
+          button('Add', () => {
             const current = state.groups.find(item => item.id === group.id);
-            if (!current || busy) return;
-            if (await mutate('/api/groups/members/add', {
-              id: current.id, member_ids: [person.id],
-            }, `${person.name} added to ${current.name}.`)) {
-              render();
-              const nextTrigger = document.getElementById(triggerId);
-              if (nextTrigger) {
-                nextTrigger.click();
-                nextTrigger.focus();
-              }
-            }
+            if (current) saveAndReopen('/api/groups/members/add', { id: current.id, member_ids: [person.id] }, `${person.name} added to ${current.name}.`);
           }, 'quiet small', { 'aria-label': `Add ${person.name} to ${group.name}` })));
     }
   } else {
     panel.append(el('p', { class: 'helper' }, 'No groups yet. Create one to start your roster.'),
       button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small'));
   }
+  const personTags = contactOf(person.id).tags;
+  const tagged = new Set(personTags.map(foldKey));
+  const full = personTags.length >= TAG_LIMIT;
+  panel.append(el('p', { class: 'person-groups-heading spaced' }, 'Tag'));
+  for (const [name] of allTags(state.contacts)) {
+    panel.append(el('div', { class: 'person-group-option' },
+      el('span', {}, name),
+      tagged.has(foldKey(name)) ? el('span', { class: 'person-group-added' }, '✓ Tagged') :
+        button('Add', () => saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`),
+          'quiet small', { 'aria-label': `Tag ${person.name} with ${name}`, disabled: busy || bulkRunning || full })));
+  }
+  const newTag = el('input', { class: 'input', maxlength: '60', placeholder: 'New tag, e.g. FENS 2026', 'aria-label': `New tag for ${person.name}`, disabled: full });
+  panel.append(el('form', { class: 'person-group-option', onsubmit: event => {
+    event.preventDefault();
+    const name = newTag.value.trim();
+    if (!name) { newTag.focus(); return; }
+    saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`);
+  } }, newTag, el('button', { type: 'submit', class: 'button quiet small', disabled: busy || full }, 'Add tag')),
+  el('p', { class: 'helper' }, full ? `${person.name} has ${TAG_LIMIT} tags, the most allowed. Remove one in Contacts to add another.` : 'Tags are private to this workspace, like those in Contacts. They do not notify anyone.'));
   const picker = el('div', { class: 'person-groups', onkeydown: event => {
     if (event.key === 'Escape' && !panel.hidden) {
       event.preventDefault();
@@ -275,7 +560,7 @@ function renderPeople(view) {
       const list = el('div', { class: 'stack spaced' });
       const results = () => {
         const works = groupWorks(state, [person.id]).filter(matches);
-        list.replaceChildren(...(works.length ? works.map(w => workCard(w)) : [empty('No outputs to show.', search ? 'Try a different search.' : 'This imported record has no public outputs available.')]));
+        list.replaceChildren(...(works.length ? paged(`person:${person.id}`, works, w => workCard(w), results) : [empty('No outputs to show.', search ? 'Try a different search.' : 'This imported record has no public outputs available.')]));
       };
       view.append(el('div', { class: 'spaced' }, toolbar('PUBLIC RESEARCH OUTPUTS', 'Search this researcher’s outputs', results)), list);
       results();
@@ -310,7 +595,19 @@ function groupEditor(group) {
   el('label', { class: 'field' }, 'Group name', name), el('label', { class: 'field' }, 'Description', description),
   el('fieldset', { class: 'roster' }, el('legend', {}, 'Members from your workspace'), checkboxes.length ? checkboxes.map(({ person, input }) => el('label', { class: 'check-label' }, input, person.name, person.demo && tag('Demo', true))) : el('p', { class: 'helper' }, 'Import people first, or create an empty group and add members later.')),
   el('p', { class: 'helper' }, 'This is a local roster. Adding someone does not notify them, confirm membership, or change their ORCID record.'),
-  el('div', { class: 'card-actions' }, el('button', { type: 'submit', class: 'button', disabled: busy }, group ? 'Save group' : 'Create group'), button('Cancel', () => { editorGroup = undefined; render(); })));
+  el('div', { class: 'card-actions' }, el('button', { type: 'submit', class: 'button', disabled: busy }, group ? 'Save group' : 'Create group'), button('Cancel', () => { editorGroup = undefined; render(); }),
+    group && button('Delete group', () => deleteGroup(group), 'quiet danger', { 'aria-label': `Delete group ${group.name}` })));
+}
+
+async function deleteGroup(group) {
+  if (!confirm(`Delete “${group.name}”? Its member roles, project selections and requests are removed from this workspace. The people, their outputs and your contact notes stay.`)) return;
+  if (!await mutate('/api/groups/delete', { id: group.id }, `Group “${group.name}” deleted.`)) return;
+  editorGroup = undefined;
+  groupDrafts.delete(group.id);
+  if (selectedGroup === group.id) location.hash = 'groups';
+  else render();
+  // The focused Delete button is gone; land on the page instead of <body>.
+  document.querySelector('#main').focus();
 }
 
 async function postState(path, body) {
@@ -412,8 +709,8 @@ function renderProjectOutputs(view, group) {
         button(selected.has(work.id) ? 'Remove from project' : '+ Select for project', () => update('/api/groups/output', { id: group.id, work_id: work.id, selected: !selected.has(work.id) }, selected.has(work.id) ? 'Output removed from the project collection.' : 'Output selected for this project.'), 'quiet small', { 'aria-label': `${selected.has(work.id) ? 'Remove from' : 'Select for'} project: ${work.title}` })));
     const chosen = works.filter(w => selected.has(w.id));
     const suggested = works.filter(w => !selected.has(w.id));
-    list.replaceChildren(el('h3', {}, `Project collection (${chosen.length})`), ...(chosen.length ? chosen.map(output) : [el('p', { class: 'helper' }, 'Select relevant outputs below to build this project’s collection.')]),
-      el('h3', { class: 'spaced' }, `Suggested member outputs (${suggested.length})`), ...(suggested.length ? suggested.map(output) : [el('p', { class: 'helper' }, 'No additional member outputs match this view.')]));
+    list.replaceChildren(el('h3', {}, `Project collection (${chosen.length})`), ...(chosen.length ? paged(`project-chosen:${group.id}`, chosen, output, results) : [el('p', { class: 'helper' }, 'Select relevant outputs below to build this project’s collection.')]),
+      el('h3', { class: 'spaced' }, `Suggested member outputs (${suggested.length})`), ...(suggested.length ? paged(`project-suggested:${group.id}`, suggested, output, results) : [el('p', { class: 'helper' }, 'No additional member outputs match this view.')]));
   };
   view.append(el('p', { class: 'helper' }, 'Member outputs are suggestions. Selecting one records your local decision that it belongs to this project; it does not change ORCID or confirm attribution with the authors.'), toolbar('BUILD YOUR PROJECT COLLECTION', 'Search group outputs', results), list);
   results();
@@ -513,11 +810,148 @@ function renderGroups(view) {
   })));
 }
 
+// ---- Contacts: private tags, notes and follow-ups for people you meet ----
+
+const emptyContact = { tags: [], met_on: '', notes: [], actions: [] };
+const contactOf = id => state.contacts?.[id] || emptyContact;
+export function allTags(contacts) {
+  const counts = new Map();
+  for (const contact of Object.values(contacts || {})) for (const t of contact.tags) counts.set(t, (counts.get(t) || 0) + 1);
+  return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+export function openActions(contacts, ids) {
+  const wanted = new Set(ids);
+  const list = [];
+  for (const [personId, contact] of Object.entries(contacts || {})) {
+    if (!wanted.has(personId)) continue;
+    for (const action of contact.actions) if (action.status === 'open') list.push({ personId, action });
+  }
+  // Dated follow-ups first (soonest first), undated ones last.
+  return list.sort((a, b) => (a.action.due_date || '9999').localeCompare(b.action.due_date || '9999') || a.action.created_at.localeCompare(b.action.created_at));
+}
+const today = () => new Date().toISOString().slice(0, 10);
+
+async function runMeeting() {
+  const draft = contactDrafts.meeting;
+  const tagName = draft.tag.trim();
+  if (busy || bulkRunning || !draft.bulk || draft.bulk.overLimit) return;
+  const pending = draft.bulk.entries.filter(e => e.valid && ['ready', 'error', 'cancelled'].includes(e.status));
+  if (!tagName) return notice('Name the conference or context first, so these people can be found together later.', true);
+  draft.cancel = false;
+  bulkRunning = true;
+  try {
+    for (const entry of pending) {
+      if (draft.cancel) { entry.status = 'cancelled'; entry.message = 'Not processed · ready to resume'; continue; }
+      entry.status = 'loading'; entry.message = 'Reading public record…'; render();
+      try {
+        let person = state.people.find(p => p.orcid === entry.id && !p.demo);
+        const reused = Boolean(person);
+        if (!person) {
+          await postState('/api/import', { orcid: entry.id });
+          person = state.people.find(p => p.orcid === entry.id && !p.demo);
+          if (!person) throw new Error('Import returned no researcher. Nobody was tagged.');
+        }
+        await postState('/api/contacts/tags', { person_ids: [person.id], add: [tagName], met_on: draft.date });
+        entry.status = 'done';
+        entry.message = `${person.name} · tagged “${tagName}”${reused ? ' · existing import reused' : ''}`;
+      } catch (error) { entry.status = 'error'; entry.message = error.message || 'Could not reach the server. Retry this entry.'; }
+      render();
+    }
+  } finally {
+    bulkRunning = false;
+    render();
+    notice(draft.cancel ? 'Stopped after the current record. People already tagged are saved.' : 'Finished. Review the per-record results below.');
+  }
+}
+
+function meetingForm() {
+  const draft = contactDrafts.meeting;
+  draft.date ||= today();
+  const tags = allTags(state.contacts);
+  const list = el('datalist', { id: 'known-tags' }, tags.map(([t]) => el('option', { value: t })));
+  const tagInput = el('input', { class: 'input', list: 'known-tags', maxlength: '60', placeholder: 'e.g. FENS 2026', value: draft.tag, disabled: bulkRunning, oninput: e => { draft.tag = e.target.value; } });
+  const date = el('input', { class: 'input', type: 'date', value: draft.date, disabled: bulkRunning, oninput: e => { draft.date = e.target.value; } });
+  const text = el('textarea', { class: 'input', rows: '3', 'aria-label': 'ORCID list', placeholder: 'Paste ORCID iDs or profile links, one per line', disabled: bulkRunning, oninput: e => { draft.text = e.target.value; draft.bulk = null; results.replaceChildren(); } }, draft.text);
+  const results = el('div', { class: 'bulk-results', 'aria-live': 'polite' });
+  const refresh = () => {
+    if (!draft.bulk) return;
+    const entries = draft.bulk.entries;
+    results.replaceChildren(
+      el('p', { class: 'helper' }, `${entries.filter(e => e.valid).length} valid · ${entries.filter(e => !e.valid).length} invalid · duplicates removed`),
+      draft.bulk.overLimit && el('p', { class: 'inline-error', role: 'alert' }, 'Use at most 50 unique entries per batch. No imports have started.'),
+      el('ul', { class: 'bulk-list' }, entries.map(e => el('li', { class: `bulk-entry ${e.status}` }, el('strong', {}, e.id), el('span', {}, e.status === 'ready' && state.people.some(p => p.orcid === e.id && !p.demo) ? 'Existing import will be reused' : e.message)))),
+      el('div', { class: 'card-actions' },
+        button('Import & tag', runMeeting, 'accent', { disabled: busy || bulkRunning || draft.bulk.overLimit || !entries.some(e => ['ready', 'error', 'cancelled'].includes(e.status)) }),
+        bulkRunning && button(draft.cancel ? 'Stopping…' : 'Stop after current record', () => { draft.cancel = true; refresh(); }, 'quiet', { disabled: draft.cancel })));
+  };
+  refresh();
+  return el('section', { class: 'editor' }, el('h3', {}, 'I just met people'),
+    el('p', { class: 'helper' }, 'Tag everyone from one conference or context. Tags, notes and follow-ups stay in this browser; they are never part of a team pack and the people do not see them.'),
+    list, el('label', { class: 'field' }, 'Conference or context', tagInput), el('label', { class: 'field' }, 'Date met', date),
+    el('label', { class: 'field' }, 'ORCID iDs', text),
+    button('Preview list', () => { draft.bulk = parseOrcidList(text.value); refresh(); }, 'quiet'), results);
+}
+
+function contactCard(person) {
+  const contact = contactOf(person.id);
+  const note = contactDrafts.notes;
+  const act = contactDrafts.actions;
+  const tagDraft = contactDrafts.tagInput;
+  const act_ = act[person.id] ||= { title: '', due: '' };
+  const open = contact.actions.filter(a => a.status === 'open');
+  const done = contact.actions.filter(a => a.status === 'done');
+  const noteBox = el('textarea', { class: 'input', rows: '2', maxlength: '2000', 'aria-label': `Note about ${person.name}`, placeholder: 'What did you talk about?', oninput: e => { note[person.id] = e.target.value; } }, note[person.id] || '');
+  const tagBox = el('input', { class: 'input', list: 'known-tags', maxlength: '60', 'aria-label': `Add a tag to ${person.name}`, placeholder: 'Add tag', value: tagDraft[person.id] || '', oninput: e => { tagDraft[person.id] = e.target.value; } });
+  const title = el('input', { class: 'input', maxlength: '200', 'aria-label': `Follow-up with ${person.name}`, placeholder: 'Follow-up, e.g. send the protocol', value: act_.title, oninput: e => { act_.title = e.target.value; } });
+  const due = el('input', { class: 'input', type: 'date', 'aria-label': 'Due date', value: act_.due, oninput: e => { act_.due = e.target.value; } });
+  const actionRow = a => el('li', { class: `bulk-entry ${a.status === 'done' ? 'done' : ''}` },
+    el('span', {}, `${a.status === 'done' ? '✓ ' : ''}${a.title}`, a.due_date && el('em', { class: a.status === 'open' && a.due_date < today() ? 'inline-error' : '' }, ` · due ${a.due_date}${a.status === 'open' && a.due_date < today() ? ' (overdue)' : ''}`)),
+    el('span', { class: 'card-actions' },
+      button(a.status === 'done' ? 'Reopen' : 'Done', () => update('/api/contacts/actions/update', { person_id: person.id, action_id: a.id, status: a.status === 'done' ? 'open' : 'done' }), 'quiet small', { 'aria-label': `${a.status === 'done' ? 'Reopen' : 'Complete'}: ${a.title}` }),
+      button('Delete', () => update('/api/contacts/delete', { person_id: person.id, kind: 'action', entry_id: a.id }), 'quiet small', { 'aria-label': `Delete follow-up: ${a.title}` })));
+  return el('article', { class: 'group-card' },
+    el('div', { class: 'card-top' }, el('div', { class: 'people-line' }, avatar(person), el('strong', {}, person.name)), person.demo && tag('Demo', true)),
+    el('p', { class: 'helper' }, [person.affiliation, contact.met_on && `met ${dateLabel(contact.met_on)}`].filter(Boolean).join(' · ') || 'Imported public record'),
+    el('div', { class: 'chips' }, contact.tags.map(t => el('span', { class: 'chip' }, t, ' ', button('×', () => update('/api/contacts/tags', { person_ids: [person.id], remove: [t] }), 'quiet small', { 'aria-label': `Remove tag ${t} from ${person.name}` })))),
+    el('form', { class: 'card-actions', onsubmit: async e => { e.preventDefault(); const v = (tagDraft[person.id] || '').trim(); if (!v) return; if (await mutate('/api/contacts/tags', { person_ids: [person.id], add: [v] }, 'Tag added.')) { tagDraft[person.id] = ''; render(); } } }, tagBox, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add tag')),
+    el('h4', {}, 'Follow-ups'),
+    open.length || done.length ? el('ul', { class: 'bulk-list' }, [...open, ...done].map(actionRow)) : el('p', { class: 'helper' }, 'Nothing planned yet.'),
+    el('form', { class: 'form-fields', onsubmit: async e => { e.preventDefault(); if (!act_.title.trim()) return; if (await mutate('/api/contacts/actions', { person_id: person.id, title: act_.title.trim(), due_date: act_.due }, 'Follow-up added.')) { contactDrafts.actions[person.id] = { title: '', due: '' }; render(); } } }, title, due, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add follow-up')),
+    el('h4', {}, 'Notes'),
+    contact.notes.length ? el('ul', { class: 'bulk-list' }, [...contact.notes].reverse().map(n => el('li', { class: 'bulk-entry' }, el('span', {}, n.text, el('em', {}, ` · ${dateLabel(n.created_at.slice(0, 10))}`)), button('Delete', () => update('/api/contacts/delete', { person_id: person.id, kind: 'note', entry_id: n.id }), 'quiet small', { 'aria-label': 'Delete this note' })))) : el('p', { class: 'helper' }, 'No notes yet.'),
+    el('form', { class: 'form-fields', onsubmit: async e => { e.preventDefault(); const v = (note[person.id] || '').trim(); if (!v) return; if (await mutate('/api/contacts/notes', { person_id: person.id, text: v }, 'Note saved.')) { note[person.id] = ''; render(); } } }, noteBox, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add note')));
+}
+
+function renderContacts(view) {
+  view.append(meetingForm());
+  const tags = allTags(state.contacts);
+  if (activeTag && !tags.some(([t]) => t === activeTag)) activeTag = '';
+  const everyone = state.people.filter(p => !p.demo || state.contacts?.[p.id]);
+  const shown = everyone.filter(p => (!activeTag || contactOf(p.id).tags.includes(activeTag)) && `${p.name} ${p.affiliation}`.toLowerCase().includes(search.toLowerCase()));
+  view.append(el('div', { class: 'toolbar' }, el('span', { class: 'section-kicker' }, 'CONTEXTS'),
+    el('div', { class: 'chips' }, button(`All (${everyone.length})`, () => { activeTag = ''; render(); }, activeTag ? 'quiet small' : 'small', { 'aria-pressed': String(!activeTag) }),
+      tags.map(([t, n]) => button(`${t} (${n})`, () => { activeTag = t; render(); }, activeTag === t ? 'small' : 'quiet small', { 'aria-pressed': String(activeTag === t) })))));
+  if (activeTag) {
+    const ids = shown.map(p => p.id);
+    view.append(el('div', { class: 'card-actions' },
+      button('Turn this context into a group', () => update('/api/groups', { name: activeTag, description: `People met: ${activeTag}`, member_ids: ids }, 'Group created from this context. Add roles and requests in Groups.'), 'quiet small', { disabled: !ids.length }),
+      button('Remove this tag from everyone shown', () => { if (confirm(`Remove “${activeTag}” from ${ids.length} people? Their notes and follow-ups stay.`)) { const t = activeTag; update('/api/contacts/tags', { person_ids: ids, remove: [t] }, 'Tag removed.'); } }, 'quiet small', { disabled: !ids.length })));
+  }
+  const todo = openActions(state.contacts, shown.map(p => p.id));
+  if (todo.length) {
+    view.append(el('section', { class: 'editor' }, el('h3', {}, `Open follow-ups${activeTag ? ` · ${activeTag}` : ''} (${todo.length})`),
+      el('ul', { class: 'bulk-list' }, todo.map(({ personId, action }) => el('li', { class: 'bulk-entry' },
+        el('span', {}, el('strong', {}, state.people.find(p => p.id === personId)?.name || personId), ` · ${action.title}`, action.due_date && el('em', { class: action.due_date < today() ? 'inline-error' : '' }, ` · due ${action.due_date}${action.due_date < today() ? ' (overdue)' : ''}`)),
+        button('Done', () => update('/api/contacts/actions/update', { person_id: personId, action_id: action.id, status: 'done' }), 'quiet small', { 'aria-label': `Complete: ${action.title}` }))))));
+  }
+  view.append(shown.length ? el('div', { class: 'grid' }, shown.map(contactCard)) : empty('No contacts here yet.', everyone.length ? 'Try another context or search.' : 'Paste the ORCID iDs of people you meet above, with the name of the conference. You can then add notes and follow-ups for each of them.'));
+}
+
 function renderSaved(view) {
   const list = el('div', { class: 'stack' });
   const results = () => {
     const works = state.works.filter(w => w.saved && matches(w));
-    list.replaceChildren(...(works.length ? works.map(w => workCard(w)) : [empty(search ? 'No matching saved outputs.' : 'Keep the work that matters.', search ? 'Try another search.' : 'Save papers, datasets, and software from the feed or a researcher’s profile. Find them here whenever you need them.', !search && button('Explore your feed →', () => navigate('feed'), 'quiet'))]));
+    list.replaceChildren(...(works.length ? paged('saved', works, w => workCard(w), results) : [empty(search ? 'No matching saved outputs.' : 'Keep the work that matters.', search ? 'Try another search.' : 'Save papers, datasets, and software from the feed or a researcher’s profile. Find them here whenever you need them.', !search && button('Explore your feed →', () => navigate('feed'), 'quiet'))]));
   };
   view.append(toolbar('YOUR READING LIST', 'Search saved research', results), list);
   results();
@@ -526,17 +960,20 @@ function renderSaved(view) {
 const headings = {
   feed: ['YOUR RESEARCH CIRCLE', 'The latest, together.', 'A quieter way to keep up with the people behind the research.'],
   people: ['PEOPLE, BEFORE METRICS', 'Follow your curiosity.', 'Connect public research records to the people whose work you care about.'],
+  contacts: ['PEOPLE YOU MEET', 'Keep every conversation going.', 'Tag people by conference or context, note what you discussed, and track what you promised to do next. Private to this browser.'],
   groups: ['RESEARCH IS A TEAM SPORT', 'A shared place to work.', 'Bring your collaborators and their research outputs into one useful view.'],
   saved: ['GOOD WORK, KEPT CLOSE', 'Your next good read.', 'A personal collection of papers, datasets, and ideas worth returning to.']
 };
 
 function render() {
   if (!loaded) return;
+  // Controls marked data-focus keep keyboard focus when the view is rebuilt around them.
+  const focusKey = document.activeElement?.dataset?.focus;
   const nav = document.querySelector('#navigation');
   const followed = state.people.filter(p => p.following).length;
   nav.replaceChildren(...[
     ['feed', '◫', 'Feed', feedEntries(state).length], ['people', '◉', 'People', state.people.length],
-    ['groups', '⌘', 'Groups', state.groups.length], ['saved', '▱', 'Saved', state.works.filter(w => w.saved).length]
+    ['contacts', '☺', 'Contacts', Object.keys(state.contacts || {}).length], ['groups', '⌘', 'Groups', state.groups.length], ['saved', '▱', 'Saved', state.works.filter(w => w.saved).length]
   ].map(([id, icon, label, count]) => el('a', { class: `nav-link${currentView === id ? ' active' : ''}`, href: `#${id}`, 'aria-current': currentView === id ? 'page' : null }, el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, icon), label, el('span', { class: 'nav-count' }, count))));
   const heading = headings[currentView];
   ['eyebrow', 'title', 'subtitle'].forEach((id, index) => { document.getElementById(id).textContent = heading[index]; });
@@ -545,7 +982,8 @@ function render() {
   document.querySelector('#summary').replaceChildren(...[[followed, 'researchers followed'], [state.works.length, 'research outputs'], [state.groups.length, 'working groups']].map(([count, label]) => el('div', { class: 'stat' }, el('strong', {}, count), el('span', {}, label))));
   const view = document.querySelector('#view');
   view.replaceChildren();
-  ({ feed: renderFeed, people: renderPeople, groups: renderGroups, saved: renderSaved })[currentView](view);
+  ({ feed: renderFeed, people: renderPeople, contacts: renderContacts, groups: renderGroups, saved: renderSaved })[currentView](view);
+  if (focusKey) view.querySelector(`[data-focus="${CSS.escape(focusKey)}"]`)?.focus();
   if (bulkRunning && activeBulkGroup) {
     const draft = groupDrafts.get(activeBulkGroup);
     const node = document.querySelector('#notice');
@@ -568,6 +1006,7 @@ async function initialize() {
     const route = groupRoute(location.hash);
     currentView = route.view;
     selectedPerson = null;
+    listLimits.clear();
     selectedGroup = route.id;
     groupTab = 'roster';
     editorGroup = pendingCreateGroup ? null : undefined;
@@ -580,6 +1019,11 @@ async function initialize() {
     const response = await fetch('/api/state', { headers: { 'X-Pilot-Request': '1' } });
     if (!response.ok) throw new Error('Could not load this workspace. Check that the local pilot server is running.');
     state = await response.json();
+    const visit = nextVisit(remembered('network-feed-visit', null), new Date().toISOString());
+    previousVisit = visit.previous;
+    remember('network-feed-visit', visit);
+    const dismissed = remembered('network-feed-dismissed', []);
+    dismissedSuggestions = Array.isArray(dismissed) ? dismissed.filter(id => typeof id === 'string') : [];
     loaded = true;
     render();
   } catch (error) {

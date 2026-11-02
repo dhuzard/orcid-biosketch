@@ -62,12 +62,14 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | INF-08 | Static public showcase hosted on GCP | P2 | done | session |
 | INF-10 | Hosted in-browser playground (Studio + research network) | P1 | done | session |
 | INF-11 | ORCID sign-in on the hosted playground, verified live | P2 | done | owner |
-| KF-17 | Private team workspaces and personal cloud sync (#22) | P1 | in-review | session |
+| KF-19 | Private team workspaces and personal cloud sync (#22) | P1 | in-review | session |
 | KF-13 | Shareable group links and evidence-backed collaboration graph (#15) | P1 | done | session |
 | KF-14 | Group record health and team biosketch for funders (#15 phase 2) | P1 | done | session |
 | KF-15 | Group Wrapped, card deck, <orcid-group> widget, offline app and digest (#15 phase 3) | P2 | done | session |
+| KF-17 | Contacts: context tags, private notes and follow-ups | P1 | in-review | session |
 | INF-09 | Hosted multi-researcher service on Cloud Run | P2 | planned | — |
 | KF-16 | Personal saving and encrypted team packages | P1 | in-review | session |
+| KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | in-review | session |
 
 ---
 
@@ -719,7 +721,7 @@ steps and the live test checklist.
 
 ---
 
-## KF-17 — Private team workspaces and personal cloud sync
+## KF-19 — Private team workspaces and personal cloud sync
 
 - **Priority** P1 · **Status** in-review · **Owner** session · **Rev** r1
 - **Files** `docs/team-workspaces.md`, `firestore.rules`, `functions/exchange/`, `web/playground/cloud.js`,
@@ -813,6 +815,53 @@ until they save a file; nothing is uploaded and no new origin is contacted.
 
 ---
 
+## KF-17 — Contacts: context tags, notes and follow-ups
+
+- **Priority** P1 · **Status** in-review · **Owner** session · **Rev** r1
+- **Files** `src/orcid_biosketch/network_store.py`, `src/orcid_biosketch/network.py`, `web/network/app.js`,
+  `tests/test_contacts.py`, `web/network/app.test.mjs`
+
+Groups suit a project team, not "the people I met at FENS". Contacts add a private, per-person
+layer on imported ORCID records: context tags, a date met, dated notes, and follow-ups with
+optional due dates. A tag is a lightweight grouping; one click turns it into a real group when a
+project starts. Everything is the researcher's own record; it asserts nothing about the person.
+
+**Acceptance criteria**
+- [x] "I just met people": paste ORCID iDs, name the context and date; records are imported
+      (existing imports reused) and tagged, with per-record results and cancellation.
+- [x] Per-person tags (case-insensitive, max 20 x 60 chars), notes (2000), follow-ups (open/done,
+      due date, overdue shown); filter by context; open follow-ups across a context.
+- [x] Tag to group conversion reuses the group API; no new membership claims.
+- [x] Contacts excluded from team packs and group packages; only the workspace backup carries
+      them and its disclosure says so (`tests/test_contacts.py`).
+- [x] Strict validation on restore; workspaces without contacts still load.
+- [x] People "+" panel tags a person with an existing or new tag, next to adding them to a group (#32).
+- [ ] Contacts without an ORCID iD, reminders, search across notes.
+- [ ] Merged and verified on the live site.
+
+## KF-18 — Feed views, scope, filters and group suggestions
+
+- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Files** `web/network/app.js`, `web/network/style.css`, `web/network/app.test.mjs`
+
+The Feed showed only newly observed outputs from followed people. It now offers three views and
+filters, all derived from the local workspace with no new network calls. Gamification goes through
+evidence-backed group suggestions, never rankings (#35).
+
+**Acceptance criteria**
+- [x] Views: New on ORCID (default), Recently published (undated last), Together (two or more
+      people in scope listed on the output; duplicates on one output do not count twice).
+- [x] Scope: everyone followed, one group, or one Contacts tag; output type filter.
+- [x] Topic chips from keywords people list on their own ORCID records, worded as describing the
+      person, not the output.
+- [x] Group suggestions from a shared keyword or shared outputs, each showing its evidence;
+      one click makes a tag or group; dismissible; skips what is already grouped or tagged.
+- [x] "Since your last visit" count per group; last visit and dismissals stay in the browser.
+- [ ] Per-output topics from #21 enrichment, if person-level keywords prove too coarse.
+- [ ] Merged and verified on the live site.
+
+---
+
 ## Change log
 
 Append-only. Newest entries at the bottom. One line per status or scope change.
@@ -888,4 +937,10 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-10-31 | INF-10 | Deploy policy: main and weekly sync deploy live; previews on demand | policy |
 | 2026-10-31 | KF-16 | Workspace backup/restore, Studio "Me" panel and password-encrypted team packages, all in the browser | — → in-review |
 | 2026-10-31 | INF-11 | Live ORCID sign-in confirmed by the owner | planned → done |
-| 2026-10-31 | KF-17 | Team workspaces, exchange function and personal sync built; Firestore and rules live; function awaits Blaze | — → in-review |
+| 2026-10-31 | KF-19 | Team workspaces, exchange function and personal sync built; Firestore and rules live; function awaits Blaze | — → in-review |
+| 2026-10-31 | KF-17 | Contacts view: context tags, private notes and follow-ups; tag-to-group; excluded from team packs | — → in-review |
+| 2026-11-02 | KF-11, KF-17 | #32: tag from the People "+" panel; delete a group from its editor (`POST /api/groups/delete`, `tests/test_group_http.py`) | scope |
+| 2026-11-02 | KF-18 | Feed views, scope/type/topic filters, group suggestions, since-last-visit (#35); `web/network/app.test.mjs` | — → in-review |
+| 2026-11-02 | KF-17, KF-18 | Pre-deploy audit fixes: cached suggestions and paged feed (20k works), tag-limit guard, scoped since-last-visit that survives reloads, focus kept on controls, server-matching tag folding | scope |
+| 2026-11-02 | KF-18 | Phone Filters toggle and suggestions above the list on narrow screens; 50-card paging on person outputs, Saved and project outputs; fix stray "null" under the Feed controls | scope |
+| 2026-11-02 | KF-19 | Renumbered from KF-17, which Contacts took on main (#30) | id |

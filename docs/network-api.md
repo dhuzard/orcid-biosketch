@@ -16,6 +16,8 @@ validation and bulk-import contract is [group-workflow-api.md](group-workflow-ap
 - `POST /api/save` `{id, saved: boolean}` (work id).
 - `POST /api/groups` `{name, description, member_ids: []}` creates a group.
 - `POST /api/groups/update` `{id, name, description, member_ids: []}` updates a group.
+- `POST /api/groups/delete` `{id}` deletes a group with its member details, selections and
+  requests. People, outputs and contacts are kept.
 - `POST /api/groups/members/add` `{id, member_ids: []}` appends imported people atomically.
 - `POST /api/groups/member` `{id, person_id, role, expertise, contribution}` records local member details.
 - `POST /api/groups/output` `{id, work_id, selected: boolean}` selects or removes a project output.
