@@ -4,8 +4,6 @@ on:
   pull_request:
     paths:
       - "demo/**"
-      - "web/**"
-      - "scripts/build_site.py"
       - ".github/workflows/video-demo.yml"
   push:
     branches: [main]
@@ -13,6 +11,10 @@ on:
       - "demo/**"
       - ".github/workflows/video-demo.yml"
   workflow_dispatch:
+
+concurrency:
+  group: video-demo-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
