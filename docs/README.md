@@ -9,9 +9,9 @@ python -m pip install -r docs/requirements.txt
 python -m sphinx -b html -n -W --keep-going docs/source docs/_build/html
 ```
 
-Open `docs/_build/html/index.html` in a browser. The documentation CI workflow builds the guide on pull requests, uploads the HTML artifact, and can publish it to GitHub Pages from `main` **once GitHub Pages is configured to deploy with GitHub Actions** under repository Settings → Pages.
+Open `docs/_build/html/index.html` in a browser. The documentation CI workflow builds the guide on pull requests, uploads the HTML artifact, and the existing Firebase Hosting workflow also builds and publishes it under **`/docs/`** with the main application.
 
-Do not circulate a GitHub Pages documentation URL as live until the first deployment is successful.
+Public target: <https://orcid-playground-889.web.app/docs/>. Verify the production deployment before announcing that URL publicly.
 
 ## Source conventions
 
