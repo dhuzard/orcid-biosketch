@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, addRoute, bookmarklet, allTags, openActions } from './app.js';
+import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, addRoute, bookmarklet, removalImpact, allTags, openActions } from './app.js';
 
 test('external links reject executable and relative URLs', () => {
   for (const value of ['javascript:alert(1)', 'data:text/html,hello', '/api/state', '', null]) assert.equal(safeUrl(value), null);
@@ -210,4 +210,18 @@ test('the previous visit survives reloads within a session and moves on afterwar
   assert.deepEqual(nextVisit(first, '2026-03-01T10:10:00Z'), { seen: '2026-03-01T10:10:00Z', previous: '2026-02-20T09:00:00Z' });
   assert.deepEqual(nextVisit(first, '2026-03-02T08:00:00Z'), { seen: '2026-03-02T08:00:00Z', previous: '2026-03-01T10:00:00Z' });
   assert.deepEqual(nextVisit({ seen: 'garbage', previous: 42 }, '2026-03-02T08:00:00Z'), { seen: '2026-03-02T08:00:00Z', previous: null });
+});
+
+test('removing someone lists only outputs nobody else here lists, their groups and contact record', () => {
+  const data = {
+    works: [
+      { id: 'solo', people_ids: ['a'], saved: true }, { id: 'solo2', people_ids: ['a'], saved: false },
+      { id: 'shared', people_ids: ['a', 'b'], saved: true }, { id: 'other', people_ids: ['b'], saved: true }
+    ],
+    groups: [{ name: 'Lab', member_ids: ['a', 'b'] }, { name: 'Other', member_ids: ['b'] }],
+    contacts: { a: { tags: ['FENS'] } }
+  };
+  assert.deepEqual(removalImpact(data, 'a'), { outputs: 2, saved: 1, groups: ['Lab'], contact: true });
+  assert.deepEqual(removalImpact(data, 'b'), { outputs: 1, saved: 1, groups: ['Lab', 'Other'], contact: false });
+  assert.deepEqual(removalImpact({ works: [], groups: [] }, 'x'), { outputs: 0, saved: 0, groups: [], contact: false });
 });

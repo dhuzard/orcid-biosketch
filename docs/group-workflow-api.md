@@ -81,6 +81,10 @@ State gains `contacts: {person_id: {tags, met_on, notes[], actions[]}}`. All POS
 - `POST /api/contacts/notes` `{person_id, text}` (up to 2000).
 - `POST /api/contacts/actions` `{person_id, title, due_date?}` (up to 200); `/actions/update` `{person_id, action_id, status: open|done}`.
 - `POST /api/contacts/delete` `{person_id, kind: note|action, entry_id}`.
+- `POST /api/contacts/remove` `{person_id}` clears the person's whole contact record. The person stays imported.
+
+The Contacts view lists people with a contact record only; tagging someone from People or
+"I just met people" creates one.
 
 Contacts are never in team packs or group packages; the workspace backup includes them.
 
