@@ -8,6 +8,7 @@ import { OUT, RAW, caption, record, cut, square, serveSite } from './lib.mjs';
 const site = await serveSite();
 const browser = await chromium.launch();
 try {
+  let begin = 0, finish = 0;
   const capture = await record(browser, 'extra-take', async (page, now) => {
     page.on('dialog', dialog => dialog.accept());
     await page.goto(site.base + 'network/');
@@ -15,7 +16,7 @@ try {
     await page.waitForTimeout(10000);
     await page.click('#demo');
     await page.waitForTimeout(1100);
-    const t0 = now();
+    begin = now();
     await caption(page, 'BROWSER-LOCAL', 'Keep your working notes on your device.',
       'Download a backup of the browser workspace. It can include private notes; share carefully.');
     await page.waitForTimeout(3300);
@@ -71,16 +72,13 @@ try {
     await caption(page, 'TRY IT. QUESTION IT.', 'Make the next version better.',
       'Independent open source. ORCID records contain assertions, not independently verified credentials.');
     await page.waitForTimeout(4200);
-    return t0;
+    finish = now();
   });
-  // Discard the engine warmup, retain real browser interactions.
-  const trimmed = cut(capture, 11.7, Number((await import('node:child_process')).execFileSync(
-    'ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', capture],
-    { encoding: 'utf8' }).trim()) - 0.2, resolve(RAW, 'extra-all.mp4'));
+  // Trim precisely to real UI activity, not a fixed initialization delay.
+  const trimmed = cut(capture, begin + 0.05, finish - 0.05, resolve(RAW, 'extra-all.mp4'));
   const out = resolve(OUT, 'extras-privacy-and-feedback.mp4');
-  cut(trimmed, 0, Number((await import('node:child_process')).execFileSync(
-    'ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', trimmed],
-    { encoding: 'utf8' }).trim()), out);
+  const { copyFileSync } = await import('node:fs');
+  copyFileSync(trimmed, out);
   square(out, resolve(OUT, 'extras-clip-privacy-and-feedback.mp4'));
   console.log('Created', out);
 } finally {
