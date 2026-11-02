@@ -565,7 +565,32 @@ function personCard(person) {
     el('div', { class: 'keywords' }, person.keywords.slice(0, 5).map(word => tag(word))),
     el('div', { class: 'card-actions' }, person.orcid && externalLink('ORCID profile ↗', `https://orcid.org/${person.orcid}`), button(person.following ? '✓ Following' : '+ Follow', () => update('/api/follow', { id: person.id, following: !person.following }), 'quiet small', { 'aria-pressed': String(person.following), 'aria-label': `${person.following ? 'Unfollow' : 'Follow'} ${person.name}` }), button(`${person.work_count} outputs →`, () => { selectedPerson = person.id; search = ''; render(); }, 'quiet small')),
     el('div', { class: 'checked' }, `Last checked: ${dateLabel(person.last_checked)}`),
-    !person.demo && el('div', { class: 'card-actions' }, button('Refresh public record ↻', () => update('/api/import', { orcid: person.orcid }, 'Public record refreshed. Newly observed additions appear in your feed when you follow this researcher.'), 'quiet small')));
+    el('div', { class: 'card-actions' },
+      !person.demo && button('Refresh public record ↻', () => update('/api/import', { orcid: person.orcid }, 'Public record refreshed. Newly observed additions appear in your feed when you follow this researcher.'), 'quiet small'),
+      button('Remove from workspace', () => removePerson(person), 'quiet small danger', { 'aria-label': `Remove ${person.name} from this workspace` })));
+}
+
+// What removing someone takes with it, for the confirmation. Outputs another person here lists stay.
+export function removalImpact(data, id) {
+  const own = data.works.filter(w => w.people_ids.length === 1 && w.people_ids[0] === id);
+  return { outputs: own.length, saved: own.filter(w => w.saved).length,
+    groups: data.groups.filter(g => g.member_ids.includes(id)).map(g => g.name), contact: Boolean(data.contacts?.[id]) };
+}
+
+async function removePerson(person) {
+  const impact = removalImpact(state, person.id);
+  const lines = [
+    impact.outputs && `• ${impact.outputs} output${impact.outputs === 1 ? '' : 's'} only they are listed on${impact.saved ? ` (${impact.saved} saved)` : ''}`,
+    impact.groups.length && `• their place in ${impact.groups.length === 1 ? 'the group' : `${impact.groups.length} groups:`} ${impact.groups.join(', ')}, with their role details; requests they own become unassigned`,
+    impact.contact && '• your contact record: tags, date met, notes and follow-ups'
+  ].filter(Boolean);
+  if (!confirm([`Remove ${person.name} from this workspace?`, lines.length && `This also removes:\n${lines.join('\n')}`,
+    'Outputs that other people here also list are kept. Nothing changes on ORCID, and you can import them again later.'].filter(Boolean).join('\n\n'))) return;
+  if (!await mutate('/api/people/remove', { id: person.id }, `${person.name} removed from this workspace.`)) return;
+  if (selectedPerson === person.id) selectedPerson = null;
+  render();
+  // The focused Remove button is gone; land on the page instead of <body>.
+  document.querySelector('#main').focus();
 }
 
 function renderPeople(view) {
@@ -954,14 +979,23 @@ function contactCard(person) {
     el('form', { class: 'form-fields', onsubmit: async e => { e.preventDefault(); if (!act_.title.trim()) return; if (await mutate('/api/contacts/actions', { person_id: person.id, title: act_.title.trim(), due_date: act_.due }, 'Follow-up added.')) { contactDrafts.actions[person.id] = { title: '', due: '' }; render(); } } }, title, due, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add follow-up')),
     el('h4', {}, 'Notes'),
     contact.notes.length ? el('ul', { class: 'bulk-list' }, [...contact.notes].reverse().map(n => el('li', { class: 'bulk-entry' }, el('span', {}, n.text, el('em', {}, ` · ${dateLabel(n.created_at.slice(0, 10))}`)), button('Delete', () => update('/api/contacts/delete', { person_id: person.id, kind: 'note', entry_id: n.id }), 'quiet small', { 'aria-label': 'Delete this note' })))) : el('p', { class: 'helper' }, 'No notes yet.'),
-    el('form', { class: 'form-fields', onsubmit: async e => { e.preventDefault(); const v = (note[person.id] || '').trim(); if (!v) return; if (await mutate('/api/contacts/notes', { person_id: person.id, text: v }, 'Note saved.')) { note[person.id] = ''; render(); } } }, noteBox, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add note')));
+    el('form', { class: 'form-fields', onsubmit: async e => { e.preventDefault(); const v = (note[person.id] || '').trim(); if (!v) return; if (await mutate('/api/contacts/notes', { person_id: person.id, text: v }, 'Note saved.')) { note[person.id] = ''; render(); } } }, noteBox, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add note')),
+    el('div', { class: 'card-actions' }, button('Remove from contacts', () => removeContact(person), 'quiet small danger', { 'aria-label': `Remove ${person.name} from your contacts` })));
+}
+
+async function removeContact(person) {
+  if (!confirm(`Remove ${person.name} from your contacts? Their tags, date met, notes and follow-ups are deleted. They stay in People, with their outputs and groups.`)) return;
+  if (!await mutate('/api/contacts/remove', { person_id: person.id }, `${person.name} removed from your contacts. They are still in People.`)) return;
+  for (const drafts of [contactDrafts.notes, contactDrafts.actions, contactDrafts.tagInput]) delete drafts[person.id];
+  render();
+  document.querySelector('#main').focus();
 }
 
 function renderContacts(view) {
   view.append(meetingForm());
   const tags = allTags(state.contacts);
   if (activeTag && !tags.some(([t]) => t === activeTag)) activeTag = '';
-  const everyone = state.people.filter(p => !p.demo || state.contacts?.[p.id]);
+  const everyone = state.people.filter(p => state.contacts?.[p.id]);
   const shown = everyone.filter(p => (!activeTag || contactOf(p.id).tags.includes(activeTag)) && `${p.name} ${p.affiliation}`.toLowerCase().includes(search.toLowerCase()));
   view.append(el('div', { class: 'toolbar' }, el('span', { class: 'section-kicker' }, 'CONTEXTS'),
     el('div', { class: 'chips' }, button(`All (${everyone.length})`, () => { activeTag = ''; render(); }, activeTag ? 'quiet small' : 'small', { 'aria-pressed': String(!activeTag) }),
@@ -979,7 +1013,7 @@ function renderContacts(view) {
         el('span', {}, el('strong', {}, state.people.find(p => p.id === personId)?.name || personId), ` · ${action.title}`, action.due_date && el('em', { class: action.due_date < today() ? 'inline-error' : '' }, ` · due ${action.due_date}${action.due_date < today() ? ' (overdue)' : ''}`)),
         button('Done', () => update('/api/contacts/actions/update', { person_id: personId, action_id: action.id, status: 'done' }), 'quiet small', { 'aria-label': `Complete: ${action.title}` }))))));
   }
-  view.append(shown.length ? el('div', { class: 'grid' }, shown.map(contactCard)) : empty('No contacts here yet.', everyone.length ? 'Try another context or search.' : 'Paste the ORCID iDs of people you meet above, with the name of the conference. You can then add notes and follow-ups for each of them.'));
+  view.append(shown.length ? el('div', { class: 'grid' }, shown.map(contactCard)) : empty('No contacts here yet.', everyone.length ? 'Try another context or search.' : 'Paste the ORCID iDs of people you meet above, with the name of the conference, or tag someone from People with the + button. You can then add notes and follow-ups for each of them.'));
 }
 
 function renderSaved(view) {

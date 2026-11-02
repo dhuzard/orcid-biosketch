@@ -103,6 +103,10 @@ def dispatch(store, importer, method: str, target: str, payload: dict | None = N
             if not isinstance(payload.get("id"), str) or type(payload.get(key)) is not bool:
                 raise ValueError(f"Expected an id and a boolean {key} value.")
             (store.follow if key == "following" else store.save)(payload["id"], payload[key])
+        elif path == "/api/people/remove":
+            if not isinstance(payload.get("id"), str):
+                raise ValueError("A person id is required.")
+            store.remove_person(payload["id"])
         elif path in ("/api/groups", "/api/groups/update"):
             args = (payload.get("name"), payload.get("description", ""), payload.get("member_ids", []))
             if path == "/api/groups":
@@ -136,6 +140,8 @@ def dispatch(store, importer, method: str, target: str, payload: dict | None = N
         elif path == "/api/contacts/tags":
             store.tag_contacts(payload.get("person_ids"), payload.get("add"), payload.get("remove"),
                                payload.get("met_on", ""))
+        elif path == "/api/contacts/remove":
+            store.remove_contact(payload.get("person_id"))
         elif path in ("/api/contacts/notes", "/api/contacts/actions", "/api/contacts/actions/update",
                       "/api/contacts/delete"):
             person_id = payload.get("person_id")
