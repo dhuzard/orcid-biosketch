@@ -69,7 +69,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | INF-09 | Hosted multi-researcher service on Cloud Run | P2 | planned | — |
 | KF-16 | Personal saving and encrypted team packages | P1 | in-review | session |
 | KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | done | session |
-| KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | in-review | session |
+| KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | done | session |
 | KF-21 | Remove people from Contacts and from the workspace | P2 | in-review | session |
 
 ---
@@ -846,7 +846,7 @@ evidence-backed group suggestions, never rankings (#35).
 
 ## KF-20 — Add people to Contacts from ORCID pages
 
-- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Priority** P2 · **Status** done · **Owner** session · **Rev** r2
 - **Files** `web/network/app.js`, `web/network/style.css`, `web/network/app.test.mjs`,
   `src/orcid_biosketch/network.py`, `tests/test_network_http.py`, `docs/group-workflow-api.md`
 
@@ -863,7 +863,7 @@ imported or tagged until the user confirms.
       stay same-site only (`tests/test_network_http.py`).
 - [x] Checked in a browser on the local server and the hosted build: link, bookmarklet, tab reuse,
       phone width, no console errors.
-- [ ] Merged and verified on the live site.
+- [x] Merged (#39) and verified on the live site, by headless check and by hand in a desktop browser.
 
 **Later** A browser extension with a button on ORCID profiles, if the bookmarklet gets used.
 
@@ -970,3 +970,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-02 | KF-17, KF-18 | Merged to main (834bf06, #36 with #37); CI and Firebase deploy green; verified on orcid-playground-889.web.app/network/ (Feed views, suggestions, tag from the People "+" panel, group deletion, phone Filters toggle, no console errors). Unshipped extras moved to "Later" | in-review → done |
 | 2026-11-02 | KF-20 | Add from ORCID pages: `#contacts?add=` link and bookmarklet (#33); narrow cross-site navigation allowance on the local server; fix stray "false" under bulk previews | — → in-review |
 | 2026-11-02 | KF-21 | Remove from contacts and remove from workspace (`POST /api/contacts/remove`, `POST /api/people/remove`); Contacts lists people with a contact record only | — → in-review |
+| 2026-11-02 | KF-20 | Merged to main (146b86d, #39); CI and Firebase deploy green; live add link and bookmarklet checked headless and by hand (link, Import & tag, bookmarklet from an ORCID record page, tab reuse) | in-review → done |
