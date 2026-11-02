@@ -69,6 +69,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | INF-09 | Hosted multi-researcher service on Cloud Run | P2 | planned | — |
 | KF-16 | Personal saving and encrypted team packages | P1 | in-review | session |
 | KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | done | session |
+| KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | in-review | session |
 
 ---
 
@@ -842,6 +843,29 @@ evidence-backed group suggestions, never rankings (#35).
 
 **Later** Per-output topics from #21 enrichment, if person-level keywords prove too coarse.
 
+## KF-20 — Add people to Contacts from ORCID pages
+
+- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Files** `web/network/app.js`, `web/network/style.css`, `web/network/app.test.mjs`,
+  `src/orcid_biosketch/network.py`, `tests/test_network_http.py`, `docs/group-workflow-api.md`
+
+Researchers meet people while browsing ORCID records. A link and a bookmarklet bring the iD from an
+ORCID record page into "I just met people" in one click (#33). They only fill in the list: nothing is
+imported or tagged until the user confirms.
+
+**Acceptance criteria**
+- [x] `#contacts?add=` pre-fills the list with the same parsing and check-digit validation as
+      pasted text, keeps earlier results, and resets the address (`web/network/app.test.mjs`).
+- [x] Bookmarklet: acts only on `orcid.org` record paths, reads the iD from the address and never
+      the page, and reuses one app tab where the browser allows.
+- [x] Local server: a cross-site top-level navigation may open the app page; the API and assets
+      stay same-site only (`tests/test_network_http.py`).
+- [x] Checked in a browser on the local server and the hosted build: link, bookmarklet, tab reuse,
+      phone width, no console errors.
+- [ ] Merged and verified on the live site.
+
+**Later** A browser extension with a button on ORCID profiles, if the bookmarklet gets used.
+
 ---
 
 ## Change log
@@ -924,3 +948,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-02 | KF-17, KF-18 | Pre-deploy audit fixes: cached suggestions and paged feed (20k works), tag-limit guard, scoped since-last-visit that survives reloads, focus kept on controls, server-matching tag folding | scope |
 | 2026-11-02 | KF-18 | Phone Filters toggle and suggestions above the list on narrow screens; 50-card paging on person outputs, Saved and project outputs; fix stray "null" under the Feed controls | scope |
 | 2026-11-02 | KF-17, KF-18 | Merged to main (834bf06, #36 with #37); CI and Firebase deploy green; verified on orcid-playground-889.web.app/network/ (Feed views, suggestions, tag from the People "+" panel, group deletion, phone Filters toggle, no console errors). Unshipped extras moved to "Later" | in-review → done |
+| 2026-11-02 | KF-20 | Add from ORCID pages: `#contacts?add=` link and bookmarklet (#33); narrow cross-site navigation allowance on the local server; fix stray "false" under bulk previews | — → in-review |
