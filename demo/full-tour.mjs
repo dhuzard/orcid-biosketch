@@ -20,7 +20,7 @@ try {
   const intro = await titleCard(browser, 'tour-intro',
     `<h1>Your public research record,<br><em>put to work.</em></h1><p>Explore a scientist-first, open-source toolkit based on ORCID record assertions.</p><div><span class="pill">Profiles and exports</span><span class="pill">Contacts and groups</span></div>`, 5);
   const outro = await titleCard(browser, 'tour-outro',
-    `<h1>Try it. Question it.<br><em>Help shape it.</em></h1><p>Independent of ORCID, Inc. No account needed to explore public records.</p><div><span class="pill">https://${SITE}/</span><span class="pill">/​feedback/</span></div>`, 7);
+    `<h1>Try it. Question it.<br><em>Help shape it.</em></h1><p>Independent of ORCID, Inc. No account needed to explore public records.</p><div><span class="pill">https://${SITE}/</span><span class="pill">/feedback/</span></div>`, 7);
   // Long cuts have their own opening and closing title cards; trim them so the tour feels continuous.
   const specs = [
     {file:required[0],from:5.5,tail:5.1,title:'Studio and research network'},
