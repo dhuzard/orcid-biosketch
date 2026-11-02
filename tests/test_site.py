@@ -31,6 +31,9 @@ def test_network_page_runs_the_pilot_on_the_browser_engine(tmp_path):
 def test_team_package_crypto_is_published_and_cached_offline(tmp_path):
     files = build_site.build(tmp_path / "site", client_id="")
     assert "teampack.js" in files
+    assert "feedback.js" in files and "feedback/index.html" in files
+    assert "mailto:" not in (tmp_path / "site" / "feedback" / "index.html").read_text(encoding="utf-8")
+    assert 'href="/feedback/"' in (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
     assert "'/teampack.js'" in (tmp_path / "site" / "sw.js").read_text(encoding="utf-8")
     assert "from '/teampack.js'" in (tmp_path / "site" / "group.js").read_text(encoding="utf-8")
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
@@ -110,5 +113,5 @@ def test_service_worker_is_stamped_with_the_site_digest_and_manifest_is_valid(tm
     assert worker("c") != worker("a")
     manifest = json.loads((tmp_path / "a" / "manifest.webmanifest").read_text(encoding="utf-8"))
     assert all((tmp_path / "a" / icon["src"].lstrip("/")).is_file() for icon in manifest["icons"])
-    for page in ("index.html", "group/index.html", "network/index.html"):
+    for page in ("index.html", "group/index.html", "network/index.html", "feedback/index.html"):
         assert 'rel="manifest"' in (tmp_path / "a" / page).read_text(encoding="utf-8"), page
