@@ -10,3 +10,4 @@
 .feed-layout{grid-template-areas:"list suggest" "list side";grid-template-rows:auto 1fr;row-gap:0}.feed-list{grid-area:list}.feed-suggest{grid-area:suggest;margin-bottom:24px}.feed-side{grid-area:side}.feed-controls-top{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.feed-filter-panel{display:grid;gap:12px}.filters-toggle{display:none!important}.show-more{justify-self:center}
 @media(max-width:1100px){.feed-layout{grid-template-areas:"suggest" "list" "side";grid-template-rows:auto}.feed-side{margin-top:24px}}
 @media(max-width:720px){.button.filters-toggle{display:inline-flex!important}.feed-filter-panel:not(.open){display:none}.feed-filters .input{width:100%;max-width:none}}
+.bookmarklet{margin-top:18px;border-top:1px solid #edf0e8;padding-top:14px}.bookmarklet summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--green)}.bookmarklet a.button{cursor:grab}

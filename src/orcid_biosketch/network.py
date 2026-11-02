@@ -189,7 +189,7 @@ class PilotHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
-    def permitted_request(self, *, mutation=False):
+    def permitted_request(self, *, mutation=False, entry_page=False):
         port = self.server.server_address[1]
         hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
         host = self.headers.get("Host", "")
@@ -200,7 +200,11 @@ class PilotHandler(BaseHTTPRequestHandler):
         if origin and origin != f"http://{host}":
             self.send_payload(403, {"error": "Cross-origin requests are not accepted."})
             return False
-        if self.headers.get("Sec-Fetch-Site") == "cross-site":
+        # Opening the app page itself from another site (e.g. the ORCID bookmarklet) is a plain
+        # navigation to static HTML: the iD stays in the URL fragment and is never sent here.
+        navigation = (entry_page and self.headers.get("Sec-Fetch-Mode") == "navigate"
+                      and self.headers.get("Sec-Fetch-Dest") == "document")
+        if self.headers.get("Sec-Fetch-Site") == "cross-site" and not navigation:
             self.send_payload(403, {"error": "Cross-site requests are not accepted."})
             return False
         if mutation and self.headers.get("X-Pilot-Request") != "1":
@@ -209,9 +213,9 @@ class PilotHandler(BaseHTTPRequestHandler):
         return True
 
     def do_GET(self):
-        if not self.permitted_request():
-            return
         path = urlsplit(self.path).path
+        if not self.permitted_request(entry_page=path in ("/", "/index.html")):
+            return
         try:
             if path in ASSETS:
                 name, mime = ASSETS[path]
