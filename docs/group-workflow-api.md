@@ -83,3 +83,16 @@ State gains `contacts: {person_id: {tags, met_on, notes[], actions[]}}`. All POS
 - `POST /api/contacts/delete` `{person_id, kind: note|action, entry_id}`.
 
 Contacts are never in team packs or group packages; the workspace backup includes them.
+
+### Adding people from ORCID pages (#33)
+
+- `#contacts?add=<iD or orcid.org link>[,…]` opens Contacts with the iDs added to "I just met
+  people" (same parsing and check-digit validation as pasted text, at most 2000 characters).
+  The hash is reset to `#contacts` at once. Nothing is imported or tagged until the user chooses
+  Import & tag; entries already in the list keep their results.
+- The bookmarklet under "Add people straight from ORCID pages" runs on `orcid.org` record pages
+  only. It reads the iD from the page path, never the page content, and opens this app's
+  address in a tab named `orcid-network`, so later clicks reuse that tab where the browser allows.
+- The local server accepts one kind of cross-site request: a top-level navigation
+  (`Sec-Fetch-Mode: navigate`, `Sec-Fetch-Dest: document`) to `/` or `/index.html`. The Host check
+  still applies, and the API and static assets still reject cross-site requests.

@@ -71,6 +71,23 @@ def test_rejects_cross_site_reads_and_writes(tmp_path, headers):
         assert request(server)[1]["people"] == []
 
 
+NAVIGATE = {"Sec-Fetch-Site": "cross-site", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "document"}
+
+
+@pytest.mark.parametrize("path", ["/", "/index.html"])
+def test_cross_site_navigation_may_open_the_app_page_only(tmp_path, path):
+    """The ORCID bookmarklet opens the app page from orcid.org; nothing else is reachable cross-site."""
+    with running_server(tmp_path) as server:
+        status, body = request(server, path=path, headers=NAVIGATE)
+        assert status == 200 and b"<html" in body.lower()
+        assert request(server, path="/api/state", headers=NAVIGATE)[0] == 403
+        assert request(server, path="/app.js", headers=NAVIGATE)[0] == 403
+        assert request(server, path=path, headers={**NAVIGATE, "Sec-Fetch-Mode": "no-cors"})[0] == 403
+        assert request(server, path=path, headers={**NAVIGATE, "Sec-Fetch-Dest": "iframe"})[0] == 403
+        assert request(server, path=path, headers={**NAVIGATE, "Host": "evil.example"})[0] == 403
+        assert request(server, "POST", "/api/demo", {}, {**NAVIGATE, "X-Pilot-Request": "1"})[0] == 403
+        assert request(server)[1]["people"] == []
+
 def test_rejects_invalid_mutations_and_static_traversal(tmp_path):
     with running_server(tmp_path) as server:
         assert request(server, "POST", "/api/demo", {}, {"X-Pilot-Request": ""})[0] == 403

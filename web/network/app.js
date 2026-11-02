@@ -47,10 +47,26 @@ export function parseOrcidList(text) {
 }
 
 export function groupRoute(hash) {
-  const [view, encodedId] = hash.replace(/^#/, '').split('/');
+  const [view, encodedId] = hash.replace(/^#/, '').split('?')[0].split('/');
   let id = null;
   try { id = view === 'groups' && encodedId ? decodeURIComponent(encodedId) : null; } catch { /* Invalid URL stays at the groups list. */ }
   return { view: ['feed', 'people', 'contacts', 'groups', 'saved'].includes(view) ? view : 'feed', id };
+}
+
+// "#contacts?add=<iD>" pre-fills "I just met people". Nothing is imported until the user confirms.
+export function addRoute(hash) {
+  const raw = hash.replace(/^#/, '');
+  const at = raw.indexOf('?');
+  if (at < 0 || raw.slice(0, at) !== 'contacts') return null;
+  const value = new URLSearchParams(raw.slice(at + 1)).get('add');
+  return value ? value.slice(0, 2000) : null;
+}
+
+// A bookmark for ORCID record pages. It reads only the iD in the page address and opens this app
+// (reusing its tab where the browser allows), so the person lands in the list above.
+export function bookmarklet(base) {
+  const code = `(()=>{const m=/^\\/(\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dXx])(?:\\/|$)/.exec(location.pathname);if(!/^(www\\.)?orcid\\.org$/.test(location.hostname)||!m){alert('Open an ORCID record page (orcid.org/0000-…) first.');return}window.open(${JSON.stringify(`${base}#contacts?add=`)}+m[1].toUpperCase(),'orcid-network')})()`;
+  return `javascript:${encodeURIComponent(code)}`;
 }
 
 function draftsFor(group) {
@@ -660,14 +676,14 @@ function bulkRoster(group) {
   const refresh = () => {
     if (!draft.bulk) return;
     const entries = draft.bulk.entries;
-    results.replaceChildren(
+    results.replaceChildren(...[
       el('p', { class: 'helper' }, `${entries.filter(e => e.valid).length} valid · ${entries.filter(e => !e.valid).length} invalid · duplicates removed`),
       draft.bulk.overLimit && el('p', { class: 'inline-error', role: 'alert' }, 'Use at most 50 unique entries per batch. No imports have started.'),
       el('ul', { class: 'bulk-list' }, entries.map(entry => el('li', { class: `bulk-entry ${entry.status}` }, el('strong', {}, entry.id), el('span', {}, entry.status === 'ready' && state.people.some(p => p.orcid === entry.id && !p.demo) ? 'Existing import will be reused' : entry.message)))),
       el('div', { class: 'card-actions' },
         button('Import & add to group', () => runBulk(group), 'accent', { disabled: busy || bulkRunning || draft.bulk.overLimit || !entries.some(e => ['ready', 'cancelled'].includes(e.status)) }),
         entries.some(e => e.status === 'error') && button('Retry failed entries', () => runBulk(group, true), 'quiet', { disabled: busy || bulkRunning || draft.bulk.overLimit }),
-        bulkRunning && button(draft.cancel ? 'Stopping after this record…' : 'Stop after current record', () => { draft.cancel = true; refresh(); }, 'quiet', { disabled: draft.cancel }))
+        bulkRunning && button(draft.cancel ? 'Stopping after this record…' : 'Stop after current record', () => { draft.cancel = true; refresh(); }, 'quiet', { disabled: draft.cancel }))].filter(Boolean)
     );
   };
   refresh();
@@ -831,6 +847,22 @@ export function openActions(contacts, ids) {
 }
 const today = () => new Date().toISOString().slice(0, 10);
 
+function prefillMeeting(value) {
+  history.replaceState(null, '', '#contacts');
+  if (bulkRunning) return notice('An import is running. Click the bookmark on that ORCID page again once it finishes.', true);
+  const draft = contactDrafts.meeting;
+  // Keep the results of entries already in the list, so finished imports are not run again.
+  const before = new Map((draft.bulk?.entries || []).map(e => [e.id, e]));
+  const known = new Set(parseOrcidList(draft.text).entries.map(e => e.id));
+  const added = parseOrcidList(value).entries.filter(e => !known.has(e.id));
+  if (added.length) draft.text = [draft.text.trim(), ...added.map(e => e.id)].filter(Boolean).join('\n');
+  draft.bulk = parseOrcidList(draft.text);
+  draft.bulk.entries = draft.bulk.entries.map(e => before.get(e.id) || e);
+  const valid = added.filter(e => e.valid).map(e => e.id);
+  if (valid.length) notice(`Added ${valid.join(', ')} to “I just met people”. Name the context, then choose Import & tag. Nothing is imported until then.`);
+  else notice(added.length ? 'That link held no valid ORCID iD. See the entry marked invalid below.' : 'That ORCID iD is already in the list below.', added.length > 0);
+}
+
 async function runMeeting() {
   const draft = contactDrafts.meeting;
   const tagName = draft.tag.trim();
@@ -876,20 +908,23 @@ function meetingForm() {
   const refresh = () => {
     if (!draft.bulk) return;
     const entries = draft.bulk.entries;
-    results.replaceChildren(
+    results.replaceChildren(...[
       el('p', { class: 'helper' }, `${entries.filter(e => e.valid).length} valid · ${entries.filter(e => !e.valid).length} invalid · duplicates removed`),
       draft.bulk.overLimit && el('p', { class: 'inline-error', role: 'alert' }, 'Use at most 50 unique entries per batch. No imports have started.'),
       el('ul', { class: 'bulk-list' }, entries.map(e => el('li', { class: `bulk-entry ${e.status}` }, el('strong', {}, e.id), el('span', {}, e.status === 'ready' && state.people.some(p => p.orcid === e.id && !p.demo) ? 'Existing import will be reused' : e.message)))),
       el('div', { class: 'card-actions' },
         button('Import & tag', runMeeting, 'accent', { disabled: busy || bulkRunning || draft.bulk.overLimit || !entries.some(e => ['ready', 'error', 'cancelled'].includes(e.status)) }),
-        bulkRunning && button(draft.cancel ? 'Stopping…' : 'Stop after current record', () => { draft.cancel = true; refresh(); }, 'quiet', { disabled: draft.cancel })));
+        bulkRunning && button(draft.cancel ? 'Stopping…' : 'Stop after current record', () => { draft.cancel = true; refresh(); }, 'quiet', { disabled: draft.cancel }))].filter(Boolean));
   };
   refresh();
   return el('section', { class: 'editor' }, el('h3', {}, 'I just met people'),
     el('p', { class: 'helper' }, 'Tag everyone from one conference or context. Tags, notes and follow-ups stay in this browser; they are never part of a team pack and the people do not see them.'),
     list, el('label', { class: 'field' }, 'Conference or context', tagInput), el('label', { class: 'field' }, 'Date met', date),
     el('label', { class: 'field' }, 'ORCID iDs', text),
-    button('Preview list', () => { draft.bulk = parseOrcidList(text.value); refresh(); }, 'quiet'), results);
+    button('Preview list', () => { draft.bulk = parseOrcidList(text.value); refresh(); }, 'quiet'), results,
+    el('details', { class: 'bookmarklet' }, el('summary', {}, 'Add people straight from ORCID pages'),
+      el('p', { class: 'helper' }, 'On a computer, drag this button to your bookmarks bar. On any ORCID record page, click the bookmark: that person is added to the list above. It reads only the iD in the page address and imports nothing until you choose Import & tag.'),
+      el('a', { class: 'button quiet small', href: bookmarklet(`${location.origin}${location.pathname}`), onclick: e => { e.preventDefault(); notice('Drag this button to your bookmarks bar, then click the bookmark on an ORCID record page.'); } }, '+ Add to my network')));
 }
 
 function contactCard(person) {
@@ -1002,8 +1037,12 @@ function navigate(view) {
 async function initialize() {
   const route = groupRoute(location.hash);
   currentView = route.view; selectedGroup = route.id;
+  const add = addRoute(location.hash);
+  if (add) prefillMeeting(add);
   window.addEventListener('hashchange', () => {
     const route = groupRoute(location.hash);
+    const add = addRoute(location.hash);
+    if (add) prefillMeeting(add);
     currentView = route.view;
     selectedPerson = null;
     listLimits.clear();

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, allTags, openActions } from './app.js';
+import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, addRoute, bookmarklet, allTags, openActions } from './app.js';
 
 test('external links reject executable and relative URLs', () => {
   for (const value of ['javascript:alert(1)', 'data:text/html,hello', '/api/state', '', null]) assert.equal(safeUrl(value), null);
@@ -64,6 +64,35 @@ test('group routes restore a selected group and tolerate malformed hashes', () =
   assert.deepEqual(groupRoute('#groups/%invalid'), { view: 'groups', id: null });
   assert.deepEqual(groupRoute('#people'), { view: 'people', id: null });
   assert.deepEqual(groupRoute('#nonsense'), { view: 'feed', id: null });
+  assert.deepEqual(groupRoute('#contacts?add=0000-0002-1825-0097'), { view: 'contacts', id: null });
+});
+
+test('add links only pre-fill Contacts and are bounded', () => {
+  assert.equal(addRoute('#contacts?add=0000-0002-1825-0097'), '0000-0002-1825-0097');
+  assert.equal(addRoute('#contacts?add=https%3A%2F%2Forcid.org%2F0000-0002-1825-0097'), 'https://orcid.org/0000-0002-1825-0097');
+  assert.equal(addRoute('#contacts'), null);
+  assert.equal(addRoute('#contacts?add='), null);
+  assert.equal(addRoute('#groups?add=0000-0002-1825-0097'), null);
+  assert.equal(addRoute('#feed'), null);
+  assert.equal(addRoute(`#contacts?add=${'9'.repeat(5000)}`).length, 2000);
+});
+
+test('the bookmarklet opens this app with the iD from an ORCID record address only', () => {
+  const href = bookmarklet('https://example.test/network/');
+  assert.ok(href.startsWith('javascript:'));
+  const run = (hostname, pathname) => {
+    const calls = { opened: [], alerts: [] };
+    new Function('location', 'window', 'alert', decodeURIComponent(href.slice('javascript:'.length)))(
+      { hostname, pathname }, { open: (url, name) => calls.opened.push([url, name]) }, text => calls.alerts.push(text));
+    return calls;
+  };
+  assert.deepEqual(run('orcid.org', '/0000-0002-1694-233x').opened, [['https://example.test/network/#contacts?add=0000-0002-1694-233X', 'orcid-network']]);
+  assert.deepEqual(run('www.orcid.org', '/0000-0002-1825-0097/print').opened, [['https://example.test/network/#contacts?add=0000-0002-1825-0097', 'orcid-network']]);
+  for (const [hostname, pathname] of [['orcid.org', '/my-orcid'], ['orcid.org.evil.example', '/0000-0002-1825-0097'], ['example.org', '/0000-0002-1825-0097'], ['orcid.org', '/0000-0002-1825-00971']]) {
+    const calls = run(hostname, pathname);
+    assert.deepEqual(calls.opened, []);
+    assert.equal(calls.alerts.length, 1);
+  }
 });
 
 test('contexts are counted by tag, most used first', () => {
