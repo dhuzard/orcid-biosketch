@@ -385,9 +385,20 @@ function personGroupPicker(person) {
     panel.hidden = !panel.hidden;
     trigger.setAttribute('aria-expanded', String(!panel.hidden));
   }, 'quiet small person-groups-trigger', {
-    id: triggerId, 'aria-label': `Add ${person.name} to a group`,
-    title: 'Add to a group', 'aria-expanded': 'false', 'aria-controls': panelId,
+    id: triggerId, 'aria-label': `Add ${person.name} to a group or tag`,
+    title: 'Add to a group or tag', 'aria-expanded': 'false', 'aria-controls': panelId,
   });
+  // Re-render, then reopen this person's panel so several additions can follow each other.
+  const saveAndReopen = async (path, body, message) => {
+    if (busy || !await mutate(path, body, message)) return false;
+    render();
+    const nextTrigger = document.getElementById(triggerId);
+    if (nextTrigger) {
+      nextTrigger.click();
+      nextTrigger.focus();
+    }
+    return true;
+  };
   panel.append(el('p', { class: 'person-groups-heading' }, 'Add to an existing group'));
   if (state.groups.length) {
     for (const group of state.groups) {
@@ -395,25 +406,33 @@ function personGroupPicker(person) {
       panel.append(el('div', { class: 'person-group-option' },
         el('span', {}, group.name),
         included ? el('span', { class: 'person-group-added' }, '✓ Added') :
-          button('Add', async () => {
+          button('Add', () => {
             const current = state.groups.find(item => item.id === group.id);
-            if (!current || busy) return;
-            if (await mutate('/api/groups/members/add', {
-              id: current.id, member_ids: [person.id],
-            }, `${person.name} added to ${current.name}.`)) {
-              render();
-              const nextTrigger = document.getElementById(triggerId);
-              if (nextTrigger) {
-                nextTrigger.click();
-                nextTrigger.focus();
-              }
-            }
+            if (current) saveAndReopen('/api/groups/members/add', { id: current.id, member_ids: [person.id] }, `${person.name} added to ${current.name}.`);
           }, 'quiet small', { 'aria-label': `Add ${person.name} to ${group.name}` })));
     }
   } else {
     panel.append(el('p', { class: 'helper' }, 'No groups yet. Create one to start your roster.'),
       button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small'));
   }
+  const personTags = contactOf(person.id).tags;
+  const tagged = new Set(personTags.map(t => t.toLowerCase()));
+  panel.append(el('p', { class: 'person-groups-heading spaced' }, 'Tag'));
+  for (const [name] of allTags(state.contacts)) {
+    panel.append(el('div', { class: 'person-group-option' },
+      el('span', {}, name),
+      tagged.has(name.toLowerCase()) ? el('span', { class: 'person-group-added' }, '✓ Tagged') :
+        button('Add', () => saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`),
+          'quiet small', { 'aria-label': `Tag ${person.name} with ${name}` })));
+  }
+  const newTag = el('input', { class: 'input', maxlength: '60', placeholder: 'New tag, e.g. FENS 2026', 'aria-label': `New tag for ${person.name}` });
+  panel.append(el('form', { class: 'person-group-option', onsubmit: event => {
+    event.preventDefault();
+    const name = newTag.value.trim();
+    if (!name) { newTag.focus(); return; }
+    saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`);
+  } }, newTag, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add tag')),
+  el('p', { class: 'helper' }, 'Tags are private to this workspace, like those in Contacts. They do not notify anyone.'));
   const picker = el('div', { class: 'person-groups', onkeydown: event => {
     if (event.key === 'Escape' && !panel.hidden) {
       event.preventDefault();
@@ -480,7 +499,17 @@ function groupEditor(group) {
   el('label', { class: 'field' }, 'Group name', name), el('label', { class: 'field' }, 'Description', description),
   el('fieldset', { class: 'roster' }, el('legend', {}, 'Members from your workspace'), checkboxes.length ? checkboxes.map(({ person, input }) => el('label', { class: 'check-label' }, input, person.name, person.demo && tag('Demo', true))) : el('p', { class: 'helper' }, 'Import people first, or create an empty group and add members later.')),
   el('p', { class: 'helper' }, 'This is a local roster. Adding someone does not notify them, confirm membership, or change their ORCID record.'),
-  el('div', { class: 'card-actions' }, el('button', { type: 'submit', class: 'button', disabled: busy }, group ? 'Save group' : 'Create group'), button('Cancel', () => { editorGroup = undefined; render(); })));
+  el('div', { class: 'card-actions' }, el('button', { type: 'submit', class: 'button', disabled: busy }, group ? 'Save group' : 'Create group'), button('Cancel', () => { editorGroup = undefined; render(); }),
+    group && button('Delete group', () => deleteGroup(group), 'quiet danger', { 'aria-label': `Delete group ${group.name}` })));
+}
+
+async function deleteGroup(group) {
+  if (!confirm(`Delete “${group.name}”? Its member roles, project selections and requests are removed from this workspace. The people, their outputs and your contact notes stay.`)) return;
+  if (!await mutate('/api/groups/delete', { id: group.id }, `Group “${group.name}” deleted.`)) return;
+  editorGroup = undefined;
+  groupDrafts.delete(group.id);
+  if (selectedGroup === group.id) location.hash = 'groups';
+  else render();
 }
 
 async function postState(path, body) {

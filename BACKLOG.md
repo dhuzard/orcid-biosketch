@@ -815,6 +815,7 @@ project starts. Everything is the researcher's own record; it asserts nothing ab
 - [x] Contacts excluded from team packs and group packages; only the workspace backup carries
       them and its disclosure says so (`tests/test_contacts.py`).
 - [x] Strict validation on restore; workspaces without contacts still load.
+- [x] People "+" panel tags a person with an existing or new tag, next to adding them to a group (#32).
 - [ ] Contacts without an ORCID iD, reminders, search across notes.
 - [ ] Merged and verified on the live site.
 
@@ -916,4 +917,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-10-31 | INF-10 | Deploy policy: main and weekly sync deploy live; previews on demand | policy |
 | 2026-10-31 | KF-16 | Workspace backup/restore, Studio "Me" panel and password-encrypted team packages, all in the browser | — → in-review |
 | 2026-10-31 | KF-17 | Contacts view: context tags, private notes and follow-ups; tag-to-group; excluded from team packs | — → in-review |
+| 2026-11-02 | KF-11, KF-17 | #32: tag from the People "+" panel; delete a group from its editor (`POST /api/groups/delete`, `tests/test_group_http.py`) | scope |
 | 2026-11-02 | KF-18 | Feed views, scope/type/topic filters, group suggestions, since-last-visit (#35); `web/network/app.test.mjs` | — → in-review |
