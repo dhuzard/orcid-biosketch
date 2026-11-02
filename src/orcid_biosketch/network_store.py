@@ -366,6 +366,15 @@ class NetworkStore:
             self._group(data, id).update(self._group_values(data, name, description, member_ids))
             self._prune(data)
 
+    def delete_group(self, id: str) -> None:
+        """Remove a group and its local roster details, selections and requests.
+
+        People, their outputs and their contact records are kept.
+        """
+        with self._transaction(True) as data:
+            self._group(data, id)
+            del data["groups"][id]
+
     def add_group_members(self, id: str, member_ids: list) -> None:
         with self._transaction(True) as data:
             group = self._group(data, id)

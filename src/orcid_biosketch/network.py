@@ -111,6 +111,10 @@ def dispatch(store, importer, method: str, target: str, payload: dict | None = N
                 if not isinstance(payload.get("id"), str):
                     raise ValueError("A group id is required.")
                 store.update_group(payload["id"], *args)
+        elif path == "/api/groups/delete":
+            if not isinstance(payload.get("id"), str):
+                raise ValueError("A group id is required.")
+            store.delete_group(payload["id"])
         elif path in ("/api/groups/members/add", "/api/groups/member", "/api/groups/output",
                       "/api/groups/requests", "/api/groups/requests/update"):
             group_id = payload.get("id")
