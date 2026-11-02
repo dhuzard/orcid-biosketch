@@ -12,6 +12,16 @@ let bulkRunning = false;
 let activeBulkGroup = null;
 let pendingCreateGroup = false;
 let activeTag = '';
+let feedView = 'new';
+let feedScope = '';
+let feedType = '';
+let feedTopic = '';
+let feedFiltersOpen = false;
+// Long lists render a page of cards at a time; this remembers how far each list was opened.
+const PAGE_SIZE = 50;
+const listLimits = new Map();
+let previousVisit = null;
+let dismissedSuggestions = [];
 const contactDrafts = { meeting: { tag: '', date: '', text: '', bulk: null }, notes: {}, actions: {}, tagInput: {} };
 const groupDrafts = new Map();
 
@@ -64,18 +74,130 @@ export function dateLabel(value) {
   return date.toLocaleDateString('en', { year: 'numeric', month: 'short', ...(isMonth ? {} : { day: 'numeric' }), timeZone: 'UTC' });
 }
 
-export function feedEntries(data) {
-  const following = new Set(data.people.filter(p => p.following).map(p => p.id));
-  const works = new Map(data.works.map(w => [w.id, w]));
-  const entries = new Map();
-  for (const event of data.events) {
-    if (!event.people_ids.some(id => following.has(id))) continue;
-    const work = works.get(event.work_id);
-    if (!work) continue;
-    const previous = entries.get(work.id);
-    if (!previous || event.observed_at > previous.event.observed_at) entries.set(work.id, { work, event });
+// ---- Feed: whose research, which view, and filters. Derived from the local workspace only. ----
+
+// Matches the server's tag key: whitespace collapsed, then Python's str.casefold()
+// (upper-then-lower folds ß to ss and ligatures like the server does).
+export const foldKey = text => text.split(/\s+/).filter(Boolean).join(' ').toUpperCase().toLowerCase();
+
+// Truncate by character, not UTF-16 unit, so an emoji is never split.
+const clip = (text, limit) => Array.from(text).slice(0, limit).join('');
+
+// A scope is '' (everyone followed), 'group:<id>' or 'tag:<name>'.
+export function scopeIds(data, scope = '') {
+  const split = scope.indexOf(':');
+  const kind = scope.slice(0, split);
+  const value = scope.slice(split + 1);
+  if (kind === 'group') return new Set(data.groups.find(g => g.id === value)?.member_ids || []);
+  if (kind === 'tag') {
+    const wanted = foldKey(value);
+    return new Set(Object.entries(data.contacts || {}).filter(([, contact]) => contact.tags.some(t => foldKey(t) === wanted)).map(([id]) => id));
   }
-  return [...entries.values()].sort((a, b) => b.event.observed_at.localeCompare(a.event.observed_at));
+  return new Set(data.people.filter(p => p.following).map(p => p.id));
+}
+
+// Keywords people list on their own ORCID records. They describe the person, not an output.
+export function feedTopics(data, scope = '') {
+  const ids = scopeIds(data, scope);
+  const topics = new Map();
+  for (const person of data.people) {
+    if (!ids.has(person.id)) continue;
+    const own = new Map(person.keywords.map(word => word.split(/\s+/).filter(Boolean).join(' ')).filter(Boolean).map(word => [foldKey(word), word]));
+    for (const [key, label] of own) {
+      if (!topics.has(key)) topics.set(key, { key, label, people_ids: [] });
+      topics.get(key).people_ids.push(person.id);
+    }
+  }
+  return [...topics.values()].sort((a, b) => b.people_ids.length - a.people_ids.length || a.label.localeCompare(b.label));
+}
+
+// 'new': newly observed outputs, latest observation first. 'published': outputs by publication
+// date, undated last. 'together': outputs listing two or more people in scope.
+export function feedItems(data, { view = 'new', scope = '', type = '', topic = '' } = {}) {
+  const ids = scopeIds(data, scope);
+  let items;
+  if (view === 'new') {
+    const works = new Map(data.works.map(w => [w.id, w]));
+    const entries = new Map();
+    for (const event of data.events) {
+      if (!event.people_ids.some(id => ids.has(id))) continue;
+      const work = works.get(event.work_id);
+      if (!work) continue;
+      const previous = entries.get(work.id);
+      if (!previous || event.observed_at > previous.event.observed_at) entries.set(work.id, { work, event });
+    }
+    items = [...entries.values()].sort((a, b) => b.event.observed_at.localeCompare(a.event.observed_at));
+  } else {
+    const needed = view === 'together' ? 2 : 1;
+    items = data.works.filter(work => new Set(work.people_ids.filter(id => ids.has(id))).size >= needed).map(work => ({ work, event: null }))
+      .sort((a, b) => (b.work.date || '').localeCompare(a.work.date || '') || (a.work.title || '').localeCompare(b.work.title || ''));
+  }
+  if (type) items = items.filter(({ work }) => work.type === type);
+  if (topic) {
+    const listers = new Set(feedTopics(data, scope).find(t => t.key === topic)?.people_ids || []);
+    items = items.filter(({ work }) => work.people_ids.some(id => listers.has(id)));
+  }
+  return items;
+}
+
+export const feedEntries = data => feedItems(data);
+
+// Outputs listing more people than this in scope (consortium papers) say little about who
+// works together and would cost O(n²) pairs each, so they do not produce pair suggestions.
+const PAIR_PEOPLE_LIMIT = 25;
+
+// Suggested tags or groups, each with its evidence: a keyword two or more people list, or
+// outputs two people are both listed on. Nothing already grouped, tagged or dismissed.
+export function groupSuggestions(data, scope = '', dismissed = []) {
+  const ids = scopeIds(data, scope);
+  const skip = new Set(dismissed);
+  const contacts = data.contacts || {};
+  const taken = new Set([...data.groups.map(g => g.name), ...allTags(contacts).map(([t]) => t)].map(foldKey));
+  // Every group and tag each person is in, built once so the pair check stays cheap.
+  const circles = new Map();
+  const join = (id, circle) => { if (!circles.has(id)) circles.set(id, new Set()); circles.get(id).add(circle); };
+  for (const group of data.groups) for (const id of group.member_ids) join(id, `group:${group.id}`);
+  for (const [id, contact] of Object.entries(contacts)) for (const t of contact.tags) join(id, `tag:${foldKey(t)}`);
+  const alreadyTogether = (a, b) => [...(circles.get(a) || [])].some(circle => circles.get(b)?.has(circle));
+  const keywords = feedTopics(data, scope).filter(t => t.people_ids.length >= 2 && !taken.has(t.key))
+    .map(t => ({ id: `keyword:${t.key}`, kind: 'keyword', label: t.label, people_ids: t.people_ids, works: [] }));
+  const pairs = new Map();
+  for (const work of data.works) {
+    const listed = [...new Set(work.people_ids.filter(id => ids.has(id)))].sort();
+    if (listed.length > PAIR_PEOPLE_LIMIT) continue;
+    for (let i = 0; i < listed.length; i++) {
+      for (let j = i + 1; j < listed.length; j++) {
+        const key = `${listed[i]}|${listed[j]}`;
+        if (!pairs.has(key)) pairs.set(key, []);
+        pairs.get(key).push(work);
+      }
+    }
+  }
+  const shared = [...pairs].filter(([key]) => !alreadyTogether(...key.split('|')))
+    .map(([key, works]) => ({ id: `pair:${key}`, kind: 'pair', label: '', people_ids: key.split('|'), works }))
+    .sort((a, b) => b.works.length - a.works.length || a.id.localeCompare(b.id));
+  return [...keywords, ...shared].filter(s => !skip.has(s.id));
+}
+
+// Counts the same newly observed outputs the feed shows for this scope and filters.
+export function sinceLastVisit(data, since, options = {}) {
+  if (!since) return null;
+  const fresh = feedItems(data, { ...options, view: 'new' }).filter(({ event }) => event.observed_at > since);
+  const groups = data.groups.map(g => {
+    const members = new Set(g.member_ids);
+    return { id: g.id, name: g.name, count: fresh.filter(({ work }) => work.people_ids.some(id => members.has(id))).length };
+  }).filter(g => g.count).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  return { total: fresh.length, groups };
+}
+
+// The visit before this one survives reloads and extra tabs within half an hour, so
+// "new since your last visit" is not wiped by a refresh.
+export function nextVisit(stored, now, sessionMs = 30 * 60 * 1000) {
+  const valid = value => typeof value === 'string' && !Number.isNaN(Date.parse(value));
+  const seen = valid(stored?.seen) ? stored.seen : null;
+  const previous = valid(stored?.previous) ? stored.previous : null;
+  if (seen && Date.parse(now) - Date.parse(seen) < sessionMs) return { seen: now, previous };
+  return { seen: now, previous: seen };
 }
 
 export function groupWorks(data, memberIds) {
@@ -171,7 +293,11 @@ function toolbar(label, placeholder, refresh) {
   return el('div', { class: 'toolbar' }, el('span', { class: 'section-kicker' }, label), input);
 }
 
-function workCard(work, event = null) {
+// Per-viewer conveniences (last visit, dismissed suggestions); the page works without them.
+const remembered = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
+const remember = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage unavailable; keep it in memory only. */ } };
+
+function workCard(work, event = null, fresh = false) {
   const people = peopleFor(work.people_ids);
   const following = people.filter(p => p.following);
   const url = work.doi ? `https://doi.org/${work.doi.replace(/^https?:\/\/(?:dx\.)?doi\.org\//i, '')}` : work.url;
@@ -179,7 +305,7 @@ function workCard(work, event = null) {
     el('div', { class: 'card-top' },
       el('div', { class: 'people-line' }, el('div', { class: 'avatars' }, people.slice(0, 3).map(p => avatar(p))),
         el('span', {}, people.map(p => p.name).join(' · ') || 'Research output')),
-      work.demo && tag('Demo', true)),
+      el('div', { class: 'chips' }, fresh && tag('New since last visit'), work.demo && tag('Demo', true))),
     tag((work.type || 'Research output').replaceAll('-', ' ')),
     el('h3', {}, externalLink(work.title || 'Untitled output', url)),
     el('div', { class: 'work-meta' }, el('span', {}, `Publication date: ${dateLabel(work.date)}`), event && el('span', {}, `• Observed ${dateLabel(event.observed_at)}`)),
@@ -190,22 +316,159 @@ function workCard(work, event = null) {
       button(work.saved ? '✓ Saved' : '+ Save', () => update('/api/save', { id: work.id, saved: !work.saved }, work.saved ? 'Removed from your reading list.' : 'Saved to your reading list.'), 'quiet small', { 'aria-pressed': String(work.saved), 'aria-label': `${work.saved ? 'Unsave' : 'Save'} ${work.title}` })));
 }
 
+// The server refuses a tag write for everyone if one person would pass this limit.
+const TAG_LIMIT = 20;
+const tagLimitReached = (personId, name) => {
+  const tags = contactOf(personId).tags;
+  return tags.length >= TAG_LIMIT && !tags.some(t => foldKey(t) === foldKey(name));
+};
+
+function suggestionCard(suggestion) {
+  const people = peopleFor(suggestion.people_ids);
+  const names = people.map(p => p.name);
+  const keyword = suggestion.kind === 'keyword';
+  const name = keyword ? suggestion.label : names.join(' & ');
+  const tagName = clip(name, 60);
+  const full = people.filter(p => tagLimitReached(p.id, tagName)).map(p => p.name);
+  const count = suggestion.works.length;
+  const evidence = keyword
+    ? `${names.length} people list “${suggestion.label}” on their ORCID records: ${names.join(', ')}.`
+    : `Both listed on ${count} output${count > 1 ? 's' : ''}: ${suggestion.works.slice(0, 2).map(w => `“${w.title || 'Untitled output'}”`).join(', ')}${count > 2 ? '…' : ''}`;
+  const description = keyword ? `Suggested because each member lists “${suggestion.label}” on their ORCID record.` : `Suggested because both are listed on ${count} shared output${count > 1 ? 's' : ''}.`;
+  return el('div', { class: 'suggestion' }, el('strong', {}, name), el('p', {}, evidence),
+    button('Make it a tag', () => update('/api/contacts/tags', { person_ids: suggestion.people_ids, add: [tagName] }, `Tagged ${names.length} people “${tagName}”. Find them in Contacts.`), 'quiet small', { 'aria-label': `Make a tag: ${name}`, disabled: busy || bulkRunning || full.length > 0 }),
+    full.length > 0 && el('p', { class: 'helper' }, `${full.join(', ')} already ${full.length > 1 ? 'have' : 'has'} ${TAG_LIMIT} tags. Remove one in Contacts first, or make a group instead.`),
+    button('Make it a group', () => update('/api/groups', { name: clip(name, 120), description, member_ids: suggestion.people_ids }, 'Group created. Add roles and requests in Groups.'), 'quiet small', { 'aria-label': `Make a group: ${name}` }),
+    button('Dismiss', () => {
+      dismissedSuggestions = [...dismissedSuggestions, suggestion.id];
+      remember('network-feed-dismissed', dismissedSuggestions);
+      render();
+      (document.querySelector('.suggestion .button') || document.querySelector('#main')).focus();
+    }, 'quiet small', { 'aria-label': `Dismiss suggestion: ${name}` }));
+}
+
+// Pair suggestions are the costliest thing on the page; recompute only when the workspace,
+// scope or dismissals change. Every write replaces `state`, which invalidates this.
+let suggestionCache = {};
+
+function suggestionsPanel() {
+  if (suggestionCache.state !== state || suggestionCache.scope !== feedScope || suggestionCache.dismissed !== dismissedSuggestions) {
+    suggestionCache = { state, scope: feedScope, dismissed: dismissedSuggestions, value: groupSuggestions(state, feedScope, dismissedSuggestions) };
+  }
+  const all = suggestionCache.value;
+  const picks = [...all.filter(s => s.kind === 'keyword').slice(0, 2), ...all.filter(s => s.kind === 'pair').slice(0, 2)];
+  if (!picks.length) return null;
+  return el('aside', { class: 'panel feed-suggest' }, el('div', { class: 'eyebrow' }, 'GROUP SUGGESTIONS'), el('h3', { class: 'panel-title' }, 'Who belongs together?'),
+    picks.map(suggestionCard),
+    el('p', {}, 'Based only on keywords and outputs in the imported records. Nothing is created until you choose, and nobody is notified.'));
+}
+
 function sidePanels() {
   const followed = state.people.filter(p => p.following).slice(0, 4);
-  return el('div', { class: 'stack' },
+  return el('div', { class: 'stack feed-side' },
     el('aside', { class: 'panel' }, el('div', { class: 'eyebrow' }, 'MAKE YOUR CIRCLE'), el('h3', { class: 'panel-title' }, 'Good research starts with people.'), el('p', {}, 'Paste an ORCID iD or profile link to follow their public research record.'), importForm(true), el('p', {}, 'Updates are checked only when you choose Refresh. No background polling.')),
     el('aside', { class: 'panel' }, el('h3', {}, 'In your circle'), followed.length ? el('div', { class: 'small-list' }, followed.map(p => el('div', { class: 'small-person' }, avatar(p), el('div', {}, el('strong', {}, p.name), el('span', {}, p.affiliation || (p.demo ? 'Sample researcher' : 'Imported public record')))))) : el('p', {}, 'Follow your first researcher to start a circle.'), button('Explore people →', () => navigate('people'), 'quiet small')),
     el('aside', { class: 'panel' }, el('h3', {}, 'Less admin. More discovery.'), el('p', {}, 'Bring a working group together and download its member roster, bibliography, and biosketches in one team pack.'), button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small')));
 }
 
+const feedViews = [['new', 'New on ORCID'], ['published', 'Recently published'], ['together', 'Together']];
+
+function feedEmpty() {
+  if (search) return empty('No matching outputs.', 'Try another title or researcher name.');
+  if (feedType || feedTopic) return empty('Nothing matches these filters.', 'Try another output type or topic.');
+  if (feedView === 'together') return empty('No shared outputs here yet.', 'Outputs listed by two or more people in this view appear here. Nothing is inferred beyond the imported records.');
+  if (feedView === 'published') return empty('No outputs here yet.', 'Follow researchers in People, or choose a group or tag with imported records.', button('Browse people →', () => navigate('people'), 'quiet'));
+  return empty('You’re all caught up.', 'The first ORCID import creates a baseline, so older papers do not flood your feed. Refresh a researcher in People to discover newly added works, or switch to Recently published to browse everything imported.', button('Browse people →', () => navigate('people'), 'quiet'));
+}
+
+// The first page of `items` as cards, then a "Show more" button that calls `refresh`
+// (the list's own redraw) so the rest of the page is left alone.
+function paged(key, items, card, refresh) {
+  const limit = listLimits.get(key) || PAGE_SIZE;
+  const rest = items.length - Math.min(limit, items.length);
+  const focusKey = `more-${key}`;
+  return [...items.slice(0, limit).map(card), rest > 0 && button(`Show ${Math.min(PAGE_SIZE, rest)} more (${rest} left)`, () => {
+    listLimits.set(key, limit + PAGE_SIZE);
+    refresh();
+    document.querySelector(`[data-focus="${CSS.escape(focusKey)}"]`)?.focus();
+  }, 'quiet show-more', { 'data-focus': focusKey })].filter(Boolean);
+}
+
+// A control change starts the list again from its first page.
+function changeFeed(apply) {
+  apply();
+  listLimits.delete('feed');
+  render();
+}
+
+function feedControls(types, topics) {
+  const tags = allTags(state.contacts);
+  const scope = el('select', { class: 'input', 'aria-label': 'Whose research', 'data-focus': 'feed-scope', onchange: event => changeFeed(() => { feedScope = event.target.value; feedTopic = ''; }) },
+    el('option', { value: '' }, 'Everyone I follow'),
+    state.groups.length > 0 && el('optgroup', { label: 'Groups' }, state.groups.map(g => el('option', { value: `group:${g.id}` }, g.name))),
+    tags.length > 0 && el('optgroup', { label: 'Tags' }, tags.map(([t]) => el('option', { value: `tag:${t}` }, t))));
+  scope.value = feedScope;
+  const type = el('select', { class: 'input', 'aria-label': 'Output type', 'data-focus': 'feed-type', onchange: event => changeFeed(() => { feedType = event.target.value; }) },
+    el('option', { value: '' }, 'All output types'), types.map(t => el('option', { value: t }, t.replaceAll('-', ' '))));
+  type.value = feedType;
+  const shown = topics.slice(0, 12);
+  const chosen = topics.find(t => t.key === feedTopic);
+  if (chosen && !shown.includes(chosen)) shown.push(chosen);
+  // On phones the filters fold behind a toggle; on wider screens the toggle is hidden by CSS.
+  const active = [feedScope, feedType, feedTopic].filter(Boolean).length;
+  const panel = el('div', { class: `feed-filter-panel${feedFiltersOpen ? ' open' : ''}`, id: 'feed-filter-panel' },
+    el('div', { class: 'feed-filters' }, scope, type),
+    shown.length > 0 && el('div', { class: 'chips', role: 'group', 'aria-label': 'Topics people list on their ORCID records' },
+      el('span', { class: 'section-kicker' }, 'PEOPLE WHO LIST'),
+      button('Any topic', () => changeFeed(() => { feedTopic = ''; }), feedTopic ? 'quiet small' : 'small', { 'aria-pressed': String(!feedTopic), 'data-focus': 'feed-topic-any' }),
+      shown.map(t => button(`${t.label} (${t.people_ids.length})`, () => changeFeed(() => { feedTopic = feedTopic === t.key ? '' : t.key; }), feedTopic === t.key ? 'small' : 'quiet small', { 'aria-pressed': String(feedTopic === t.key), 'data-focus': `feed-topic-${t.key}` }))),
+    chosen && el('p', { class: 'helper' }, `Outputs listing someone who lists “${chosen.label}” on their ORCID record. The keyword describes the person, not necessarily the output.`));
+  const toggle = button(active ? `Filters · ${active} on` : 'Filters', () => {
+    feedFiltersOpen = !feedFiltersOpen;
+    panel.classList.toggle('open', feedFiltersOpen);
+    toggle.setAttribute('aria-expanded', String(feedFiltersOpen));
+  }, 'quiet small filters-toggle', { 'aria-expanded': String(feedFiltersOpen), 'aria-controls': 'feed-filter-panel', 'data-focus': 'feed-filters-toggle' });
+  return el('div', { class: 'feed-controls' },
+    el('div', { class: 'feed-controls-top' },
+      el('div', { class: 'chips', role: 'group', 'aria-label': 'Feed view' }, feedViews.map(([id, label]) =>
+        button(label, () => changeFeed(() => { feedView = id; }), feedView === id ? 'small' : 'quiet small', { 'aria-pressed': String(feedView === id), 'data-focus': `feed-view-${id}` }))),
+      toggle),
+    panel);
+}
+
+function sinceBanner() {
+  const since = feedView === 'new' && sinceLastVisit(state, previousVisit, { scope: feedScope, type: feedType, topic: feedTopic });
+  if (!since?.total) return null;
+  const groups = since.groups.slice(0, 3).map(g => `${g.count} from ${g.name}`);
+  return el('div', { class: 'since-banner', role: 'status' },
+    el('span', {}, el('strong', {}, `${since.total} new since your last visit (${dateLabel(previousVisit)})`), groups.length ? ` · ${groups.join(' · ')}` : ''),
+    button('Mark as seen', () => {
+      previousVisit = new Date().toISOString();
+      remember('network-feed-visit', { seen: previousVisit, previous: previousVisit });
+      render();
+      document.querySelector('#main').focus();
+    }, 'quiet small'));
+}
+
 function renderFeed(view) {
-  const list = el('div', { class: 'stack' });
+  const [kind, value] = [feedScope.slice(0, feedScope.indexOf(':')), feedScope.slice(feedScope.indexOf(':') + 1)];
+  if ((kind === 'group' && !state.groups.some(g => g.id === value)) || (kind === 'tag' && !allTags(state.contacts).some(([t]) => t === value))) feedScope = '';
+  const topics = feedTopics(state, feedScope);
+  if (!topics.some(t => t.key === feedTopic)) feedTopic = '';
+  const base = feedItems(state, { view: feedView, scope: feedScope, topic: feedTopic });
+  const types = [...new Set(base.map(({ work }) => work.type).filter(Boolean))].sort();
+  if (!types.includes(feedType)) feedType = '';
+  const items = feedType ? base.filter(({ work }) => work.type === feedType) : base;
+  const list = el('div', { class: 'stack feed-list' });
   function results() {
-    const all = feedEntries(state);
-    const entries = all.filter(({ work }) => matches(work));
-    list.replaceChildren(...(entries.length ? entries.map(({ work, event }) => workCard(work, event)) : [empty(search ? 'No matching updates.' : 'You’re all caught up.', search ? 'Try another title or researcher name.' : 'The first ORCID import creates a baseline, so older papers do not flood your feed. Refresh a researcher in People to discover newly added works. You can browse all imported works there now.', !search && button('Browse people →', () => navigate('people'), 'quiet'))]));
+    const entries = items.filter(({ work }) => matches(work));
+    list.replaceChildren(...(entries.length ? paged('feed', entries, ({ work, event }) => workCard(work, event, Boolean(event && previousVisit && event.observed_at > previousVisit)), results) : [feedEmpty()]));
   }
-  view.append(toolbar('RESEARCH, WITHOUT THE NOISE', 'Search updates or researchers', results), el('div', { class: 'feed-layout' }, list, sidePanels()));
+  // Suggestions come before the list in the page so narrow screens show them first;
+  // on wide screens CSS grid areas put them at the top of the side column.
+  // Unlike el(), append() would print a missing banner as the text "null".
+  view.append(...[toolbar('RESEARCH, WITHOUT THE NOISE', 'Search updates or researchers', results), feedControls(types, topics), sinceBanner(),
+    el('div', { class: 'feed-layout' }, suggestionsPanel(), list, sidePanels())].filter(Boolean));
   results();
 }
 
@@ -248,23 +511,24 @@ function personGroupPicker(person) {
       button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small'));
   }
   const personTags = contactOf(person.id).tags;
-  const tagged = new Set(personTags.map(t => t.toLowerCase()));
+  const tagged = new Set(personTags.map(foldKey));
+  const full = personTags.length >= TAG_LIMIT;
   panel.append(el('p', { class: 'person-groups-heading spaced' }, 'Tag'));
   for (const [name] of allTags(state.contacts)) {
     panel.append(el('div', { class: 'person-group-option' },
       el('span', {}, name),
-      tagged.has(name.toLowerCase()) ? el('span', { class: 'person-group-added' }, '✓ Tagged') :
+      tagged.has(foldKey(name)) ? el('span', { class: 'person-group-added' }, '✓ Tagged') :
         button('Add', () => saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`),
-          'quiet small', { 'aria-label': `Tag ${person.name} with ${name}` })));
+          'quiet small', { 'aria-label': `Tag ${person.name} with ${name}`, disabled: busy || bulkRunning || full })));
   }
-  const newTag = el('input', { class: 'input', maxlength: '60', placeholder: 'New tag, e.g. FENS 2026', 'aria-label': `New tag for ${person.name}` });
+  const newTag = el('input', { class: 'input', maxlength: '60', placeholder: 'New tag, e.g. FENS 2026', 'aria-label': `New tag for ${person.name}`, disabled: full });
   panel.append(el('form', { class: 'person-group-option', onsubmit: event => {
     event.preventDefault();
     const name = newTag.value.trim();
     if (!name) { newTag.focus(); return; }
     saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`);
-  } }, newTag, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add tag')),
-  el('p', { class: 'helper' }, 'Tags are private to this workspace, like those in Contacts. They do not notify anyone.'));
+  } }, newTag, el('button', { type: 'submit', class: 'button quiet small', disabled: busy || full }, 'Add tag')),
+  el('p', { class: 'helper' }, full ? `${person.name} has ${TAG_LIMIT} tags, the most allowed. Remove one in Contacts to add another.` : 'Tags are private to this workspace, like those in Contacts. They do not notify anyone.'));
   const picker = el('div', { class: 'person-groups', onkeydown: event => {
     if (event.key === 'Escape' && !panel.hidden) {
       event.preventDefault();
@@ -296,7 +560,7 @@ function renderPeople(view) {
       const list = el('div', { class: 'stack spaced' });
       const results = () => {
         const works = groupWorks(state, [person.id]).filter(matches);
-        list.replaceChildren(...(works.length ? works.map(w => workCard(w)) : [empty('No outputs to show.', search ? 'Try a different search.' : 'This imported record has no public outputs available.')]));
+        list.replaceChildren(...(works.length ? paged(`person:${person.id}`, works, w => workCard(w), results) : [empty('No outputs to show.', search ? 'Try a different search.' : 'This imported record has no public outputs available.')]));
       };
       view.append(el('div', { class: 'spaced' }, toolbar('PUBLIC RESEARCH OUTPUTS', 'Search this researcher’s outputs', results)), list);
       results();
@@ -342,6 +606,8 @@ async function deleteGroup(group) {
   groupDrafts.delete(group.id);
   if (selectedGroup === group.id) location.hash = 'groups';
   else render();
+  // The focused Delete button is gone; land on the page instead of <body>.
+  document.querySelector('#main').focus();
 }
 
 async function postState(path, body) {
@@ -443,8 +709,8 @@ function renderProjectOutputs(view, group) {
         button(selected.has(work.id) ? 'Remove from project' : '+ Select for project', () => update('/api/groups/output', { id: group.id, work_id: work.id, selected: !selected.has(work.id) }, selected.has(work.id) ? 'Output removed from the project collection.' : 'Output selected for this project.'), 'quiet small', { 'aria-label': `${selected.has(work.id) ? 'Remove from' : 'Select for'} project: ${work.title}` })));
     const chosen = works.filter(w => selected.has(w.id));
     const suggested = works.filter(w => !selected.has(w.id));
-    list.replaceChildren(el('h3', {}, `Project collection (${chosen.length})`), ...(chosen.length ? chosen.map(output) : [el('p', { class: 'helper' }, 'Select relevant outputs below to build this project’s collection.')]),
-      el('h3', { class: 'spaced' }, `Suggested member outputs (${suggested.length})`), ...(suggested.length ? suggested.map(output) : [el('p', { class: 'helper' }, 'No additional member outputs match this view.')]));
+    list.replaceChildren(el('h3', {}, `Project collection (${chosen.length})`), ...(chosen.length ? paged(`project-chosen:${group.id}`, chosen, output, results) : [el('p', { class: 'helper' }, 'Select relevant outputs below to build this project’s collection.')]),
+      el('h3', { class: 'spaced' }, `Suggested member outputs (${suggested.length})`), ...(suggested.length ? paged(`project-suggested:${group.id}`, suggested, output, results) : [el('p', { class: 'helper' }, 'No additional member outputs match this view.')]));
   };
   view.append(el('p', { class: 'helper' }, 'Member outputs are suggestions. Selecting one records your local decision that it belongs to this project; it does not change ORCID or confirm attribution with the authors.'), toolbar('BUILD YOUR PROJECT COLLECTION', 'Search group outputs', results), list);
   results();
@@ -685,7 +951,7 @@ function renderSaved(view) {
   const list = el('div', { class: 'stack' });
   const results = () => {
     const works = state.works.filter(w => w.saved && matches(w));
-    list.replaceChildren(...(works.length ? works.map(w => workCard(w)) : [empty(search ? 'No matching saved outputs.' : 'Keep the work that matters.', search ? 'Try another search.' : 'Save papers, datasets, and software from the feed or a researcher’s profile. Find them here whenever you need them.', !search && button('Explore your feed →', () => navigate('feed'), 'quiet'))]));
+    list.replaceChildren(...(works.length ? paged('saved', works, w => workCard(w), results) : [empty(search ? 'No matching saved outputs.' : 'Keep the work that matters.', search ? 'Try another search.' : 'Save papers, datasets, and software from the feed or a researcher’s profile. Find them here whenever you need them.', !search && button('Explore your feed →', () => navigate('feed'), 'quiet'))]));
   };
   view.append(toolbar('YOUR READING LIST', 'Search saved research', results), list);
   results();
@@ -701,6 +967,8 @@ const headings = {
 
 function render() {
   if (!loaded) return;
+  // Controls marked data-focus keep keyboard focus when the view is rebuilt around them.
+  const focusKey = document.activeElement?.dataset?.focus;
   const nav = document.querySelector('#navigation');
   const followed = state.people.filter(p => p.following).length;
   nav.replaceChildren(...[
@@ -715,6 +983,7 @@ function render() {
   const view = document.querySelector('#view');
   view.replaceChildren();
   ({ feed: renderFeed, people: renderPeople, contacts: renderContacts, groups: renderGroups, saved: renderSaved })[currentView](view);
+  if (focusKey) view.querySelector(`[data-focus="${CSS.escape(focusKey)}"]`)?.focus();
   if (bulkRunning && activeBulkGroup) {
     const draft = groupDrafts.get(activeBulkGroup);
     const node = document.querySelector('#notice');
@@ -737,6 +1006,7 @@ async function initialize() {
     const route = groupRoute(location.hash);
     currentView = route.view;
     selectedPerson = null;
+    listLimits.clear();
     selectedGroup = route.id;
     groupTab = 'roster';
     editorGroup = pendingCreateGroup ? null : undefined;
@@ -749,6 +1019,11 @@ async function initialize() {
     const response = await fetch('/api/state', { headers: { 'X-Pilot-Request': '1' } });
     if (!response.ok) throw new Error('Could not load this workspace. Check that the local pilot server is running.');
     state = await response.json();
+    const visit = nextVisit(remembered('network-feed-visit', null), new Date().toISOString());
+    previousVisit = visit.previous;
+    remember('network-feed-visit', visit);
+    const dismissed = remembered('network-feed-dismissed', []);
+    dismissedSuggestions = Array.isArray(dismissed) ? dismissed.filter(id => typeof id === 'string') : [];
     loaded = true;
     render();
   } catch (error) {
