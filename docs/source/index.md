@@ -34,7 +34,7 @@ No ORCID account is required to browse public records. Providing feedback on Git
 - Funder-format biosketches are editable drafts, **not validated submissions**.
 - There is a distinction between **local/browser tools** and **private cloud workspaces**, which are implemented but not yet confirmed active on the public service. Read the [privacy and availability guide](trust.md) first.
 
-**Independent open-source project; not affiliated with or endorsed by ORCID, Inc.**
+**Independent open-source project; not affiliated with or endorsed by ORCID, Inc.** [ORCID™](https://orcid.org) is a trademark of ORCID, Inc.
 
 ```{toctree}
 :maxdepth: 2
