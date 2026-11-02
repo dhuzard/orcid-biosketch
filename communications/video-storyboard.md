@@ -28,7 +28,7 @@ Do not make an all-features claim until the omissions below are either recorded 
 | 04:15–04:45 | Group Wrapped, card deck, heatmap, bibliography, Embed snapshot | “Create a group-level overview and a static widget for a lab website.” |
 | 04:45–05:05 | Download/restore browser workspace; encrypted team-package export/import, with sensitive-content warning | “Your default workspace is in your browser. Download a backup, or encrypt a package to share deliberately. Keep contact notes private.” |
 | 05:05–05:22 | Optional ORCID sign-in and Me panel *only if verified on public deployment* | “Sign-in is optional for public exploration. Private cloud Team workspaces are not in this live demo until separately activated and tested.” |
-| 05:22–05:45 | GitHub issue form and live Playground URL | “Try it with your record or with sample data. Tell us what is missing, misleading or useful. The next features should come from researchers' real tasks.” |
+| 05:22–05:45 | Live in-app feedback page and Playground URL | “Try it with your record or with sample data. Tell us what is missing, misleading or useful. The next features should come from researchers' real tasks.” |
 
 The final cut can move faster than these timings; retain every scientific qualification even if the chapter is shortened.
 
@@ -40,7 +40,7 @@ The final cut can move faster than these timings; retain every scientific qualif
 4. If an auth-only or cloud Team flow is not deployed and demonstrated end-to-end, **do not show it as an available feature**. Use a “in development” note outside the main demo instead.
 5. Include accurate on-screen warnings: public assertions not independently verified; same DOI not evidence of confirmed collaboration; local roles not confirmed; funder drafts require review.
 6. Output 16:9 1080p or 720p master; captioned vertical/square clips; transcript (`.vtt` and text); readable font at phone size.
-7. End with the public Playground, GitHub repo, and [scientist feedback issue form](https://github.com/dhuzard/orcid-playground/issues/new/choose); do not use unverified docs or video URLs.
+7. End with the public Playground, GitHub repo, and [in-app feedback](https://orcid-playground-889.web.app/feedback/); do not use unverified docs or video URLs.
 8. Add a versioned `docs/` link to the final video description only once Sphinx docs are published.
 
 ## Practical capture notes
