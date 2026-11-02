@@ -2,9 +2,9 @@
 
 ORCID Playground is a research prototype. **We want scientist-led feedback about actual tasks**, not just a list of imagined features. You do not need to write code.
 
-[Send feedback or suggest a feature on GitHub](https://github.com/dhuzard/orcid-playground/issues/new/choose)
+[Send feedback by email, without GitHub](https://orcid-playground-889.web.app/feedback/) · [Open a GitHub issue](https://github.com/dhuzard/orcid-playground/issues/new/choose)
 
-Submitting an issue requires a GitHub account. Using the public Playground does not.
+The in-app form prepares an email draft; you still decide whether to send it, or can copy its text. GitHub issues require a GitHub account; using the public Playground and email feedback route does not.
 
 ## A five-minute experiment
 
