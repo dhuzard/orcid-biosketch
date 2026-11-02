@@ -919,3 +919,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-10-31 | KF-17 | Contacts view: context tags, private notes and follow-ups; tag-to-group; excluded from team packs | — → in-review |
 | 2026-11-02 | KF-11, KF-17 | #32: tag from the People "+" panel; delete a group from its editor (`POST /api/groups/delete`, `tests/test_group_http.py`) | scope |
 | 2026-11-02 | KF-18 | Feed views, scope/type/topic filters, group suggestions, since-last-visit (#35); `web/network/app.test.mjs` | — → in-review |
+| 2026-11-02 | KF-17, KF-18 | Pre-deploy audit fixes: cached suggestions and paged feed (20k works), tag-limit guard, scoped since-last-visit that survives reloads, focus kept on controls, server-matching tag folding | scope |

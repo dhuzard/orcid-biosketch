@@ -16,6 +16,8 @@ let feedView = 'new';
 let feedScope = '';
 let feedType = '';
 let feedTopic = '';
+const FEED_PAGE = 50;
+let feedLimit = FEED_PAGE;
 let previousVisit = null;
 let dismissedSuggestions = [];
 const contactDrafts = { meeting: { tag: '', date: '', text: '', bulk: null }, notes: {}, actions: {}, tagInput: {} };
@@ -72,6 +74,13 @@ export function dateLabel(value) {
 
 // ---- Feed: whose research, which view, and filters. Derived from the local workspace only. ----
 
+// Matches the server's tag key: whitespace collapsed, then Python's str.casefold()
+// (upper-then-lower folds ß to ss and ligatures like the server does).
+export const foldKey = text => text.split(/\s+/).filter(Boolean).join(' ').toUpperCase().toLowerCase();
+
+// Truncate by character, not UTF-16 unit, so an emoji is never split.
+const clip = (text, limit) => Array.from(text).slice(0, limit).join('');
+
 // A scope is '' (everyone followed), 'group:<id>' or 'tag:<name>'.
 export function scopeIds(data, scope = '') {
   const split = scope.indexOf(':');
@@ -79,8 +88,8 @@ export function scopeIds(data, scope = '') {
   const value = scope.slice(split + 1);
   if (kind === 'group') return new Set(data.groups.find(g => g.id === value)?.member_ids || []);
   if (kind === 'tag') {
-    const wanted = value.toLowerCase();
-    return new Set(Object.entries(data.contacts || {}).filter(([, contact]) => contact.tags.some(t => t.toLowerCase() === wanted)).map(([id]) => id));
+    const wanted = foldKey(value);
+    return new Set(Object.entries(data.contacts || {}).filter(([, contact]) => contact.tags.some(t => foldKey(t) === wanted)).map(([id]) => id));
   }
   return new Set(data.people.filter(p => p.following).map(p => p.id));
 }
@@ -91,7 +100,7 @@ export function feedTopics(data, scope = '') {
   const topics = new Map();
   for (const person of data.people) {
     if (!ids.has(person.id)) continue;
-    const own = new Map(person.keywords.map(word => word.trim()).filter(Boolean).map(word => [word.toLowerCase(), word]));
+    const own = new Map(person.keywords.map(word => word.split(/\s+/).filter(Boolean).join(' ')).filter(Boolean).map(word => [foldKey(word), word]));
     for (const [key, label] of own) {
       if (!topics.has(key)) topics.set(key, { key, label, people_ids: [] });
       topics.get(key).people_ids.push(person.id);
@@ -131,21 +140,29 @@ export function feedItems(data, { view = 'new', scope = '', type = '', topic = '
 
 export const feedEntries = data => feedItems(data);
 
+// Outputs listing more people than this in scope (consortium papers) say little about who
+// works together and would cost O(n²) pairs each, so they do not produce pair suggestions.
+const PAIR_PEOPLE_LIMIT = 25;
+
 // Suggested tags or groups, each with its evidence: a keyword two or more people list, or
 // outputs two people are both listed on. Nothing already grouped, tagged or dismissed.
 export function groupSuggestions(data, scope = '', dismissed = []) {
   const ids = scopeIds(data, scope);
   const skip = new Set(dismissed);
   const contacts = data.contacts || {};
-  const taken = new Set([...data.groups.map(g => g.name), ...allTags(contacts).map(([t]) => t)].map(name => name.toLowerCase()));
-  const tagsOf = id => new Set((contacts[id]?.tags || []).map(t => t.toLowerCase()));
-  const alreadyTogether = (a, b) => data.groups.some(g => g.member_ids.includes(a) && g.member_ids.includes(b))
-    || [...tagsOf(a)].some(t => tagsOf(b).has(t));
+  const taken = new Set([...data.groups.map(g => g.name), ...allTags(contacts).map(([t]) => t)].map(foldKey));
+  // Every group and tag each person is in, built once so the pair check stays cheap.
+  const circles = new Map();
+  const join = (id, circle) => { if (!circles.has(id)) circles.set(id, new Set()); circles.get(id).add(circle); };
+  for (const group of data.groups) for (const id of group.member_ids) join(id, `group:${group.id}`);
+  for (const [id, contact] of Object.entries(contacts)) for (const t of contact.tags) join(id, `tag:${foldKey(t)}`);
+  const alreadyTogether = (a, b) => [...(circles.get(a) || [])].some(circle => circles.get(b)?.has(circle));
   const keywords = feedTopics(data, scope).filter(t => t.people_ids.length >= 2 && !taken.has(t.key))
     .map(t => ({ id: `keyword:${t.key}`, kind: 'keyword', label: t.label, people_ids: t.people_ids, works: [] }));
   const pairs = new Map();
   for (const work of data.works) {
     const listed = [...new Set(work.people_ids.filter(id => ids.has(id)))].sort();
+    if (listed.length > PAIR_PEOPLE_LIMIT) continue;
     for (let i = 0; i < listed.length; i++) {
       for (let j = i + 1; j < listed.length; j++) {
         const key = `${listed[i]}|${listed[j]}`;
@@ -160,12 +177,25 @@ export function groupSuggestions(data, scope = '', dismissed = []) {
   return [...keywords, ...shared].filter(s => !skip.has(s.id));
 }
 
-export function sinceLastVisit(data, since) {
+// Counts the same newly observed outputs the feed shows for this scope and filters.
+export function sinceLastVisit(data, since, options = {}) {
   if (!since) return null;
-  const fresh = feedItems(data).filter(({ event }) => event.observed_at > since);
-  const groups = data.groups.map(g => ({ id: g.id, name: g.name, count: fresh.filter(({ work }) => work.people_ids.some(id => g.member_ids.includes(id))).length }))
-    .filter(g => g.count).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  const fresh = feedItems(data, { ...options, view: 'new' }).filter(({ event }) => event.observed_at > since);
+  const groups = data.groups.map(g => {
+    const members = new Set(g.member_ids);
+    return { id: g.id, name: g.name, count: fresh.filter(({ work }) => work.people_ids.some(id => members.has(id))).length };
+  }).filter(g => g.count).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
   return { total: fresh.length, groups };
+}
+
+// The visit before this one survives reloads and extra tabs within half an hour, so
+// "new since your last visit" is not wiped by a refresh.
+export function nextVisit(stored, now, sessionMs = 30 * 60 * 1000) {
+  const valid = value => typeof value === 'string' && !Number.isNaN(Date.parse(value));
+  const seen = valid(stored?.seen) ? stored.seen : null;
+  const previous = valid(stored?.previous) ? stored.previous : null;
+  if (seen && Date.parse(now) - Date.parse(seen) < sessionMs) return { seen: now, previous };
+  return { seen: now, previous: seen };
 }
 
 export function groupWorks(data, memberIds) {
@@ -284,23 +314,46 @@ function workCard(work, event = null, fresh = false) {
       button(work.saved ? '✓ Saved' : '+ Save', () => update('/api/save', { id: work.id, saved: !work.saved }, work.saved ? 'Removed from your reading list.' : 'Saved to your reading list.'), 'quiet small', { 'aria-pressed': String(work.saved), 'aria-label': `${work.saved ? 'Unsave' : 'Save'} ${work.title}` })));
 }
 
+// The server refuses a tag write for everyone if one person would pass this limit.
+const TAG_LIMIT = 20;
+const tagLimitReached = (personId, name) => {
+  const tags = contactOf(personId).tags;
+  return tags.length >= TAG_LIMIT && !tags.some(t => foldKey(t) === foldKey(name));
+};
+
 function suggestionCard(suggestion) {
-  const names = peopleFor(suggestion.people_ids).map(p => p.name);
+  const people = peopleFor(suggestion.people_ids);
+  const names = people.map(p => p.name);
   const keyword = suggestion.kind === 'keyword';
   const name = keyword ? suggestion.label : names.join(' & ');
+  const tagName = clip(name, 60);
+  const full = people.filter(p => tagLimitReached(p.id, tagName)).map(p => p.name);
   const count = suggestion.works.length;
   const evidence = keyword
     ? `${names.length} people list “${suggestion.label}” on their ORCID records: ${names.join(', ')}.`
     : `Both listed on ${count} output${count > 1 ? 's' : ''}: ${suggestion.works.slice(0, 2).map(w => `“${w.title || 'Untitled output'}”`).join(', ')}${count > 2 ? '…' : ''}`;
   const description = keyword ? `Suggested because each member lists “${suggestion.label}” on their ORCID record.` : `Suggested because both are listed on ${count} shared output${count > 1 ? 's' : ''}.`;
   return el('div', { class: 'suggestion' }, el('strong', {}, name), el('p', {}, evidence),
-    button('Make it a tag', () => update('/api/contacts/tags', { person_ids: suggestion.people_ids, add: [name.slice(0, 60)] }, `Tagged ${names.length} people “${name.slice(0, 60)}”. Find them in Contacts.`), 'quiet small', { 'aria-label': `Make a tag: ${name}` }),
-    button('Make it a group', () => update('/api/groups', { name: name.slice(0, 120), description, member_ids: suggestion.people_ids }, 'Group created. Add roles and requests in Groups.'), 'quiet small', { 'aria-label': `Make a group: ${name}` }),
-    button('Dismiss', () => { dismissedSuggestions = [...dismissedSuggestions, suggestion.id]; remember('network-feed-dismissed', dismissedSuggestions); render(); }, 'quiet small', { 'aria-label': `Dismiss suggestion: ${name}` }));
+    button('Make it a tag', () => update('/api/contacts/tags', { person_ids: suggestion.people_ids, add: [tagName] }, `Tagged ${names.length} people “${tagName}”. Find them in Contacts.`), 'quiet small', { 'aria-label': `Make a tag: ${name}`, disabled: busy || bulkRunning || full.length > 0 }),
+    full.length > 0 && el('p', { class: 'helper' }, `${full.join(', ')} already ${full.length > 1 ? 'have' : 'has'} ${TAG_LIMIT} tags. Remove one in Contacts first, or make a group instead.`),
+    button('Make it a group', () => update('/api/groups', { name: clip(name, 120), description, member_ids: suggestion.people_ids }, 'Group created. Add roles and requests in Groups.'), 'quiet small', { 'aria-label': `Make a group: ${name}` }),
+    button('Dismiss', () => {
+      dismissedSuggestions = [...dismissedSuggestions, suggestion.id];
+      remember('network-feed-dismissed', dismissedSuggestions);
+      render();
+      (document.querySelector('.suggestion .button') || document.querySelector('#main')).focus();
+    }, 'quiet small', { 'aria-label': `Dismiss suggestion: ${name}` }));
 }
 
+// Pair suggestions are the costliest thing on the page; recompute only when the workspace,
+// scope or dismissals change. Every write replaces `state`, which invalidates this.
+let suggestionCache = {};
+
 function suggestionsPanel() {
-  const all = groupSuggestions(state, feedScope, dismissedSuggestions);
+  if (suggestionCache.state !== state || suggestionCache.scope !== feedScope || suggestionCache.dismissed !== dismissedSuggestions) {
+    suggestionCache = { state, scope: feedScope, dismissed: dismissedSuggestions, value: groupSuggestions(state, feedScope, dismissedSuggestions) };
+  }
+  const all = suggestionCache.value;
   const picks = [...all.filter(s => s.kind === 'keyword').slice(0, 2), ...all.filter(s => s.kind === 'pair').slice(0, 2)];
   if (!picks.length) return null;
   return el('aside', { class: 'panel' }, el('div', { class: 'eyebrow' }, 'GROUP SUGGESTIONS'), el('h3', { class: 'panel-title' }, 'Who belongs together?'),
@@ -327,14 +380,21 @@ function feedEmpty() {
   return empty('You’re all caught up.', 'The first ORCID import creates a baseline, so older papers do not flood your feed. Refresh a researcher in People to discover newly added works, or switch to Recently published to browse everything imported.', button('Browse people →', () => navigate('people'), 'quiet'));
 }
 
+// A control change starts the list again from its first page.
+function changeFeed(apply) {
+  apply();
+  feedLimit = FEED_PAGE;
+  render();
+}
+
 function feedControls(types, topics) {
   const tags = allTags(state.contacts);
-  const scope = el('select', { class: 'input', 'aria-label': 'Whose research', onchange: event => { feedScope = event.target.value; feedTopic = ''; render(); } },
+  const scope = el('select', { class: 'input', 'aria-label': 'Whose research', 'data-focus': 'feed-scope', onchange: event => changeFeed(() => { feedScope = event.target.value; feedTopic = ''; }) },
     el('option', { value: '' }, 'Everyone I follow'),
     state.groups.length > 0 && el('optgroup', { label: 'Groups' }, state.groups.map(g => el('option', { value: `group:${g.id}` }, g.name))),
     tags.length > 0 && el('optgroup', { label: 'Tags' }, tags.map(([t]) => el('option', { value: `tag:${t}` }, t))));
   scope.value = feedScope;
-  const type = el('select', { class: 'input', 'aria-label': 'Output type', onchange: event => { feedType = event.target.value; render(); } },
+  const type = el('select', { class: 'input', 'aria-label': 'Output type', 'data-focus': 'feed-type', onchange: event => changeFeed(() => { feedType = event.target.value; }) },
     el('option', { value: '' }, 'All output types'), types.map(t => el('option', { value: t }, t.replaceAll('-', ' '))));
   type.value = feedType;
   const shown = topics.slice(0, 12);
@@ -342,20 +402,27 @@ function feedControls(types, topics) {
   if (chosen && !shown.includes(chosen)) shown.push(chosen);
   return el('div', { class: 'feed-controls' },
     el('div', { class: 'chips', role: 'group', 'aria-label': 'Feed view' }, feedViews.map(([id, label]) =>
-      button(label, () => { feedView = id; render(); }, feedView === id ? 'small' : 'quiet small', { 'aria-pressed': String(feedView === id) }))),
+      button(label, () => changeFeed(() => { feedView = id; }), feedView === id ? 'small' : 'quiet small', { 'aria-pressed': String(feedView === id), 'data-focus': `feed-view-${id}` }))),
     el('div', { class: 'feed-filters' }, scope, type),
     shown.length > 0 && el('div', { class: 'chips', role: 'group', 'aria-label': 'Topics people list on their ORCID records' },
       el('span', { class: 'section-kicker' }, 'PEOPLE WHO LIST'),
-      button('Any topic', () => { feedTopic = ''; render(); }, feedTopic ? 'quiet small' : 'small', { 'aria-pressed': String(!feedTopic) }),
-      shown.map(t => button(`${t.label} (${t.people_ids.length})`, () => { feedTopic = feedTopic === t.key ? '' : t.key; render(); }, feedTopic === t.key ? 'small' : 'quiet small', { 'aria-pressed': String(feedTopic === t.key) }))),
+      button('Any topic', () => changeFeed(() => { feedTopic = ''; }), feedTopic ? 'quiet small' : 'small', { 'aria-pressed': String(!feedTopic), 'data-focus': 'feed-topic-any' }),
+      shown.map(t => button(`${t.label} (${t.people_ids.length})`, () => changeFeed(() => { feedTopic = feedTopic === t.key ? '' : t.key; }), feedTopic === t.key ? 'small' : 'quiet small', { 'aria-pressed': String(feedTopic === t.key), 'data-focus': `feed-topic-${t.key}` }))),
     chosen && el('p', { class: 'helper' }, `Outputs listing someone who lists “${chosen.label}” on their ORCID record. The keyword describes the person, not necessarily the output.`));
 }
 
 function sinceBanner() {
-  const since = feedView === 'new' && sinceLastVisit(state, previousVisit);
+  const since = feedView === 'new' && sinceLastVisit(state, previousVisit, { scope: feedScope, type: feedType, topic: feedTopic });
   if (!since?.total) return null;
   const groups = since.groups.slice(0, 3).map(g => `${g.count} from ${g.name}`);
-  return el('p', { class: 'since-banner', role: 'status' }, el('strong', {}, `${since.total} new since your last visit (${dateLabel(previousVisit)})`), groups.length ? ` · ${groups.join(' · ')}` : '');
+  return el('div', { class: 'since-banner', role: 'status' },
+    el('span', {}, el('strong', {}, `${since.total} new since your last visit (${dateLabel(previousVisit)})`), groups.length ? ` · ${groups.join(' · ')}` : ''),
+    button('Mark as seen', () => {
+      previousVisit = new Date().toISOString();
+      remember('network-feed-visit', { seen: previousVisit, previous: previousVisit });
+      render();
+      document.querySelector('#main').focus();
+    }, 'quiet small'));
 }
 
 function renderFeed(view) {
@@ -370,7 +437,16 @@ function renderFeed(view) {
   const list = el('div', { class: 'stack' });
   function results() {
     const entries = items.filter(({ work }) => matches(work));
-    list.replaceChildren(...(entries.length ? entries.map(({ work, event }) => workCard(work, event, Boolean(event && previousVisit && event.observed_at > previousVisit))) : [feedEmpty()]));
+    const page = entries.slice(0, feedLimit);
+    const rest = entries.length - page.length;
+    list.replaceChildren(...(entries.length ? [
+      ...page.map(({ work, event }) => workCard(work, event, Boolean(event && previousVisit && event.observed_at > previousVisit))),
+      ...(rest > 0 ? [button(`Show ${Math.min(FEED_PAGE, rest)} more (${rest} left)`, () => {
+        feedLimit += FEED_PAGE;
+        results();
+        list.querySelector('[data-focus="feed-more"]')?.focus();
+      }, 'quiet', { 'data-focus': 'feed-more' })] : [])
+    ] : [feedEmpty()]));
   }
   view.append(toolbar('RESEARCH, WITHOUT THE NOISE', 'Search updates or researchers', results), feedControls(types, topics), sinceBanner(),
     el('div', { class: 'feed-layout' }, list, sidePanels()));
@@ -416,23 +492,24 @@ function personGroupPicker(person) {
       button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small'));
   }
   const personTags = contactOf(person.id).tags;
-  const tagged = new Set(personTags.map(t => t.toLowerCase()));
+  const tagged = new Set(personTags.map(foldKey));
+  const full = personTags.length >= TAG_LIMIT;
   panel.append(el('p', { class: 'person-groups-heading spaced' }, 'Tag'));
   for (const [name] of allTags(state.contacts)) {
     panel.append(el('div', { class: 'person-group-option' },
       el('span', {}, name),
-      tagged.has(name.toLowerCase()) ? el('span', { class: 'person-group-added' }, '✓ Tagged') :
+      tagged.has(foldKey(name)) ? el('span', { class: 'person-group-added' }, '✓ Tagged') :
         button('Add', () => saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`),
-          'quiet small', { 'aria-label': `Tag ${person.name} with ${name}` })));
+          'quiet small', { 'aria-label': `Tag ${person.name} with ${name}`, disabled: busy || bulkRunning || full })));
   }
-  const newTag = el('input', { class: 'input', maxlength: '60', placeholder: 'New tag, e.g. FENS 2026', 'aria-label': `New tag for ${person.name}` });
+  const newTag = el('input', { class: 'input', maxlength: '60', placeholder: 'New tag, e.g. FENS 2026', 'aria-label': `New tag for ${person.name}`, disabled: full });
   panel.append(el('form', { class: 'person-group-option', onsubmit: event => {
     event.preventDefault();
     const name = newTag.value.trim();
     if (!name) { newTag.focus(); return; }
     saveAndReopen('/api/contacts/tags', { person_ids: [person.id], add: [name] }, `${person.name} tagged “${name}”.`);
-  } }, newTag, el('button', { type: 'submit', class: 'button quiet small', disabled: busy }, 'Add tag')),
-  el('p', { class: 'helper' }, 'Tags are private to this workspace, like those in Contacts. They do not notify anyone.'));
+  } }, newTag, el('button', { type: 'submit', class: 'button quiet small', disabled: busy || full }, 'Add tag')),
+  el('p', { class: 'helper' }, full ? `${person.name} has ${TAG_LIMIT} tags, the most allowed. Remove one in Contacts to add another.` : 'Tags are private to this workspace, like those in Contacts. They do not notify anyone.'));
   const picker = el('div', { class: 'person-groups', onkeydown: event => {
     if (event.key === 'Escape' && !panel.hidden) {
       event.preventDefault();
@@ -510,6 +587,8 @@ async function deleteGroup(group) {
   groupDrafts.delete(group.id);
   if (selectedGroup === group.id) location.hash = 'groups';
   else render();
+  // The focused Delete button is gone; land on the page instead of <body>.
+  document.querySelector('#main').focus();
 }
 
 async function postState(path, body) {
@@ -869,6 +948,8 @@ const headings = {
 
 function render() {
   if (!loaded) return;
+  // Controls marked data-focus keep keyboard focus when the view is rebuilt around them.
+  const focusKey = document.activeElement?.dataset?.focus;
   const nav = document.querySelector('#navigation');
   const followed = state.people.filter(p => p.following).length;
   nav.replaceChildren(...[
@@ -883,6 +964,7 @@ function render() {
   const view = document.querySelector('#view');
   view.replaceChildren();
   ({ feed: renderFeed, people: renderPeople, contacts: renderContacts, groups: renderGroups, saved: renderSaved })[currentView](view);
+  if (focusKey) view.querySelector(`[data-focus="${CSS.escape(focusKey)}"]`)?.focus();
   if (bulkRunning && activeBulkGroup) {
     const draft = groupDrafts.get(activeBulkGroup);
     const node = document.querySelector('#notice');
@@ -917,9 +999,9 @@ async function initialize() {
     const response = await fetch('/api/state', { headers: { 'X-Pilot-Request': '1' } });
     if (!response.ok) throw new Error('Could not load this workspace. Check that the local pilot server is running.');
     state = await response.json();
-    const lastVisit = remembered('network-feed-last-visit', null);
-    previousVisit = typeof lastVisit === 'string' ? lastVisit : null;
-    remember('network-feed-last-visit', new Date().toISOString());
+    const visit = nextVisit(remembered('network-feed-visit', null), new Date().toISOString());
+    previousVisit = visit.previous;
+    remember('network-feed-visit', visit);
     const dismissed = remembered('network-feed-dismissed', []);
     dismissedSuggestions = Array.isArray(dismissed) ? dismissed.filter(id => typeof id === 'string') : [];
     loaded = true;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, groupWorks, parseOrcidList, groupRoute, allTags, openActions } from './app.js';
+import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, allTags, openActions } from './app.js';
 
 test('external links reject executable and relative URLs', () => {
   for (const value of ['javascript:alert(1)', 'data:text/html,hello', '/api/state', '', null]) assert.equal(safeUrl(value), null);
@@ -150,4 +150,35 @@ test('since last visit counts new outputs per group, and nothing on a first visi
   assert.equal(sinceLastVisit(circle, null), null);
   assert.deepEqual(sinceLastVisit(circle, '2026-02-15T00:00:00Z'), { total: 1, groups: [{ id: 'g', name: 'Imaging club', count: 1 }] });
   assert.deepEqual(sinceLastVisit(circle, '2026-05-01T00:00:00Z'), { total: 0, groups: [] });
+});
+
+test('tag keys match the server: collapsed whitespace and Python-style case folding', () => {
+  assert.equal(foldKey('  Open \t Science '), 'open science');
+  assert.equal(foldKey('Straße'), foldKey('STRASSE'));
+  const spaced = { ...circle, people: circle.people.map(p => ({ ...p, keywords: p.id === 'b' ? ['open  science'] : p.keywords })), contacts: { ...circle.contacts, c: { tags: ['Open Science'] } } };
+  // The keyword is already a tag (after normalisation), so it is not suggested again.
+  assert.deepEqual(groupSuggestions(spaced).map(s => s.id), ['pair:a|b']);
+});
+
+test('outputs with very many people in scope do not produce pair suggestions', () => {
+  const many = Array.from({ length: 30 }, (_, i) => ({ id: `p${i}`, name: `P${i}`, following: true, keywords: [] }));
+  const big = { people: many, works: [{ id: 'consortium', people_ids: many.map(p => p.id) }], events: [], groups: [], contacts: {} };
+  assert.deepEqual(groupSuggestions(big), []);
+  const small = { ...big, works: [{ id: 'paper', people_ids: ['p0', 'p1', 'p2'] }] };
+  assert.equal(groupSuggestions(small).length, 3);
+});
+
+test('since last visit follows the scope and filters the feed shows', () => {
+  const since = '2026-02-15T00:00:00Z';
+  assert.equal(sinceLastVisit(circle, since, { scope: 'group:g' }).total, 2);
+  assert.equal(sinceLastVisit(circle, since, { scope: 'group:g', type: 'software' }).total, 1);
+  assert.equal(sinceLastVisit(circle, since, { view: 'published' }).total, 1);
+});
+
+test('the previous visit survives reloads within a session and moves on afterwards', () => {
+  assert.deepEqual(nextVisit(null, '2026-03-01T10:00:00Z'), { seen: '2026-03-01T10:00:00Z', previous: null });
+  const first = { seen: '2026-03-01T10:00:00Z', previous: '2026-02-20T09:00:00Z' };
+  assert.deepEqual(nextVisit(first, '2026-03-01T10:10:00Z'), { seen: '2026-03-01T10:10:00Z', previous: '2026-02-20T09:00:00Z' });
+  assert.deepEqual(nextVisit(first, '2026-03-02T08:00:00Z'), { seen: '2026-03-02T08:00:00Z', previous: '2026-03-01T10:00:00Z' });
+  assert.deepEqual(nextVisit({ seen: 'garbage', previous: 42 }, '2026-03-02T08:00:00Z'), { seen: '2026-03-02T08:00:00Z', previous: null });
 });
