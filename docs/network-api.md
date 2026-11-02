@@ -14,6 +14,10 @@ validation and bulk-import contract is [group-workflow-api.md](group-workflow-ap
   follows it; subsequent refreshes preserve the follow preference.
 - `POST /api/follow` `{id, following: boolean}`.
 - `POST /api/save` `{id, saved: boolean}` (work id).
+- `POST /api/people/remove` `{id}` removes an imported person from this workspace only (nothing
+  changes on ORCID). Their contact record, group places, member details and the outputs only they
+  list go with them. Outputs another person here also lists stay, and so do their saved and project
+  selections. Requests they owned become unassigned. They can be imported again later.
 - `POST /api/groups` `{name, description, member_ids: []}` creates a group.
 - `POST /api/groups/update` `{id, name, description, member_ids: []}` updates a group.
 - `POST /api/groups/delete` `{id}` deletes a group with its member details, selections and

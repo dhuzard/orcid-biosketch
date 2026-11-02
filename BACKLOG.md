@@ -70,7 +70,8 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | INF-09 | Hosted multi-researcher service on Cloud Run | P2 | planned | — |
 | KF-16 | Personal saving and encrypted team packages | P1 | in-review | session |
 | KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | done | session |
-| KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | in-review | session |
+| KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | done | session |
+| KF-21 | Remove people from Contacts and from the workspace | P2 | in-review | session |
 
 ---
 
@@ -865,7 +866,7 @@ evidence-backed group suggestions, never rankings (#35).
 
 ## KF-20 — Add people to Contacts from ORCID pages
 
-- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Priority** P2 · **Status** done · **Owner** session · **Rev** r2
 - **Files** `web/network/app.js`, `web/network/style.css`, `web/network/app.test.mjs`,
   `src/orcid_biosketch/network.py`, `tests/test_network_http.py`, `docs/group-workflow-api.md`
 
@@ -882,9 +883,28 @@ imported or tagged until the user confirms.
       stay same-site only (`tests/test_network_http.py`).
 - [x] Checked in a browser on the local server and the hosted build: link, bookmarklet, tab reuse,
       phone width, no console errors.
-- [ ] Merged and verified on the live site.
+- [x] Merged (#39) and verified on the live site, by headless check and by hand in a desktop browser.
 
 **Later** A browser extension with a button on ORCID profiles, if the bookmarklet gets used.
+
+## KF-21 — Remove people from Contacts and from the workspace
+
+- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Files** `src/orcid_biosketch/network_store.py`, `src/orcid_biosketch/network.py`, `web/network/app.js`,
+  `tests/test_remove_people.py`, `web/network/app.test.mjs`, `docs/network-api.md`, `docs/group-workflow-api.md`
+
+There was no way to take someone out of Contacts or out of the workspace. Contacts also listed every
+imported person, so removing someone's tags did not remove them from the list.
+
+**Acceptance criteria**
+- [x] "Remove from contacts" clears tags, date met, notes and follow-ups; the person stays in People.
+- [x] Contacts lists people with a contact record only.
+- [x] "Remove from workspace" on People removes the person, their contact record, group places and
+      the outputs only they list. Shared outputs stay with the people who remain, with their saved and
+      project selections. Requests they owned become unassigned (`tests/test_remove_people.py`).
+- [x] The confirmation says what goes: outputs only they list (and how many are saved), their
+      groups, their contact record. Nothing changes on ORCID; they can be imported again.
+- [ ] Merged and verified on the live site.
 
 ---
 
@@ -972,3 +992,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-02 | KF-19 | Renumbered from KF-17, which Contacts took on main (#30) | id |
 | 2026-11-02 | KF-17, KF-18 | Merged to main (834bf06, #36 with #37); CI and Firebase deploy green; verified on orcid-playground-889.web.app/network/ (Feed views, suggestions, tag from the People "+" panel, group deletion, phone Filters toggle, no console errors). Unshipped extras moved to "Later" | in-review → done |
 | 2026-11-02 | KF-20 | Add from ORCID pages: `#contacts?add=` link and bookmarklet (#33); narrow cross-site navigation allowance on the local server; fix stray "false" under bulk previews | — → in-review |
+| 2026-11-02 | KF-21 | Remove from contacts and remove from workspace (`POST /api/contacts/remove`, `POST /api/people/remove`); Contacts lists people with a contact record only | — → in-review |
+| 2026-11-02 | KF-20 | Merged to main (146b86d, #39); CI and Firebase deploy green; live add link and bookmarklet checked headless and by hand (link, Import & tag, bookmarklet from an ORCID record page, tab reuse) | in-review → done |

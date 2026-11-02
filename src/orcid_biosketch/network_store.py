@@ -332,6 +332,22 @@ class NetworkStore:
                 raise ValueError("Unknown researcher")
             data["profiles"][id]["following"] = following
 
+    def remove_person(self, id: str) -> None:
+        """Remove an imported person from this workspace only (nothing changes on ORCID).
+
+        Their contact record, group places, member details and outputs go with them. Outputs that
+        someone else in the workspace also lists stay, attributed to the people who remain.
+        """
+        if not isinstance(id, str):
+            raise ValueError("A person id is required")
+        with self._transaction(True) as data:
+            if id not in data["profiles"]:
+                raise ValueError("Unknown researcher")
+            del data["profiles"][id]
+            for group in data["groups"].values():
+                group["member_ids"] = [member for member in group["member_ids"] if member != id]
+            self._prune(data)
+
     def save(self, id: str, saved: bool) -> None:
         if not isinstance(id, str) or not isinstance(saved, bool):
             raise ValueError("A work id and boolean saved value are required")
@@ -473,6 +489,12 @@ class NetworkStore:
                 contact["tags"] = tags
                 if met_on and not contact["met_on"]:
                     contact["met_on"] = met_on
+
+    def remove_contact(self, person_id: str) -> None:
+        """Clear one person's tags, date met, notes and follow-ups. The person stays imported."""
+        with self._transaction(True) as data:
+            self._known_people(data, [person_id])
+            data["contacts"].pop(person_id, None)
 
     def add_contact_note(self, person_id: str, text: str) -> None:
         text = _bounded_text(text, "Note", 2000, required=True)
