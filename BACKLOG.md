@@ -68,6 +68,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-17 | Contacts: context tags, private notes and follow-ups | P1 | in-review | session |
 | INF-09 | Hosted multi-researcher service on Cloud Run | P2 | planned | — |
 | KF-16 | Personal saving and encrypted team packages | P1 | in-review | session |
+| KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | in-review | session |
 
 ---
 
@@ -814,7 +815,29 @@ project starts. Everything is the researcher's own record; it asserts nothing ab
 - [x] Contacts excluded from team packs and group packages; only the workspace backup carries
       them and its disclosure says so (`tests/test_contacts.py`).
 - [x] Strict validation on restore; workspaces without contacts still load.
+- [x] People "+" panel tags a person with an existing or new tag, next to adding them to a group (#32).
 - [ ] Contacts without an ORCID iD, reminders, search across notes.
+- [ ] Merged and verified on the live site.
+
+## KF-18 — Feed views, scope, filters and group suggestions
+
+- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Files** `web/network/app.js`, `web/network/style.css`, `web/network/app.test.mjs`
+
+The Feed showed only newly observed outputs from followed people. It now offers three views and
+filters, all derived from the local workspace with no new network calls. Gamification goes through
+evidence-backed group suggestions, never rankings (#35).
+
+**Acceptance criteria**
+- [x] Views: New on ORCID (default), Recently published (undated last), Together (two or more
+      people in scope listed on the output; duplicates on one output do not count twice).
+- [x] Scope: everyone followed, one group, or one Contacts tag; output type filter.
+- [x] Topic chips from keywords people list on their own ORCID records, worded as describing the
+      person, not the output.
+- [x] Group suggestions from a shared keyword or shared outputs, each showing its evidence;
+      one click makes a tag or group; dismissible; skips what is already grouped or tagged.
+- [x] "Since your last visit" count per group; last visit and dismissals stay in the browser.
+- [ ] Per-output topics from #21 enrichment, if person-level keywords prove too coarse.
 - [ ] Merged and verified on the live site.
 
 ---
@@ -894,3 +917,7 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-10-31 | INF-10 | Deploy policy: main and weekly sync deploy live; previews on demand | policy |
 | 2026-10-31 | KF-16 | Workspace backup/restore, Studio "Me" panel and password-encrypted team packages, all in the browser | — → in-review |
 | 2026-10-31 | KF-17 | Contacts view: context tags, private notes and follow-ups; tag-to-group; excluded from team packs | — → in-review |
+| 2026-11-02 | KF-11, KF-17 | #32: tag from the People "+" panel; delete a group from its editor (`POST /api/groups/delete`, `tests/test_group_http.py`) | scope |
+| 2026-11-02 | KF-18 | Feed views, scope/type/topic filters, group suggestions, since-last-visit (#35); `web/network/app.test.mjs` | — → in-review |
+| 2026-11-02 | KF-17, KF-18 | Pre-deploy audit fixes: cached suggestions and paged feed (20k works), tag-limit guard, scoped since-last-visit that survives reloads, focus kept on controls, server-matching tag folding | scope |
+| 2026-11-02 | KF-18 | Phone Filters toggle and suggestions above the list on narrow screens; 50-card paging on person outputs, Saved and project outputs; fix stray "null" under the Feed controls | scope |
