@@ -61,7 +61,8 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-12 | Roster assertion export contract (#9) | P1 | in-review | session |
 | INF-08 | Static public showcase hosted on GCP | P2 | done | session |
 | INF-10 | Hosted in-browser playground (Studio + research network) | P1 | done | session |
-| INF-11 | ORCID sign-in on the hosted playground, verified live | P2 | planned | — |
+| INF-11 | ORCID sign-in on the hosted playground, verified live | P2 | done | owner |
+| KF-19 | Private team workspaces and personal cloud sync (#22) | P1 | in-review | session |
 | KF-13 | Shareable group links and evidence-backed collaboration graph (#15) | P1 | done | session |
 | KF-14 | Group record health and team biosketch for funders (#15 phase 2) | P1 | done | session |
 | KF-15 | Group Wrapped, card deck, <orcid-group> widget, offline app and digest (#15 phase 3) | P2 | done | session |
@@ -703,7 +704,7 @@ Phase 3 of issue #15.
 
 ## INF-11 — ORCID sign-in verified live
 
-- **Priority** P2 · **Status** planned · **Owner** — · **Rev** r1
+- **Priority** P2 · **Status** done · **Owner** owner · **Rev** r2
 - **Files** `web/playground/auth.js`, `docs/gcp-hosting.md`
 
 Split from INF-10. The OpenID Connect sign-in code is live but hidden because
@@ -716,9 +717,28 @@ covers token verification offline; `docs/gcp-hosting.md` has the registration
 steps and the live test checklist.
 
 **Acceptance criteria**
-- [ ] ORCID Public API client registered with redirect URI `https://orcid-playground-889.web.app/`.
-- [ ] `ORCID_CLIENT_ID` repository variable set and the site redeployed to live.
-- [ ] Sign-in, ID-token verification and sign-out tested on the live site.
+- [x] ORCID Public API client registered with redirect URI `https://orcid-playground-889.web.app/`.
+- [x] `ORCID_CLIENT_ID` repository variable set and the site redeployed to live.
+- [x] Sign-in, ID-token verification and sign-out tested on the live site. Confirmed by the owner on 2026-10-31.
+
+---
+
+## KF-19 — Private team workspaces and personal cloud sync
+
+- **Priority** P1 · **Status** in-review · **Owner** session · **Rev** r1
+- **Files** `docs/team-workspaces.md`, `firestore.rules`, `functions/exchange/`, `web/playground/cloud.js`,
+  `web/playground/team.js`, `web/playground/sync.js`, `tests/rules/`
+
+Supersedes INF-09's server design. ORCID sign-in is exchanged for a Firebase
+identity keyed by the ORCID iD; Firestore (EU) rules grant team access only
+through accepted invitations.
+
+**Acceptance criteria**
+- [x] Access rules tested in the emulator (19 cases) and in CI.
+- [x] Exchange function refuses forged, expired, foreign-audience and algorithm-confusion tokens (11 tests).
+- [x] End-to-end against emulators: create, invite, outsider refused, accept with disclosure, notes, leave with deletion, delete team, and save/clear/load of the personal workspace.
+- [ ] Function deployed (needs Blaze); live test with two real ORCID accounts.
+- [ ] Security review before real team data.
 
 ---
 
@@ -962,11 +982,14 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-10-31 | INF-11 | ORCID sign-in verification split from INF-10; awaits a registered client (#14) | — → planned |
 | 2026-10-31 | INF-10 | Deploy policy: main and weekly sync deploy live; previews on demand | policy |
 | 2026-10-31 | KF-16 | Workspace backup/restore, Studio "Me" panel and password-encrypted team packages, all in the browser | — → in-review |
+| 2026-10-31 | INF-11 | Live ORCID sign-in confirmed by the owner | planned → done |
+| 2026-10-31 | KF-19 | Team workspaces, exchange function and personal sync built; Firestore and rules live; function awaits Blaze | — → in-review |
 | 2026-10-31 | KF-17 | Contacts view: context tags, private notes and follow-ups; tag-to-group; excluded from team packs | — → in-review |
 | 2026-11-02 | KF-11, KF-17 | #32: tag from the People "+" panel; delete a group from its editor (`POST /api/groups/delete`, `tests/test_group_http.py`) | scope |
 | 2026-11-02 | KF-18 | Feed views, scope/type/topic filters, group suggestions, since-last-visit (#35); `web/network/app.test.mjs` | — → in-review |
 | 2026-11-02 | KF-17, KF-18 | Pre-deploy audit fixes: cached suggestions and paged feed (20k works), tag-limit guard, scoped since-last-visit that survives reloads, focus kept on controls, server-matching tag folding | scope |
 | 2026-11-02 | KF-18 | Phone Filters toggle and suggestions above the list on narrow screens; 50-card paging on person outputs, Saved and project outputs; fix stray "null" under the Feed controls | scope |
+| 2026-11-02 | KF-19 | Renumbered from KF-17, which Contacts took on main (#30) | id |
 | 2026-11-02 | KF-17, KF-18 | Merged to main (834bf06, #36 with #37); CI and Firebase deploy green; verified on orcid-playground-889.web.app/network/ (Feed views, suggestions, tag from the People "+" panel, group deletion, phone Filters toggle, no console errors). Unshipped extras moved to "Later" | in-review → done |
 | 2026-11-02 | KF-20 | Add from ORCID pages: `#contacts?add=` link and bookmarklet (#33); narrow cross-site navigation allowance on the local server; fix stray "false" under bulk previews | — → in-review |
 | 2026-11-02 | KF-21 | Remove from contacts and remove from workspace (`POST /api/contacts/remove`, `POST /api/people/remove`); Contacts lists people with a contact record only | — → in-review |
