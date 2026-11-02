@@ -65,10 +65,10 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-13 | Shareable group links and evidence-backed collaboration graph (#15) | P1 | done | session |
 | KF-14 | Group record health and team biosketch for funders (#15 phase 2) | P1 | done | session |
 | KF-15 | Group Wrapped, card deck, <orcid-group> widget, offline app and digest (#15 phase 3) | P2 | done | session |
-| KF-17 | Contacts: context tags, private notes and follow-ups | P1 | in-review | session |
+| KF-17 | Contacts: context tags, private notes and follow-ups | P1 | done | session |
 | INF-09 | Hosted multi-researcher service on Cloud Run | P2 | planned | — |
 | KF-16 | Personal saving and encrypted team packages | P1 | in-review | session |
-| KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | in-review | session |
+| KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | done | session |
 | KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | in-review | session |
 
 ---
@@ -798,7 +798,7 @@ until they save a file; nothing is uploaded and no new origin is contacted.
 
 ## KF-17 — Contacts: context tags, notes and follow-ups
 
-- **Priority** P1 · **Status** in-review · **Owner** session · **Rev** r1
+- **Priority** P1 · **Status** done · **Owner** session · **Rev** r2
 - **Files** `src/orcid_biosketch/network_store.py`, `src/orcid_biosketch/network.py`, `web/network/app.js`,
   `tests/test_contacts.py`, `web/network/app.test.mjs`
 
@@ -817,12 +817,13 @@ project starts. Everything is the researcher's own record; it asserts nothing ab
       them and its disclosure says so (`tests/test_contacts.py`).
 - [x] Strict validation on restore; workspaces without contacts still load.
 - [x] People "+" panel tags a person with an existing or new tag, next to adding them to a group (#32).
-- [ ] Contacts without an ORCID iD, reminders, search across notes.
-- [ ] Merged and verified on the live site.
+- [x] Merged (#36) and verified on the live site.
+
+**Later** Contacts without an ORCID iD, reminders, search across notes.
 
 ## KF-18 — Feed views, scope, filters and group suggestions
 
-- **Priority** P2 · **Status** in-review · **Owner** session · **Rev** r1
+- **Priority** P2 · **Status** done · **Owner** session · **Rev** r2
 - **Files** `web/network/app.js`, `web/network/style.css`, `web/network/app.test.mjs`
 
 The Feed showed only newly observed outputs from followed people. It now offers three views and
@@ -838,8 +839,9 @@ evidence-backed group suggestions, never rankings (#35).
 - [x] Group suggestions from a shared keyword or shared outputs, each showing its evidence;
       one click makes a tag or group; dismissible; skips what is already grouped or tagged.
 - [x] "Since your last visit" count per group; last visit and dismissals stay in the browser.
-- [ ] Per-output topics from #21 enrichment, if person-level keywords prove too coarse.
-- [ ] Merged and verified on the live site.
+- [x] Merged (#36, #37) and verified on the live site.
+
+**Later** Per-output topics from #21 enrichment, if person-level keywords prove too coarse.
 
 ## KF-20 — Add people to Contacts from ORCID pages
 
@@ -945,4 +947,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-02 | KF-18 | Feed views, scope/type/topic filters, group suggestions, since-last-visit (#35); `web/network/app.test.mjs` | — → in-review |
 | 2026-11-02 | KF-17, KF-18 | Pre-deploy audit fixes: cached suggestions and paged feed (20k works), tag-limit guard, scoped since-last-visit that survives reloads, focus kept on controls, server-matching tag folding | scope |
 | 2026-11-02 | KF-18 | Phone Filters toggle and suggestions above the list on narrow screens; 50-card paging on person outputs, Saved and project outputs; fix stray "null" under the Feed controls | scope |
+| 2026-11-02 | KF-17, KF-18 | Merged to main (834bf06, #36 with #37); CI and Firebase deploy green; verified on orcid-playground-889.web.app/network/ (Feed views, suggestions, tag from the People "+" panel, group deletion, phone Filters toggle, no console errors). Unshipped extras moved to "Later" | in-review → done |
 | 2026-11-02 | KF-20 | Add from ORCID pages: `#contacts?add=` link and bookmarklet (#33); narrow cross-site navigation allowance on the local server; fix stray "false" under bulk previews | — → in-review |
