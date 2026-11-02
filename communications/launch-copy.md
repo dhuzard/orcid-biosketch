@@ -1,6 +1,6 @@
 # Community launch copy and lightweight pilot
 
-Do not publish until the README/docs changes are merged and the recorded video and final public links are checked.
+Do not publish until the public docs/feedback URLs are verified, branding permission or rename is resolved, and the recorded video is checked.
 
 ## LinkedIn / community announcement (English)
 
@@ -16,7 +16,7 @@ The important constraint: a public ORCID record is **not independently verified*
 
 I'm looking for researchers, lab coordinators and data stewards to spend five minutes with it. What would be useful? What is misleading? Which feature would you want next?
 
-**Suggestions and issues:** https://github.com/dhuzard/orcid-playground/issues/new/choose
+**Suggest a feature without GitHub:** https://orcid-playground-889.web.app/feedback/\n\n**Developer issues:** https://github.com/dhuzard/orcid-playground/issues/new/choose
 
 Built in the open. Independent of ORCID, Inc.
 
