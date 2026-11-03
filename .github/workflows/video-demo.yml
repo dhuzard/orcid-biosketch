@@ -1,19 +1,12 @@
 name: Render scientist-facing demo videos
 
+# Manual only: rendering takes ~15 minutes and produces review assets, not a
+# correctness signal, so it should not gate pushes or pull requests.
 on:
-  pull_request:
-    paths:
-      - "demo/**"
-      - ".github/workflows/video-demo.yml"
-  push:
-    branches: [main]
-    paths:
-      - "demo/**"
-      - ".github/workflows/video-demo.yml"
   workflow_dispatch:
 
 concurrency:
-  group: video-demo-${{ github.event.pull_request.number || github.ref }}
+  group: video-demo-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:

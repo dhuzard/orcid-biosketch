@@ -8,6 +8,10 @@ and the research network on its labelled **Demo** sample data, so no ORCID API a
 SHA-256 in `scripts/build_site.py`; if the CDN is blocked, put the verified files in `.cache/pyodide-0.26.4/`.
 Not shown: the Group view (it needs live ORCID records) and sign-in with ORCID. Record those from a networked machine.
 
+On GitHub, **Render scientist-facing demo videos** runs only when dispatched by hand (Actions → Run workflow, or
+`gh workflow run video-demo.yml --ref <branch>`); it does not run on pushes or pull requests. The videos are uploaded
+as a 7-day workflow artifact.
+
 | File | Length | Message |
 |---|---|---|
 | `orcid-playground-full-demo.mp4` | ~100 s | Studio tour, then the research network |
