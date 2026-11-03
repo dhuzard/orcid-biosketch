@@ -36,7 +36,7 @@ try {
     await page.goto(site.base + 'group/?packages=1');
     await page.waitForSelector('#packages-details');
     await page.locator('#packages-details').evaluate(el => { el.open = true; });
-    await page.waitForSelector('#pack-group option', { timeout: 90000 });
+    await page.waitForSelector('#pack-group option', { state: 'attached', timeout: 90000 });
     await page.waitForTimeout(1300);
     await caption(page, 'ENCRYPTED TEAM PACKAGE', 'Share a curated group deliberately.',
       'Encryption happens in this browser. The file contains local group details and needs a separate password.');
