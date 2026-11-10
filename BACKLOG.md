@@ -72,7 +72,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | done | session |
 | KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | done | session |
 | KF-21 | Remove people from Contacts and from the workspace | P2 | in-review | session |
-| INF-12 | Independent identity per ORCID brand guidance (palette, disclaimer, ownership) | P0 | in-review | session |
+| INF-12 | Independent identity per ORCID brand guidance (palette, disclaimer, ownership) | P0 | done | session |
 | INF-13 | Final product name, hostname and repository migration | P0 | in-progress | owner |
 | INF-14 | Rename `orcid_biosketch` / `orcid-biosketch` / `<orcid-*>` with compatibility aliases | P2 | planned | — |
 
@@ -923,6 +923,7 @@ imported person, so removing someone's tags did not remove them from the list.
 
 - **Priority** P0 · **Status** planned · **Owner** owner
 - **Why** Name chosen 10 Nov 2026: **Science Record Player (SRP)**, tagline "Publish or Play" (set in `config/brand.json`). ORCID asked for a distinct name *and* a matching hostname before it reviews the app again.
+- **Hosting** `.firebaserc` targets `app` (`science-record-player`) and `legacy` (`orcid-playground-889`). Both serve the same build; `web/playground/moved.js` forwards legacy visitors unless they have a browser-local workspace there, in which case they get backup/restore instructions. Runbook: `docs/gcp-hosting.md` § Moving to science-record-player.web.app.
 - **Steps** choose the name (pun shortlist in `communications/branding-and-rename.md`) and check availability; set it in `config/brand.json`; create a new Firebase Hosting site or custom domain; update links, CSP `connect-src`, the exchange function's allowed origins and preview regex, OAuth redirect URIs and the ORCID client name; rename the GitHub repository; send ORCID the new link.
 
 ## INF-14 — Rename package, CLI and web components
@@ -1018,3 +1019,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-02 | KF-20 | Merged to main (146b86d, #39); CI and Firebase deploy green; live add link and bookmarklet checked headless and by hand (link, Import & tag, bookmarklet from an ORCID record page, tab reuse) | in-review → done |
 | 2026-11-10 | INF-12, INF-13, INF-14 | ORCID declined the current name, hostname and look (9 Nov 2026). Working title, muted-pink palette, ownership line, exact disclaimer and ® attribution applied; name/hostname migration and code renames planned | — → in-review / planned |
 | 2026-11-10 | INF-13 | Name chosen: Science Record Player (SRP), tagline "Publish or Play"; applied via `config/brand.json`. Hostname and repository migration remain | planned → in-progress |
+| 2026-11-10 | INF-12 | Merged (#47); deploy to the legacy address with the new branding | in-review → done |
+| 2026-11-10 | INF-13 | Two-site hosting (app + legacy forwarder), links, exchange origins and sign-in docs moved to science-record-player.web.app; awaits the owner creating the Firebase site | scope |

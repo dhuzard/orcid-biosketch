@@ -42,7 +42,7 @@ Chosen: a variant of **Record Player**, as **Science Record Player (SRP)**, with
 
 1. ~~Pick the name~~ (done). Check availability of "Science Record Player" / "SRP" (EUIPO, INPI, USPTO, domains, GitHub, PyPI, npm). SRP is a common acronym; use it as a short form, not the main brand.
 2. ~~Set it in `config/brand.json`, the README title and the launch copy~~ (done).
-3. Create the new Hosting site or domain and migrate (checklist below).
+3. Create the Firebase site `science-record-player` and follow the runbook in `docs/gcp-hosting.md` § Moving to science-record-player.web.app. The old address forwards to the new one without losing browser-local workspaces.
 4. Reply to ORCID with the new link and screenshots.
 
 ## Technical migration checklist (INF-13)

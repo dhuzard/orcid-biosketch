@@ -88,8 +88,16 @@ def test_runtime_is_copied_only_when_every_hash_matches(tmp_path, monkeypatch):
 def test_engine_loads_the_pinned_runtime_from_this_site():
     engine = (ROOT / "web" / "playground" / "engine.js").read_text(encoding="utf-8")
     assert f"const PYODIDE = '/pyodide/{build_site.PYODIDE_VERSION}/';" in engine
-    csp = json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))["hosting"]["headers"][0]["headers"][2]["value"]
-    assert "jsdelivr" not in csp and "unsafe-eval'" not in csp.replace("wasm-unsafe-eval'", "")
+    for hosting in json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))["hosting"]:
+        csp = hosting["headers"][0]["headers"][2]["value"]
+        assert "jsdelivr" not in csp and "unsafe-eval'" not in csp.replace("wasm-unsafe-eval'", "")
+
+
+def test_legacy_address_serves_the_same_site_as_the_app():
+    app, legacy = json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))["hosting"]
+    assert (app.pop("target"), legacy.pop("target")) == ("app", "legacy") and app == legacy
+    targets = json.loads((ROOT / ".firebaserc").read_text(encoding="utf-8"))["targets"]["orcid-playground-889"]["hosting"]
+    assert targets == {"app": ["science-record-player"], "legacy": ["orcid-playground-889"]}
 
 
 def test_group_view_and_hosted_share_button_are_built(tmp_path):

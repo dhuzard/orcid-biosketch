@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 import main
 
 CLIENT = "APP-TESTCLIENT0000000"
-ORIGIN = "https://orcid-playground-889.web.app"
+ORIGIN = "https://science-record-player.web.app"
 KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 OTHER_KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
@@ -60,8 +60,8 @@ def test_malformed_requests_are_refused_without_minting():
 def test_only_the_playground_origins_may_call_it():
     assert call(token(), origin="https://evil.example")[0] == 403
     assert call(token(), origin=None)[0] == 403
-    assert call(token(), origin="https://orcid-playground-889--preview-abc123.web.app")[0] == 200
-    assert call(token(), origin="https://orcid-playground-889--x.web.app.evil.example")[0] == 403
+    assert call(token(), origin="https://science-record-player--preview-abc123.web.app")[0] == 200
+    assert call(token(), origin="https://science-record-player--x.web.app.evil.example")[0] == 403
 
 
 def test_preflight_method_and_configuration():

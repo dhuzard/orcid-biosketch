@@ -8,7 +8,7 @@
 
 Turn public ORCID records into profiles, record-quality reports, publication visualisations, funder-format drafts, and research-group tools. **Try the hosted playground without installing anything or signing in.**
 
-[Open the live app](https://orcid-playground-889.web.app/) · [Leave feedback without GitHub](/feedback/) · [Explore sample data](https://orcid-playground-889.web.app/network/?sample=1#groups) · [Suggest an improvement](https://github.com/dhuzard/orcid-playground/issues/new/choose)
+[Open the live app](https://science-record-player.web.app/) · [Leave feedback without GitHub](/feedback/) · [Explore sample data](https://science-record-player.web.app/network/?sample=1#groups) · [Suggest an improvement](https://github.com/dhuzard/orcid-playground/issues/new/choose)
 
 ## What can I use it for?
 
@@ -23,10 +23,10 @@ Turn public ORCID records into profiles, record-quality reports, publication vis
 
 ## Start in two minutes
 
-1. Open [the app](https://orcid-playground-889.web.app/).
+1. Open [the app](https://science-record-player.web.app/).
 2. Choose **the maintainer's stored profile** for an offline example, or enter a public ORCID iD.
 3. Explore **Profile**, **Record check**, **Citations & data**, and a visualization.
-4. To test a team workflow, open the [research network with labelled sample data](https://orcid-playground-889.web.app/network/?sample=1#groups).
+4. To test a team workflow, open the [research network with labelled sample data](https://science-record-player.web.app/network/?sample=1#groups).
 5. Share an observation or a feature request via the [feedback guide](feedback.md).
 
 No ORCID account is required to browse public records. Providing feedback on GitHub requires a GitHub account.

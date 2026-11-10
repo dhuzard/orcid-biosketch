@@ -1,6 +1,6 @@
 # Group view — visualize public scientific connections
 
-Use [Group view](https://orcid-playground-889.web.app/group/) when you want a **shareable visualization** based on several public ORCID records, without publishing local contact notes or roles.
+Use [Group view](https://science-record-player.web.app/group/) when you want a **shareable visualization** based on several public ORCID records, without publishing local contact notes or roles.
 
 ## Create a group link
 

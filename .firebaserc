@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "orcid-playground-889"
+  },
+  "targets": {
+    "orcid-playground-889": {
+      "hosting": {
+        "app": [
+          "science-record-player"
+        ],
+        "legacy": [
+          "orcid-playground-889"
+        ]
+      }
+    }
+  }
+}

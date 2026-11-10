@@ -6,7 +6,7 @@ import { afterEach, beforeEach, test } from 'node:test';
 import { completeSignIn, current, signIn, signOut } from './auth.js';
 
 const CLIENT = 'APP-TESTCLIENT0000001';
-const ORIGIN = 'https://orcid-playground-889.web.app';
+const ORIGIN = 'https://science-record-player.web.app';
 const JWKS_URL = 'https://orcid.org/oauth/jwks';
 const PENDING = 'orcid-playground-signin-pending';
 const SESSION = 'orcid-playground-signin';

@@ -1,6 +1,6 @@
 # Science Record Player — brand assets
 
-The logo is a record on a turntable whose label is a play button: your science **record**, played in many formats. It has no link to ORCID's visual identity (no green, no "iD" circle).
+The logo is a record on a turntable with a sparkle on its label: your science **record**, played in many formats. It has no link to ORCID's visual identity: no green, and no letters in a circle. Do not put "iD" on the label; ORCID's iD icon is letters in a circle, and ORCID asked for an identity that cannot be confused with theirs.
 
 | File | Use |
 |---|---|

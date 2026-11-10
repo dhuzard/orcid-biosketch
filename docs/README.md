@@ -11,7 +11,7 @@ python -m sphinx -b html -n -W --keep-going docs/source docs/_build/html
 
 Open `docs/_build/html/index.html` in a browser. The documentation CI workflow builds the guide on pull requests, uploads the HTML artifact, and the existing Firebase Hosting workflow also builds and publishes it under **`/docs/`** with the main application.
 
-Public target: <https://orcid-playground-889.web.app/docs/>. Verify the production deployment before announcing that URL publicly.
+Public target: <https://science-record-player.web.app/docs/>. Verify the production deployment before announcing that URL publicly.
 
 ## Source conventions
 

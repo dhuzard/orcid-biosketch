@@ -1,6 +1,6 @@
 # Research network — people, outputs and contacts
 
-Open the [research network](https://orcid-playground-889.web.app/network/). You can use labelled sample data or import public ORCID records.
+Open the [research network](https://science-record-player.web.app/network/). You can use labelled sample data or import public ORCID records.
 
 The hosted version runs the research-network engine in the browser. A separate, optional localhost Python/SQLite pilot also exists. They are **not** a public shared database.
 
@@ -36,4 +36,4 @@ The hosted research-network workspace uses browser-local storage. Public ORCID r
 
 ## Suggested five-minute test
 
-Use the [sample research network](https://orcid-playground-889.web.app/network/?sample=1#groups). Follow someone, add a contact note, curate a group output, download a team pack, and tell us which task was confusing using the [feedback form](feedback.md).
+Use the [sample research network](https://science-record-player.web.app/network/?sample=1#groups). Follow someone, add a contact note, curate a group output, download a team pack, and tell us which task was confusing using the [feedback form](feedback.md).

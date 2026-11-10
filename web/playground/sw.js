@@ -11,7 +11,7 @@ const RUNTIME = 'orcid-playground-runtime';
 const SHELL = ['/', '/network/', '/group/', '/team/', '/feedback/', '/feedback.js', '/cloud.js', '/team.js', '/sync.js', '/playground.css', '/studio.js', '/group.js', '/group-link.js', '/digest.js', '/teampack.js',
   '/engine.js', '/engine-client.js', '/auth.js', '/network-bridge.js', '/orcid-biosketch.js', '/orcid-group.js',
   '/network/app.js', '/network/style.css', '/py/orcid_biosketch.zip', '/generated/biosketch.json',
-  '/manifest.webmanifest', '/icon.svg', '/favicon.svg'];
+  '/manifest.webmanifest', '/icon.svg', '/favicon.svg', '/moved.js'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
