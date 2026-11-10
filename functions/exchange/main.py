@@ -21,8 +21,8 @@ ORCID_ID = re.compile(r"^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
 # ORCID ID tokens live 10 minutes; allow for a little clock drift.
 LEEWAY_SECONDS = 60
 MAX_BODY = 8192
-DEFAULT_ORIGINS = ("https://orcid-playground-889.web.app", "https://orcid-playground-889.firebaseapp.com")
-PREVIEW_ORIGIN = re.compile(r"^https://orcid-playground-889--[a-z0-9-]+\.web\.app$")
+DEFAULT_ORIGINS = ("https://science-record-player.web.app", "https://science-record-player.firebaseapp.com")
+PREVIEW_ORIGIN = re.compile(r"^https://science-record-player--[a-z0-9-]+\.web\.app$")
 
 _jwks: jwt.PyJWKClient | None = None
 

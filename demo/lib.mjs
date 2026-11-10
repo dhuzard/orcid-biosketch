@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const OUT = resolve(ROOT, 'demo/out');
 export const RAW = resolve(OUT, '.raw');
-export const SITE = 'orcid-playground-889.web.app';
+export const SITE = 'science-record-player.web.app';
 // Display identity shared with the site build (config/brand.json).
 export const MARK = readFileSync(resolve(ROOT, 'brand/mark-on-dark.svg'), 'utf8');
 export const BRAND = JSON.parse(readFileSync(resolve(ROOT, 'config/brand.json'), 'utf8'));

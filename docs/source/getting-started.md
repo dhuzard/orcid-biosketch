@@ -4,7 +4,7 @@ The fastest route to understanding the tool is to **try a reproducible example**
 
 ## Option A — try the Studio without sharing anything
 
-1. Open [Studio](https://orcid-playground-889.web.app/).
+1. Open [Studio](https://science-record-player.web.app/).
 2. Select **The maintainer's profile (stored, offline)**. It does not make a public ORCID request for that stored example.
 3. Inspect the **Profile** and **Record check** tabs.
 4. Download a **BibTeX** or **JSON-LD** file from **Citations & data**.
@@ -21,9 +21,9 @@ Your ORCID record is not modified by this tool.
 
 ## Option C — explore a group
 
-1. Open the [sample research network](https://orcid-playground-889.web.app/network/?sample=1#groups), and accept the sample-data confirmation.
+1. Open the [sample research network](https://science-record-player.web.app/network/?sample=1#groups), and accept the sample-data confirmation.
 2. Open **Groups**, select a demonstration group and inspect its roster, selected outputs, requests, and team-pack export.
-3. Visit [Group view](https://orcid-playground-889.web.app/group/) to compose a shareable link from real public ORCID iDs. This public link intentionally does not include private notes, local group roles or selected outputs.
+3. Visit [Group view](https://science-record-player.web.app/group/) to compose a shareable link from real public ORCID iDs. This public link intentionally does not include private notes, local group roles or selected outputs.
 
 Sample people and outputs are labelled **Demo**. They must not be cited as real scientific records.
 

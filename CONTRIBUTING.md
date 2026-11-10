@@ -4,7 +4,7 @@ Contributions from researchers, data stewards, librarians and developers are wel
 
 ## Start with a real task
 
-Open the [hosted playground](https://orcid-playground-889.web.app/) and follow the [five-minute scientist test](docs/source/feedback.md). Using the tool requires no GitHub account; opening an issue does.
+Open the [hosted playground](https://science-record-player.web.app/) and follow the [five-minute scientist test](docs/source/feedback.md). Using the tool requires no GitHub account; opening an issue does.
 
 Choose [scientist feedback / feature idea](https://github.com/dhuzard/orcid-playground/issues/new/choose) and describe:
 - The concrete scientific task and intended audience.

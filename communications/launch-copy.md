@@ -12,17 +12,17 @@ Paste an ORCID iD and explore a biosketch, searchable works, record-quality sugg
 
 The important constraint: a public ORCID record is **not independently verified**, and a shared DOI is not proof of a collaboration or confirmed team membership.
 
-**Try it without creating an account:** https://orcid-playground-889.web.app/
+**Try it without creating an account:** https://science-record-player.web.app/
 
 I'm looking for researchers, lab coordinators and data stewards to spend five minutes with it. What would be useful? What is misleading? Which feature would you want next?
 
-**Suggest a feature without GitHub:** https://orcid-playground-889.web.app/feedback/\n\n**Developer issues:** https://github.com/dhuzard/orcid-playground/issues/new/choose
+**Suggest a feature without GitHub:** https://science-record-player.web.app/feedback/\n\n**Developer issues:** https://github.com/dhuzard/orcid-playground/issues/new/choose
 
 Built in the open. This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID. ORCID® is a registered trademark of ORCID, Inc.
 
 ## Short teaser copy
 
-A scientific profile is more than an ID. Explore your public ORCID record, improve its completeness, export reusable data and try research-group tools. **What should we build next?** https://orcid-playground-889.web.app/
+A scientific profile is more than an ID. Explore your public ORCID record, improve its completeness, export reusable data and try research-group tools. **What should we build next?** https://science-record-player.web.app/
 
 ## Outreach plan
 

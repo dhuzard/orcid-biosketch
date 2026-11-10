@@ -10,26 +10,26 @@
 
 **Your ORCID record can do more.** Explore public research profiles, inspect record quality, reuse publication data and experiment with a research network—without installing software.
 
-**[Try it](https://orcid-playground-889.web.app/)** · **[Read documentation](https://orcid-playground-889.web.app/docs/)** · **[Send feedback](https://orcid-playground-889.web.app/feedback/)** · **[Five-minute guide](docs/source/getting-started.md)** · **[Sphinx documentation source](docs/source/index.md)** · **[Suggest a feature](https://github.com/dhuzard/orcid-playground/issues/new/choose)**
+**[Try it](https://science-record-player.web.app/)** · **[Read documentation](https://science-record-player.web.app/docs/)** · **[Send feedback](https://science-record-player.web.app/feedback/)** · **[Five-minute guide](docs/source/getting-started.md)** · **[Sphinx documentation source](docs/source/index.md)** · **[Suggest a feature](https://github.com/dhuzard/orcid-playground/issues/new/choose)**
 
 > ORCID data are public assertions, not independently verified credentials. The application does not silently invent scientific outputs, affiliations or group membership.
 
 ## Try it in two minutes
 
-1. Open the [live Studio](https://orcid-playground-889.web.app/).
+1. Open the [live Studio](https://science-record-player.web.app/).
 2. Select **The maintainer's profile (stored, offline)**, or paste any public ORCID iD. No sign-in is needed to explore public records.
 3. Open **Record check**, explore the works table and download a **BibTeX**, **RIS**, **JSON-LD** or Markdown export.
-4. Try the [research network with labelled sample data](https://orcid-playground-889.web.app/network/?sample=1#groups). Experiment with following people, private contact tags and a project group.
+4. Try the [research network with labelled sample data](https://science-record-player.web.app/network/?sample=1#groups). Experiment with following people, private contact tags and a project group.
 5. Tell us **what would be useful for your research** through a [scientist feedback issue](https://github.com/dhuzard/orcid-playground/issues/new/choose). You can use the in-app email feedback form without a GitHub account; GitHub issues remain available for developers.
 
 ## What can you do?
 
 | Place | Features | Start |
 | --- | --- | --- |
-| **Studio** | Searchable researcher profile and works; **Record check** with actionable suggestions; editable **NIH / ERC / Horizon draft biosketches**; BibTeX, RIS, CSL JSON, normalized JSON, JSON-LD and Markdown exports | [Explore a record](https://orcid-playground-889.web.app/) |
-| **Visualizations** | SVG trading card and publication heatmap, career **Wrapped**, and **Fortune** from recorded titles | [Studio](https://orcid-playground-889.web.app/) |
-| **Research network** | Feed with filters, People, Saved works, **Contacts** with conference-context tags/notes/follow-ups, curated **Groups**, project-output selection, requests and a team pack | [Try sample data](https://orcid-playground-889.web.app/network/?sample=1#groups) |
-| **Public Group view** | Share a link containing a group name and public ORCID iDs; inspect DOI-based links, shared works, record health, team biosketch drafts, Group Wrapped, card deck, heatmap, bibliography and website embed | [Create a group link](https://orcid-playground-889.web.app/group/) |
+| **Studio** | Searchable researcher profile and works; **Record check** with actionable suggestions; editable **NIH / ERC / Horizon draft biosketches**; BibTeX, RIS, CSL JSON, normalized JSON, JSON-LD and Markdown exports | [Explore a record](https://science-record-player.web.app/) |
+| **Visualizations** | SVG trading card and publication heatmap, career **Wrapped**, and **Fortune** from recorded titles | [Studio](https://science-record-player.web.app/) |
+| **Research network** | Feed with filters, People, Saved works, **Contacts** with conference-context tags/notes/follow-ups, curated **Groups**, project-output selection, requests and a team pack | [Try sample data](https://science-record-player.web.app/network/?sample=1#groups) |
+| **Public Group view** | Share a link containing a group name and public ORCID iDs; inspect DOI-based links, shared works, record health, team biosketch drafts, Group Wrapped, card deck, heatmap, bibliography and website embed | [Create a group link](https://science-record-player.web.app/group/) |
 | **Local saving and sharing** | Workspace download/restore; browser-local research network; password-encrypted transfer package for a curated group; installable/offline-capable web app | [Research network guide](docs/source/research-network.md) |
 | **Developers** | Python package/CLI, structured provenance, deterministic exports, and framework-neutral biosketch and group Web Components | [Developer guide](docs/source/developers.md) |
 
@@ -51,7 +51,7 @@ We especially welcome feedback from **individual scientists, lab and consortium 
 
 No code is necessary. Try a real task (or clearly labelled sample data), then tell us what was confusing, which result needs correction, and what would make the tool worth using again.
 
-**[Send scientist feedback without GitHub](https://orcid-playground-889.web.app/feedback/)** · [Open a GitHub issue](https://github.com/dhuzard/orcid-playground/issues/new/choose) · [How to contribute](CONTRIBUTING.md) · [Existing backlog](BACKLOG.md)
+**[Send scientist feedback without GitHub](https://science-record-player.web.app/feedback/)** · [Open a GitHub issue](https://github.com/dhuzard/orcid-playground/issues/new/choose) · [How to contribute](CONTRIBUTING.md) · [Existing backlog](BACKLOG.md)
 
 Scientific correctness, provenance and privacy concerns are prioritized over decorative additions.
 
@@ -94,7 +94,7 @@ python -m pip install -r docs/requirements.txt
 python -m sphinx -b html -n -W --keep-going docs/source docs/_build/html
 ```
 
-Sphinx is built from [docs/source](docs/source/index.md) and deployed with the playground at [the hosted documentation](https://orcid-playground-889.web.app/docs/). A separate video-production workflow is proposed in [PR #31](https://github.com/dhuzard/orcid-playground/pull/31); the [comprehensive video storyboard](communications/video-storyboard.md) identifies remaining footage and scientific disclaimers.
+Sphinx is built from [docs/source](docs/source/index.md) and deployed with the playground at [the hosted documentation](https://science-record-player.web.app/docs/). A separate video-production workflow is proposed in [PR #31](https://github.com/dhuzard/orcid-playground/pull/31); the [comprehensive video storyboard](communications/video-storyboard.md) identifies remaining footage and scientific disclaimers.
 
 ## License and attribution
 

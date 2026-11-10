@@ -1,6 +1,6 @@
 # Studio — one public record, many outputs
 
-Open [Studio](https://orcid-playground-889.web.app/), enter a public ORCID iD or try the stored profile, and move between its tabs. Results are generated from fields available in the imported record; they are not a substitute for reviewing that record.
+Open [Studio](https://science-record-player.web.app/), enter a public ORCID iD or try the stored profile, and move between its tabs. Results are generated from fields available in the imported record; they are not a substitute for reviewing that record.
 
 ## Profile
 

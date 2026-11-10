@@ -40,12 +40,12 @@ The final cut can move faster than these timings; retain every scientific qualif
 4. If an auth-only or cloud Team flow is not deployed and demonstrated end-to-end, **do not show it as an available feature**. Use a “in development” note outside the main demo instead.
 5. Include accurate on-screen warnings: public assertions not independently verified; same DOI not evidence of confirmed collaboration; local roles not confirmed; funder drafts require review.
 6. Output 16:9 1080p or 720p master; captioned vertical/square clips; transcript (`.vtt` and text); readable font at phone size.
-7. End with the public Playground, GitHub repo, and [in-app feedback](https://orcid-playground-889.web.app/feedback/); do not use unverified docs or video URLs.
+7. End with the public Playground, GitHub repo, and [in-app feedback](https://science-record-player.web.app/feedback/); do not use unverified docs or video URLs.
 8. Add a versioned `docs/` link to the final video description only once Sphinx docs are published.
 
 ## Practical capture notes
 
-- Use the [maintainer's stored profile](https://orcid-playground-889.web.app/) for deterministic Studio clips.
+- Use the [maintainer's stored profile](https://science-record-player.web.app/) for deterministic Studio clips.
 - Use the app's **labelled sample workspace** for Feed/People/Contacts/Groups.
 - In Group view, the existing PR #31 synthetic router generates clearly marked *Demo* members; an alternative real-record version must use public records and appropriate permission for identifiable people.
 - Voiceover should emphasize **research questions and reproducible outputs**, not a terminal demonstration.

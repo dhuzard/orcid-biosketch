@@ -46,14 +46,14 @@ The client belongs to the ORCID record of whoever registers it and cannot be tra
 4. Read and accept the ORCID Public API Terms of Service, then click **Register for ORCID Public API Credentials** (the label may differ slightly).
 5. Fill in the form:
    - **Name**: the `name` in `config/brand.json` (shown to people on the ORCID consent screen; must not lead with "ORCID"). Update the registered client name whenever the product is renamed.
-   - **Application URL** (website): `https://orcid-playground-889.web.app/`
+   - **Application URL** (website): `https://science-record-player.web.app/`
    - **Description**: for example `Optional sign-in for an in-browser playground that renders a researcher's public ORCID record into biosketches. Only the ORCID iD and name from the signed ID token are used, in the visitor's browser tab; nothing is stored on a server.`
-   - **Redirect URIs**: exactly `https://orcid-playground-889.web.app/` (HTTPS, with the trailing `/`).
+   - **Redirect URIs**: exactly `https://science-record-player.web.app/` (HTTPS, with the trailing `/`).
 6. Click **Save my application and generate my client ID and secret** and copy the **Client ID** (`APP-` followed by 16 characters).
 
-Redirect URI rules ([API tutorial: get an authenticated ORCID iD](https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/)): only HTTPS is accepted in production; the domain must match exactly, including subdomains, and each subdomain must be registered separately; a host-only registration allows any path on that host, but registering the full URI is recommended. The site always sends `${location.origin}/`, so for the live site that is exactly `https://orcid-playground-889.web.app/`.
+Redirect URI rules ([API tutorial: get an authenticated ORCID iD](https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/)): only HTTPS is accepted in production; the domain must match exactly, including subdomains, and each subdomain must be registered separately; a host-only registration allows any path on that host, but registering the full URI is recommended. The site always sends `${location.origin}/`, so for the live site that is exactly `https://science-record-player.web.app/`.
 
-Preview channels are served from other hostnames (`orcid-playground-889--<channel>-<hash>.web.app`), and a channel's hostname changes when it expires and is recreated. Add a preview URL (with its trailing `/`) only when you want to test sign-in there, and remove it afterwards. The alternative domain `orcid-playground-889.firebaseapp.com` would also need its own entry; it is not used.
+Preview channels are served from other hostnames (`science-record-player--<channel>-<hash>.web.app`), and a channel's hostname changes when it expires and is recreated. Add a preview URL (with its trailing `/`) only when you want to test sign-in there, and remove it afterwards. The alternative domain `science-record-player.firebaseapp.com` would also need its own entry; it is not used.
 
 What is public and what is not:
 
@@ -67,12 +67,12 @@ gh variable set ORCID_CLIENT_ID --repo dhuzard/orcid-playground --body APP-XXXXX
 gh workflow run deploy-hosting.yml --repo dhuzard/orcid-playground --ref main -f channel=live
 ```
 
-Setting a variable is not a push, so nothing redeploys by itself; the manual `channel=live` run rebuilds the site with the new id (the next merge to `main` would also do it). The build writes the id into `config.json`; an empty value hides the button again. Check it with `curl -s https://orcid-playground-889.web.app/config.json`.
+Setting a variable is not a push, so nothing redeploys by itself; the manual `channel=live` run rebuilds the site with the new id (the next merge to `main` would also do it). The build writes the id into `config.json`; an empty value hides the button again. Check it with `curl -s https://science-record-player.web.app/config.json`.
 
 ### Manual test on the live site
 
-1. Open <https://orcid-playground-889.web.app/> in a private window. **Sign in with ORCID** appears top right. If not, check `config.json` and that the live deploy ran.
-2. Click it. ORCID's sign-in page opens and the address bar shows `response_type=id_token+token`, `scope=openid` and `redirect_uri=https%3A%2F%2Forcid-playground-889.web.app%2F`. A redirect URI error here means the registered URI does not match exactly.
+1. Open <https://science-record-player.web.app/> in a private window. **Sign in with ORCID** appears top right. If not, check `config.json` and that the live deploy ran.
+2. Click it. ORCID's sign-in page opens and the address bar shows `response_type=id_token+token`, `scope=openid` and `redirect_uri=https%3A%2F%2Fscience-record-player.web.app%2F`. A redirect URI error here means the registered URI does not match exactly.
 3. Sign in and authorize. You return to the Studio with your name (or iD) top right, the **My record** chip, and your public record loading. The address bar has no `#` fragment left.
 4. In DevTools, the Network tab shows one request to `https://orcid.org/oauth/jwks` and no CSP errors in the Console; Application > Session Storage holds `orcid-playground-signin` with only `orcid` and `name`.
 5. Click **Sign out**: the button returns. Sign in again and click **Deny** on ORCID's consent screen: you should return with "ORCID sign-in was cancelled or refused." and not be signed in. ORCID does not document where a denial is reported, so if you land elsewhere, note the URL (without any token) in issue #14.
@@ -126,7 +126,7 @@ Firebase Hosting is in use today (live site plus on-demand preview channels); mo
 
 ## One-time GCP setup for the static showcase
 
-Project: `orcid-playground-889` (Firebase site `orcid-playground-889.web.app`). Run `scripts/gcp_setup.sh` as a project owner; it does everything below and prints the three GitHub variables to set. The commands are kept here for reference.
+Project: `orcid-playground-889` (Firebase sites `science-record-player`, the app, and `orcid-playground-889`, the legacy address; see "Moving to science-record-player.web.app" below). Run `scripts/gcp_setup.sh` as a project owner; it does everything below and prints the three GitHub variables to set. The commands are kept here for reference.
 
 ```bash
 gcloud projects create PROJECT_ID && gcloud billing projects link PROJECT_ID --billing-account=ACCOUNT
@@ -164,3 +164,23 @@ Target architecture, all in the EU:
 | Delivery | Separate workflow, `workflow_dispatch` only, same Workload Identity Federation |
 
 The in-browser playground already covers individual use; this service is only needed for workspaces shared between people. Prerequisites, in order: coordinator feedback in #8; add auth, workspace isolation and a storage interface to the pilot; add a Dockerfile and tests that assert the service refuses unauthenticated requests; only then add a Cloud Run deploy workflow (INF-09).
+
+## Moving to science-record-player.web.app (INF-13)
+
+ORCID asked that the hostname not lead with "ORCID". The app now lives on its own Firebase Hosting **site**, `science-record-player`, in the same GCP project. The project ID `orcid-playground-889` is never shown to visitors and stays. `.firebaserc` maps two deploy targets:
+
+| Target | Site | Serves |
+|---|---|---|
+| `app` | `science-record-player` → <https://science-record-player.web.app> | The app |
+| `legacy` | `orcid-playground-889` → `orcid-playground-889.web.app` | The same build. `web/playground/moved.js` forwards visitors to the new address, keeping the path, query and `#fragment`. Visitors who have a research network saved in this browser on the old address are not forwarded. They see a banner telling them to **Download my workspace** and **Restore from file** on the new site, because browser storage belongs to an address. |
+
+A live deploy (`firebase deploy --only hosting`) updates both sites. Preview channels use `--only app`.
+
+One-time steps, in order (owner):
+
+1. **Create the site.** Firebase console → Hosting → *Add another site* → `science-record-player`. Or: `npx firebase-tools hosting:sites:create science-record-player --project orcid-playground-889`. The deploy service account already has `roles/firebasehosting.admin` on the project, which covers every site.
+2. **ORCID client** (<https://orcid.org/developer-tools>): rename the application to **Science Record Player**, set the website to `https://science-record-player.web.app/`, and **add** the redirect URI `https://science-record-player.web.app/`. Keep the old one until the move is verified, then remove it.
+3. **Merge** the PR that adds the targets. Deploy-hosting publishes both sites.
+4. **Verify** in a private window: <https://science-record-player.web.app/> loads with sign-in, and `https://orcid-playground-889.web.app/network/?sample=1#groups` lands on the same path on the new host.
+5. **Exchange function** (team workspaces, when Blaze is enabled): redeploy with `scripts/deploy_backend.sh`. Its allowed origins now point to the new host.
+6. **Optional: rename the GitHub repository** to `science-record-player`. GitHub redirects old links. Deploys authenticate through Workload Identity with a condition on the repository *name* (`attribute.repository`), so update that condition, or re-run `scripts/gcp_setup.sh` with `REPO=dhuzard/science-record-player`, in the same sitting. Then update the GitHub links in the code.
