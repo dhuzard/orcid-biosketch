@@ -10,7 +10,7 @@ Do not launch, announce or record videos under the old name. Do not describe any
 
 | Request | What it means for us | Status |
 |---|---|---|
-| **Name and hostname**: "ORCID" must not be the leading identifier. They suggested "[ProjectName]: An Open-Source Playground for ORCID Records" or "[ProjectName] by Neuronautix". | Choose a distinct name; move to a matching hostname. | Working title applied (`config/brand.json`). Final name and hostname pending: **INF-13** |
+| **Name and hostname**: "ORCID" must not be the leading identifier. They suggested "[ProjectName]: An Open-Source Playground for ORCID Records" or "[ProjectName] by Neuronautix". | Choose a distinct name; move to a matching hostname. | Name chosen: **Science Record Player (SRP)**, tagline "Publish or Play". Hostname pending: **INF-13** |
 | **Distinct visual identity**: the layout and green palette look too much like ORCID. | New colour scheme, typography and icon. | Done: muted pink / aubergine palette, new ✦ rounded-square icon, new heading typeface (**INF-12**) |
 | **Prominent ownership**: the header must say the app is developed and maintained independently by Damien Huzard / Neuronautix under the MIT license. | Ownership line in every page header. | Done (**INF-12**) |
 | **Prominent disclaimer**, verbatim: *"This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID."* | Visible banner on every page, not fine print. | Done on all hosted pages, network page, docs announcement bar, README and video cards (**INF-12**) |
@@ -18,15 +18,15 @@ Do not launch, announce or record videos under the old name. Do not describe any
 
 ## Decisions taken (10 Nov 2026)
 
-1. **Name: decide later.** It should be a pun that also conveys the power of the different features. Until then, the UI uses the working title **Research Record Lab**, set in one place: `config/brand.json`. The site build (`scripts/build_site.py`), the Sphinx docs (`{{ brand }}`) and the demo title cards all read it. Renaming means editing that file, the README title and `[Product name]` in the launch copy.
+1. **Name: Science Record Player (SRP)**, chosen 10 Nov 2026. The pun: your science *record*, played like a vinyl in many formats (biosketch, card, heatmap, Wrapped, fortune, exports). **"Publish or Play"** is used as the tagline and description line. The name is set in one place: `config/brand.json`. The site build (`scripts/build_site.py`), the Sphinx docs (`{{ brand }}`) and the demo title cards all read it. A future rename means editing that file, the README title and the launch copy.
 2. **Palette: muted pink.** Accent `#e2b4c0` (dusty rose), brand `#3a2737` (aubergine), paper `#faf6f7`, ink `#2b2230`. All former greens were shifted to the rose hue with their lightness preserved. The new icon is a rounded square, not a circle.
-3. **URLs stay for now.** `orcid-playground-889.web.app` and the GitHub repository keep working until the name is chosen (INF-13). ORCID explicitly asked for the hostname to change, so this is temporary and must be done before sending them the link again.
+3. **URLs stay for now.** `orcid-playground-889.web.app` and the GitHub repository keep working until the new hostname exists (INF-13; suggested `science-record-player.web.app` or a custom domain, and repository `science-record-player`). ORCID explicitly asked for the hostname to change, so this is temporary and must be done before sending them the link again.
 4. **Code names: follow-up.** `orcid_biosketch`, `orcid-biosketch`, `<orcid-biosketch>` and `<orcid-group>` stay as they are for now. They will be renamed with aliases later (INF-14).
 5. **Internal identifiers unchanged.** Storage keys, cache names and file-format IDs (`orcid-playground-workspace`, `orcid-playground-team-group`, `orcid-playground/roster-assertion`) are not shown to users. Changing them would break existing backups and browser data. The downloaded backup is now named `research-workspace-<date>.json`.
 
-## Name shortlist (puns that show the features)
+## Name shortlist considered (puns that show the features)
 
-None of these has been checked. Search EUIPO, INPI and USPTO, plus domains, GitHub, PyPI and npm, before choosing.
+Chosen: a variant of **Record Player**, as **Science Record Player (SRP)**, with **Publish or Play** as the tagline. Availability still to be checked. Search EUIPO, INPI and USPTO, plus domains, GitHub, PyPI and npm, before choosing.
 
 | Candidate | The pun | Features it evokes | Notes |
 |---|---|---|---|
@@ -40,8 +40,8 @@ None of these has been checked. Search EUIPO, INPI and USPTO, plus domains, GitH
 
 ## Next steps (owner)
 
-1. Pick the name and check availability.
-2. Set it in `config/brand.json`, the README title and the launch copy.
+1. ~~Pick the name~~ (done). Check availability of "Science Record Player" / "SRP" (EUIPO, INPI, USPTO, domains, GitHub, PyPI, npm). SRP is a common acronym; use it as a short form, not the main brand.
+2. ~~Set it in `config/brand.json`, the README title and the launch copy~~ (done).
 3. Create the new Hosting site or domain and migrate (checklist below).
 4. Reply to ORCID with the new link and screenshots.
 

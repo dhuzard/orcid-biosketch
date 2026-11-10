@@ -1,10 +1,10 @@
-# Research Record Lab *(working title)*
+# Science Record Player (SRP)
 
-*An open-source playground for ORCID records — developed and maintained independently by **Damien Huzard / Neuronautix** under the [MIT license](LICENSE).*
+**Publish or Play.** *An open-source playground for ORCID records — developed and maintained independently by **Damien Huzard / Neuronautix** under the [MIT license](LICENSE).*
 
 > **This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID.** It reads public data through the [ORCID Public API](https://info.orcid.org/what-is-orcid/services/public-api/). ORCID® is a registered trademark of ORCID, Inc.
 >
-> The product is being renamed at ORCID's request; the final name is set in [`config/brand.json`](config/brand.json) (see [communications/branding-and-rename.md](communications/branding-and-rename.md)). The current hostname and repository name are temporary.
+> Formerly “ORCID Playground”, renamed at ORCID's request (see [communications/branding-and-rename.md](communications/branding-and-rename.md)); the display name is set in [`config/brand.json`](config/brand.json). The current hostname and repository name are temporary and will move to match the new name.
 
 **Your ORCID record can do more.** Explore public research profiles, inspect record quality, reuse publication data and experiment with a research network—without installing software.
 

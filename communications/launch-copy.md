@@ -1,12 +1,12 @@
 # Community launch copy and lightweight pilot
 
-Do not publish until the public docs/feedback URLs are verified, the final name is chosen (INF-13) and ORCID has reviewed the rebranded app, and the recorded video is checked.
+Do not publish until the public docs/feedback URLs are verified, the new hostname is live (INF-13) and ORCID has reviewed the rebranded app, and the recorded video is checked.
 
 ## LinkedIn / community announcement (English)
 
-**Your ORCID record can do more than identify you.**
+**Publish or Play: your ORCID record can do more than identify you.**
 
-I have been building **[Product name]**, an independent open-source experiment to see how public research records can become genuinely useful to scientists.
+I have been building **Science Record Player (SRP)**, an independent open-source experiment to see how public research records can become genuinely useful to scientists.
 
 Paste an ORCID iD and explore a biosketch, searchable works, record-quality suggestions, citation exports, a publication heatmap and a year in review. You can also try a local research network, manage contacts after conferences, curate working groups and visualize shared DOI assertions across public records.
 

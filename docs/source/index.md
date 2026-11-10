@@ -1,6 +1,6 @@
 # {{ brand }}
 
-*An open-source playground for ORCID records, developed and maintained independently by {{ owner }} under the {{ license }} license.*
+**Publish or Play.** *An open-source playground for ORCID records, developed and maintained independently by {{ owner }} under the {{ license }} license.*
 
 **{{ disclaimer }}**
 

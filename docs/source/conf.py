@@ -1,7 +1,7 @@
 """Sphinx configuration for the scientist-facing documentation.
 
-The product's display name comes from config/brand.json (working title until the
-final name is chosen); Markdown pages use it as ``{{ brand }}``.
+The product's display name comes from config/brand.json; Markdown pages use it
+as ``{{ brand }}``.
 """
 import json
 from pathlib import Path
