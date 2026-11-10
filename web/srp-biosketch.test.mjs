@@ -10,7 +10,7 @@ globalThis.document = {
 globalThis.HTMLElement = class {};
 globalThis.customElements = {get() { return true; }, define() {}};
 
-const {safeHttpUrl} = await import("./orcid-biosketch.js");
+const {safeHttpUrl} = await import("./srp-biosketch.js");
 
 test("safeHttpUrl allows only browser-safe web links", () => {
   assert.equal(safeHttpUrl("https://orcid.org/0000-0002-1825-0097"),

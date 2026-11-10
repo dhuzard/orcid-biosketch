@@ -1,4 +1,4 @@
-// Web Worker: runs the orcid_biosketch package under Pyodide, in the visitor's browser.
+// Web Worker: runs the science_record_player package under Pyodide, in the visitor's browser.
 // Requests leave the site only for the public ORCID API; the network workspace stays in this
 // browser's IndexedDB and is never sent anywhere.
 // Served by this site with pinned hashes (scripts/build_site.py), not from a CDN.
@@ -59,7 +59,7 @@ function openWorkspace(state) {
 const ready = (async () => {
   const py = await loadPyodide({ indexURL: PYODIDE });
   await py.loadPackage('sqlite3');
-  const archive = await fetch('/py/orcid_biosketch.zip');
+  const archive = await fetch('/py/science_record_player.zip');
   if (!archive.ok) throw new Error(`Could not load the engine (HTTP ${archive.status}).`);
   py.unpackArchive(await archive.arrayBuffer(), 'zip', { extractDir: '/lib/playground' });
   py.FS.mkdirTree(WORKSPACE);
@@ -69,7 +69,7 @@ const ready = (async () => {
   py.runPython(`
 import sys
 sys.path.insert(0, "/lib/playground")
-from orcid_biosketch import playground
+from science_record_player import playground
 playground.install_transport(sync_get)
 `);
   return { py, engine: py.globals.get('playground'), workspace: null };

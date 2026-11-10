@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "orcid-biosketch"
-version = "0.2.0"
-description = "Generate provenance-aware, website-ready biosketches from ORCID"
+name = "science-record-player"
+version = "0.3.0"
+description = "Science Record Player (SRP): provenance-aware biosketches, exports and research-group tools from public ORCID records"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -16,15 +16,23 @@ classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :
 [project.optional-dependencies]
 dev = ["pytest>=8", "jsonschema>=4"]
 
+[project.urls]
+Homepage = "https://science-record-player.web.app"
+Source = "https://github.com/dhuzard/science-record-player"
+
 [project.scripts]
-orcid-biosketch = "orcid_biosketch.cli:main"
-orcid-network = "orcid_biosketch.network:main"
+srp = "science_record_player.cli:main"
+science-record-player = "science_record_player.cli:main"
+srp-network = "science_record_player.network:main"
+# Deprecated aliases (renamed Nov 2026); they print a notice and behave as before.
+orcid-biosketch = "science_record_player.cli:deprecated_main"
+orcid-network = "science_record_player.network:deprecated_main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/orcid_biosketch"]
+packages = ["src/science_record_player", "src/orcid_biosketch"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"web/network" = "orcid_biosketch/network_web"
+"web/network" = "science_record_player/network_web"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

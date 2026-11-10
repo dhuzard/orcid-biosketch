@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/dhuzard/orcid-biosketch/raw/main/schema/biosketch.schema.json",
+  "$id": "https://github.com/dhuzard/science-record-player/raw/main/schema/biosketch.schema.json",
   "title": "ORCID Biosketch",
   "type": "object",
   "required": [

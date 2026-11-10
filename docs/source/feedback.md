@@ -2,7 +2,7 @@
 
 {{ brand }} is a research prototype. **We want scientist-led feedback about actual tasks**, not just a list of imagined features. You do not need to write code.
 
-[Send feedback by email, without GitHub](https://science-record-player.web.app/feedback/) · [Open a GitHub issue](https://github.com/dhuzard/orcid-playground/issues/new/choose)
+[Send feedback by email, without GitHub](https://science-record-player.web.app/feedback/) · [Open a GitHub issue](https://github.com/dhuzard/science-record-player/issues/new/choose)
 
 The in-app form prepares an email draft; you still decide whether to send it, or can copy its text. GitHub issues require a GitHub account; using the public app and email feedback route does not.
 
@@ -40,4 +40,4 @@ Next: repeated, well-defined researcher workflows with evidence that they save w
 
 Lower priority: decorative features without an identifiable use case or any unlabelled enrichment that could make the output appear more authoritative than its source.
 
-Read the [backlog](https://github.com/dhuzard/orcid-playground/blob/main/BACKLOG.md) to see what has already been proposed.
+Read the [backlog](https://github.com/dhuzard/science-record-player/blob/main/BACKLOG.md) to see what has already been proposed.

@@ -1,21 +1,21 @@
 # Website integration guide
 
-`orcid-biosketch` supports browser-time live synchronization and build-time static integration.
+`srp` supports browser-time live synchronization and build-time static integration.
 
 ## Browser-time synchronization
 
 The website loads the latest generated JSON whenever a visitor opens the page. No website rebuild is required after the biosketch repository synchronizes with ORCID.
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/gh/OWNER/orcid-biosketch@main/web/orcid-biosketch.js"></script>
-<orcid-biosketch
-  src="https://raw.githubusercontent.com/OWNER/orcid-biosketch/main/generated/biosketch.json"
+<script type="module" src="https://cdn.jsdelivr.net/gh/OWNER/science-record-player@main/web/srp-biosketch.js"></script>
+<srp-biosketch
+  src="https://raw.githubusercontent.com/OWNER/science-record-player/main/generated/biosketch.json"
   bio="true"
   works="all"
   search="true"
   pdf="true"
   provenance="true">
-</orcid-biosketch>
+</srp-biosketch>
 ```
 
 Replace `OWNER` with the GitHub account containing the fork.
@@ -32,7 +32,7 @@ Replace `OWNER` with the GitHub account containing the fork.
 The Shadow DOM prevents the component from overwriting host styles. Colors remain configurable:
 
 ```css
-orcid-biosketch { --ob-accent:#005ea8; --ob-border:#d6dce2; --ob-bg:white; --ob-soft:#f5f7f9; --ob-muted:#52606d; }
+srp { --ob-accent:#005ea8; --ob-border:#d6dce2; --ob-bg:white; --ob-soft:#f5f7f9; --ob-muted:#52606d; }
 ```
 
 ## Build-time integration
@@ -43,7 +43,7 @@ Static generators can fetch `generated/biosketch.json` during a build. This impr
 
 ```astro
 ---
-const response = await fetch('https://raw.githubusercontent.com/OWNER/orcid-biosketch/main/generated/biosketch.json');
+const response = await fetch('https://raw.githubusercontent.com/OWNER/science-record-player/main/generated/biosketch.json');
 const bio = await response.json();
 ---
 <h1>{bio.person.name}</h1>
@@ -58,7 +58,7 @@ Paste the browser-time markup into a page or layout. No Ruby plugin is required.
 
 ### Hugo
 
-Add the markup to `layouts/shortcodes/orcid-biosketch.html`, then invoke the shortcode from content.
+Add the markup to `layouts/shortcodes/srp-biosketch.html`, then invoke the shortcode from content.
 
 ### Quarto / MyST
 

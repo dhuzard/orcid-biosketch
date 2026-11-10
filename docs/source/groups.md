@@ -18,7 +18,7 @@ Each viewer reads public ORCID records in their browser on request. The link doe
 - **Record health:** inspect member-specific quality findings and common improvements; export a report.
 - **Funder-format team biosketch:** an editable draft, not an approved or funder-compliant application.
 - **Group Wrapped, card deck and heatmap:** visual summaries based on available public assertions.
-- **Embed:** download a snapshot and embed the `<orcid-group>` web component on a lab website. The snapshot is static until replaced.
+- **Embed:** download a snapshot and embed the `<srp-group>` web component on a lab website. The snapshot is static until replaced.
 
 **Important scientific distinction:** two records sharing the same DOI is evidence of a shared output assertion, **not proof of a collaboration relationship**, CRediT role, institutional membership or consent. DOI-less outputs may not be linked.
 
@@ -32,4 +32,4 @@ The **Encrypted team package** feature can transfer one curated group with a cho
 
 The codebase contains invite-only Team workspaces and personal cloud sync, with ORCID sign-in and access-control rules. As documented in November 2026, activation of the public cloud backend is still pending; **do not advertise this as a live feature until an end-to-end public deployment test succeeds**.
 
-See [Trust and privacy](trust.md), and the maintainer's [technical Team workspace design](https://github.com/dhuzard/orcid-playground/blob/main/docs/team-workspaces.md).
+See [Trust and privacy](trust.md), and the maintainer's [technical Team workspace design](https://github.com/dhuzard/science-record-player/blob/main/docs/team-workspaces.md).

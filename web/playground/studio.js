@@ -42,7 +42,7 @@ const json = value => JSON.stringify(value, null, 2);
 const TABS = {
   Profile() {
     // The web component renders the biosketch JSON with its own escaping; it loads from a local blob URL.
-    return [el('orcid-biosketch', { src: blobUrl(json(outputs.biosketch), 'application/json'), bio: 'true', works: 'all', search: 'true', provenance: 'true' })];
+    return [el('srp-biosketch', { src: blobUrl(json(outputs.biosketch), 'application/json'), bio: 'true', works: 'all', search: 'true', provenance: 'true' })];
   },
   'Trading card'() {
     return [el('div', { class: 'tools' }, download('SVG', outputs.card_svg, `${slug()}-card.svg`, 'image/svg+xml')),

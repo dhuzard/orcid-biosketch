@@ -74,7 +74,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-21 | Remove people from Contacts and from the workspace | P2 | in-review | session |
 | INF-12 | Independent identity per ORCID brand guidance (palette, disclaimer, ownership) | P0 | done | session |
 | INF-13 | Final product name, hostname and repository migration | P0 | in-progress | owner |
-| INF-14 | Rename `orcid_biosketch` / `orcid-biosketch` / `<orcid-*>` with compatibility aliases | P2 | planned | — |
+| INF-14 | Rename `orcid_biosketch` / `orcid-biosketch` / `<orcid-*>` with compatibility aliases | P2 | in-review | session |
 
 ---
 
@@ -928,7 +928,8 @@ imported person, so removing someone's tags did not remove them from the list.
 
 ## INF-14 — Rename package, CLI and web components
 
-- **Priority** P2 · **Status** planned · **Owner** —
+- **Priority** P2 · **Status** in-review · **Owner** session
+- **New names** distribution `science-record-player` 0.3.0, import `science_record_player`, commands `srp` / `science-record-player` / `srp-network`, widgets `<srp-biosketch>` / `<srp-group>` (`srp-*.js`). Deprecated aliases: `orcid_biosketch` (shim package returning the same module objects, with a DeprecationWarning), `orcid-biosketch` / `orcid-network` (print a notice), `<orcid-biosketch>` / `<orcid-group>` tags and `orcid-*.js` files, and `--orcid-group-*` CSS variables as fallbacks. Data-format identifiers (`orcid-group-snapshot/1`, `orcid-playground-workspace`, …) are unchanged. Tests: `tests/test_rename_compat.py`, `web/rename-compat.test.mjs`.
 - **Why** `orcid_biosketch`, `orcid-biosketch`, `<orcid-biosketch>` and `<orcid-group>` also lead with ORCID. Renaming breaks imports and embeds, so add new names with deprecated aliases and a documented deprecation cycle after INF-13.
 
 ## Change log
@@ -1022,3 +1023,5 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-10 | INF-12 | Merged (#47); deploy to the legacy address with the new branding | in-review → done |
 | 2026-11-10 | INF-13 | Two-site hosting (app + legacy forwarder), links, exchange origins and sign-in docs moved to science-record-player.web.app; awaits the owner creating the Firebase site | scope |
 | 2026-11-10 | INF-13 | #48 merged; science-record-player.web.app live. Owner chose to retire the old address: legacy deploy target and forwarder removed; default site to be disabled | scope |
+| 2026-11-10 | INF-13 | Old address disabled by the owner; GitHub repository renamed to dhuzard/science-record-player and links updated | scope |
+| 2026-11-10 | INF-14 | Package, CLI and widgets renamed with deprecated aliases | planned → in-review |

@@ -5,7 +5,7 @@ globalThis.document = { baseURI: "https://lab.example/team/" };
 globalThis.HTMLElement = class {};
 globalThis.customElements = { get() { return true; }, define() {} };
 
-const { safeHttpUrl, validSnapshot, filterWorks, SCHEMA } = await import("./orcid-group.js");
+const { safeHttpUrl, validSnapshot, filterWorks, SCHEMA } = await import("./srp-group.js");
 
 const snapshot = {
   schema: SCHEMA, name: "Lab", members: [{ orcid: "0000-0000-0000-0001", name: "Ada" }],

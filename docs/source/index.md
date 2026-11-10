@@ -8,7 +8,7 @@
 
 Turn public ORCID records into profiles, record-quality reports, publication visualisations, funder-format drafts, and research-group tools. **Try the hosted playground without installing anything or signing in.**
 
-[Open the live app](https://science-record-player.web.app/) · [Leave feedback without GitHub](/feedback/) · [Explore sample data](https://science-record-player.web.app/network/?sample=1#groups) · [Suggest an improvement](https://github.com/dhuzard/orcid-playground/issues/new/choose)
+[Open the live app](https://science-record-player.web.app/) · [Leave feedback without GitHub](/feedback/) · [Explore sample data](https://science-record-player.web.app/network/?sample=1#groups) · [Suggest an improvement](https://github.com/dhuzard/science-record-player/issues/new/choose)
 
 ## What can I use it for?
 

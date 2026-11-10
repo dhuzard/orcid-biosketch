@@ -6,7 +6,7 @@ Contributions from researchers, data stewards, librarians and developers are wel
 
 Open the [hosted playground](https://science-record-player.web.app/) and follow the [five-minute scientist test](docs/source/feedback.md). Using the tool requires no GitHub account; opening an issue does.
 
-Choose [scientist feedback / feature idea](https://github.com/dhuzard/orcid-playground/issues/new/choose) and describe:
+Choose [scientist feedback / feature idea](https://github.com/dhuzard/science-record-player/issues/new/choose) and describe:
 - The concrete scientific task and intended audience.
 - What you tried (sample data or a public record), and what you expected.
 - What was missing, confusing or potentially misleading.

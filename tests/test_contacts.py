@@ -5,7 +5,7 @@ import zipfile
 
 import pytest
 
-from orcid_biosketch.network_store import NetworkStore
+from science_record_player.network_store import NetworkStore
 from test_network_http import request, running_server
 from test_workspace_backup import ORCID_A, ORCID_B, populated
 

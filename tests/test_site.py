@@ -14,7 +14,7 @@ spec.loader.exec_module(build_site)
 
 def test_site_contains_only_public_outputs(tmp_path):
     files = build_site.build(tmp_path / "site", client_id="")
-    assert {"generated/biosketch.json", "index.html", "network/index.html", "py/orcid_biosketch.zip"} <= set(files)
+    assert {"generated/biosketch.json", "index.html", "network/index.html", "py/science_record_player.zip"} <= set(files)
     allowed = {p.name for p in (ROOT / "generated").iterdir()}
     assert {p.name for p in (tmp_path / "site" / "generated").iterdir()} <= allowed
     assert sorted(str(p.relative_to(tmp_path / "site").as_posix()) for p in (tmp_path / "site").rglob("*") if p.is_file()) == sorted(files)
@@ -46,7 +46,7 @@ def test_package_archive_is_reproducible_source_only(tmp_path):
     build_site.package_archive(second)
     assert first.read_bytes() == second.read_bytes()
     names = zipfile.ZipFile(first).namelist()
-    assert "orcid_biosketch/playground.py" in names and "orcid_biosketch/templates/nih.md" in names
+    assert "science_record_player/playground.py" in names and "science_record_player/templates/nih.md" in names
     assert all(name.endswith((".py", ".md")) and "__pycache__" not in name for name in names)
 
 

@@ -34,7 +34,7 @@ The codebase contains invite-based Teams, but cloud activation is not yet docume
 
 ## Is it free/open source?
 
-The application source is [MIT licensed](https://github.com/dhuzard/orcid-playground/blob/main/LICENSE). Public ORCID data remain subject to their own applicable terms. This project is independent of ORCID, Inc.
+The application source is [MIT licensed](https://github.com/dhuzard/science-record-player/blob/main/LICENSE). Public ORCID data remain subject to their own applicable terms. This project is independent of ORCID, Inc.
 
 ## How can I suggest improvements without writing software?
 

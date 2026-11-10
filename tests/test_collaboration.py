@@ -1,4 +1,4 @@
-from orcid_biosketch.collaboration import collaboration_graph, doi_key, group_bibliography
+from science_record_player.collaboration import collaboration_graph, doi_key, group_bibliography
 
 
 def bio(orcid, name, *works):

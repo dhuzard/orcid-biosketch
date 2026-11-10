@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from orcid_biosketch.fun import (
+from science_record_player.fun import (
     fortune,
     heatmap_svg,
     render_wrapped,

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from orcid_biosketch.team import group_health, render_health, team_biosketch
+from science_record_player.team import group_health, render_health, team_biosketch
 
 SAMPLE = json.loads((Path(__file__).parents[1] / "generated" / "biosketch.json").read_text(encoding="utf-8"))
 
@@ -57,13 +57,13 @@ def test_team_biosketch_without_shared_dois_says_so_and_rejects_unknown_template
 
 
 def test_every_record_check_has_a_plain_language_label():
-    from orcid_biosketch import lint
-    from orcid_biosketch.team import CHECK_LABELS
+    from science_record_player import lint
+    from science_record_player.team import CHECK_LABELS
     assert {name for name, _, _ in lint.CHECKS} <= set(CHECK_LABELS)
 
 
 def test_group_wrapped_counts_each_member_for_the_same_year_and_only_doi_joint_outputs():
-    from orcid_biosketch.team import group_wrapped, render_group_wrapped
+    from science_record_player.team import group_wrapped, render_group_wrapped
     a = member("0000-0000-0000-0002", "Ada", works=[SHARED, {"title": "Solo", "publication_date": "2024", "identifiers": {}}])
     b = member("0000-0000-0000-0003", "Ben", works=[SHARED, {"title": "Old", "publication_date": "2019", "identifiers": {}}])
     data = group_wrapped([a, b], "Lab")
@@ -76,7 +76,7 @@ def test_group_wrapped_counts_each_member_for_the_same_year_and_only_doi_joint_o
 
 def test_card_deck_and_snapshot_carry_only_public_assertions():
     import base64, io, zipfile
-    from orcid_biosketch.team import card_deck, card_deck_zip, group_snapshot
+    from science_record_player.team import card_deck, card_deck_zip, group_snapshot
     a = member("0000-0000-0000-0002", "Ada <script>", works=[SHARED])
     deck = card_deck([a, SPARSE])
     assert [c["orcid"] for c in deck] == ["0000-0000-0000-0002", "0000-0000-0000-0001"]

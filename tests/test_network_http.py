@@ -6,9 +6,9 @@ from contextlib import contextmanager
 
 import pytest
 
-from orcid_biosketch.core import OrcidError
-from orcid_biosketch.network import PilotServer, import_public_record
-from orcid_biosketch.network_store import NetworkStore
+from science_record_player.core import OrcidError
+from science_record_player.network import PilotServer, import_public_record
+from science_record_player.network_store import NetworkStore
 
 
 @contextmanager
@@ -109,7 +109,7 @@ def test_import_failure_leaves_workspace_intact(tmp_path):
 
 
 def test_import_is_baseline_and_checks_requested_identity(monkeypatch, tmp_path):
-    from orcid_biosketch import network
+    from science_record_player import network
     record = {"orcid-identifier": {"path": "0000-0002-1825-0097"}, "person": {}}
     monkeypatch.setattr(network, "fetch_orcid_record", lambda *args, **kwargs: record)
     with running_server(tmp_path) as server:
