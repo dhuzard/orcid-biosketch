@@ -923,7 +923,7 @@ imported person, so removing someone's tags did not remove them from the list.
 
 - **Priority** P0 · **Status** planned · **Owner** owner
 - **Why** Name chosen 10 Nov 2026: **Science Record Player (SRP)**, tagline "Publish or Play" (set in `config/brand.json`). ORCID asked for a distinct name *and* a matching hostname before it reviews the app again.
-- **Hosting** `.firebaserc` targets `app` (`science-record-player`) and `legacy` (`orcid-playground-889`). Both serve the same build; `web/playground/moved.js` forwards legacy visitors unless they have a browser-local workspace there, in which case they get backup/restore instructions. Runbook: `docs/gcp-hosting.md` § Moving to science-record-player.web.app.
+- **Hosting** Live at science-record-player.web.app (#48, deploy run 42786538422 released both sites). The only `.firebaserc` target is `app` → `science-record-player`. The old default site `orcid-playground-889` is disabled at the owner's request; the temporary forwarder (`moved.js`) was removed. Runbook: `docs/gcp-hosting.md` § Moving to science-record-player.web.app.
 - **Steps** choose the name (pun shortlist in `communications/branding-and-rename.md`) and check availability; set it in `config/brand.json`; create a new Firebase Hosting site or custom domain; update links, CSP `connect-src`, the exchange function's allowed origins and preview regex, OAuth redirect URIs and the ORCID client name; rename the GitHub repository; send ORCID the new link.
 
 ## INF-14 — Rename package, CLI and web components
@@ -1021,3 +1021,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-10 | INF-13 | Name chosen: Science Record Player (SRP), tagline "Publish or Play"; applied via `config/brand.json`. Hostname and repository migration remain | planned → in-progress |
 | 2026-11-10 | INF-12 | Merged (#47); deploy to the legacy address with the new branding | in-review → done |
 | 2026-11-10 | INF-13 | Two-site hosting (app + legacy forwarder), links, exchange origins and sign-in docs moved to science-record-player.web.app; awaits the owner creating the Firebase site | scope |
+| 2026-11-10 | INF-13 | #48 merged; science-record-player.web.app live. Owner chose to retire the old address: legacy deploy target and forwarder removed; default site to be disabled | scope |

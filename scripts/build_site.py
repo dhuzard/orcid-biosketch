@@ -21,7 +21,7 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_SUFFIXES = {".json", ".jsonld", ".md", ".svg", ".txt"}
 PLAYGROUND = ("index.html", "playground.css", "studio.js", "auth.js", "engine.js", "engine-client.js", "network-bridge.js",
-              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "moved.js", "manifest.webmanifest", "icon.svg", "favicon.svg", "favicon.ico", "icon-192.png", "icon-512.png")
+              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "favicon.svg", "favicon.ico", "icon-192.png", "icon-512.png")
 # Fixed timestamp so the same source always produces the same archive.
 ZIP_DATE = (2026, 1, 1, 0, 0, 0)
 
@@ -70,7 +70,6 @@ NETWORK_PAGE = [
      '\n  <link rel="manifest" href="/manifest.webmanifest">'),
     ('href="/style.css"', 'href="/network/style.css"'),
     ('<script type="module" src="/app.js"></script>',
-     '<script type="module" src="/moved.js"></script>\n  '
      '<script type="module" src="/network-bridge.js"></script>\n  <script type="module" src="/network/app.js"></script>'),
     ("LOCAL PILOT", "IN THIS BROWSER"),
     ("One local workspace.<br>No accounts or public profiles.",

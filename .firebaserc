@@ -7,9 +7,6 @@
       "hosting": {
         "app": [
           "science-record-player"
-        ],
-        "legacy": [
-          "orcid-playground-889"
         ]
       }
     }

@@ -93,11 +93,13 @@ def test_engine_loads_the_pinned_runtime_from_this_site():
         assert "jsdelivr" not in csp and "unsafe-eval'" not in csp.replace("wasm-unsafe-eval'", "")
 
 
-def test_legacy_address_serves_the_same_site_as_the_app():
-    app, legacy = json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))["hosting"]
-    assert (app.pop("target"), legacy.pop("target")) == ("app", "legacy") and app == legacy
+def test_hosting_deploys_only_to_the_science_record_player_site():
+    # The project's default site (orcid-playground-889.web.app) is disabled; a deploy without a
+    # target would publish to it and switch it back on, so the only hosting entry is the app target.
+    hosting = json.loads((ROOT / "firebase.json").read_text(encoding="utf-8"))["hosting"]
+    assert [h["target"] for h in hosting] == ["app"]
     targets = json.loads((ROOT / ".firebaserc").read_text(encoding="utf-8"))["targets"]["orcid-playground-889"]["hosting"]
-    assert targets == {"app": ["science-record-player"], "legacy": ["orcid-playground-889"]}
+    assert targets == {"app": ["science-record-player"]}
 
 
 def test_group_view_and_hosted_share_button_are_built(tmp_path):

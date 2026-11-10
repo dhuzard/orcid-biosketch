@@ -67,8 +67,8 @@ jobs:
           PROJECT: ${{ vars.GCP_PROJECT_ID }}
         run: |
           if [ "$CHANNEL" = "live" ]; then
-            # Both targets (.firebaserc): the app at science-record-player.web.app and the legacy
-            # orcid-playground-889.web.app, which serves the same build and forwards visitors (moved.js).
+            # Target `app` (.firebaserc) = site science-record-player. The project's default site,
+            # orcid-playground-889.web.app, is disabled and must never be deployed to again.
             npx --yes firebase-tools@13.29.1 deploy --only hosting --project "$PROJECT"
           else
             npx --yes firebase-tools@13.29.1 hosting:channel:deploy "$CHANNEL" --expires 30d --only app --project "$PROJECT"
