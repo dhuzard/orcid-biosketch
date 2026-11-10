@@ -174,3 +174,11 @@ def test_brand_values_are_escaped_into_html():
     assert build_site.apply_brand('"__BRAND_NAME__"', {"name": "Q's"}, ".webmanifest") == '"Q\'s"'
     with pytest.raises(ValueError, match="Unknown __BRAND_"):
         build_site.apply_brand("__BRAND_NOPE__", {"name": "x"}, ".html")
+
+
+def test_network_sidebar_scrolls_so_its_bottom_buttons_stay_reachable():
+    # The sidebar is fixed to the viewport; without its own scrolling, "Download my workspace",
+    # "Clear this workspace" and the team links fall off short screens once the workspace has data.
+    css = (ROOT / "web" / "network" / "style.css").read_text(encoding="utf-8")
+    rule = css[css.index(".sidebar{"):].split("}", 1)[0]
+    assert "position:fixed" in rule and "overflow-y:auto" in rule
