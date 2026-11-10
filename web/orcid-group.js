@@ -29,17 +29,17 @@ export function filterWorks(data, query = "", names = new Map()) {
 }
 
 const STYLE = `
-:host{display:block;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--orcid-group-ink,#18332e)}
+:host{display:block;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--orcid-group-ink,#2b2230)}
 h2{font:400 1.6rem Georgia,serif;margin:0 0 4px}
-.muted{color:var(--orcid-group-muted,#5d6b66);font-size:.85rem}
+.muted{color:var(--orcid-group-muted,#6b5d62);font-size:.85rem}
 .members{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:12px 0}
-.members a{display:inline-block;border:1px solid #dce3da;border-radius:999px;padding:4px 12px;text-decoration:none;color:inherit}
-input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #dce3da;border-radius:10px;font:inherit;margin:8px 0 12px}
+.members a{display:inline-block;border:1px solid #e3dadd;border-radius:999px;padding:4px 12px;text-decoration:none;color:inherit}
+input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e3dadd;border-radius:10px;font:inherit;margin:8px 0 12px}
 ol{list-style:none;padding:0;margin:0}
-li.work{border-bottom:1px solid #dce3da;padding:8px 0}
+li.work{border-bottom:1px solid #e3dadd;padding:8px 0}
 .title{font-weight:600}
-.shared{background:#d9ed8d;border-radius:999px;padding:0 8px;font-size:.75rem;margin-left:6px}
-a{color:var(--orcid-group-link,#143d37)}
+.shared{background:#e2b4c0;border-radius:999px;padding:0 8px;font-size:.75rem;margin-left:6px}
+a{color:var(--orcid-group-link,#3a2737)}
 `;
 
 class OrcidGroup extends HTMLElement {

@@ -438,7 +438,7 @@ $('#pack-import').addEventListener('submit', async event => {
   packSay('Decrypting in this browser…', { busy: true });
   try {
     let envelope;
-    try { envelope = JSON.parse(await file.text()); } catch { throw new Error('This is not an ORCID Playground team package.'); }
+    try { envelope = JSON.parse(await file.text()); } catch { throw new Error('This is not a valid encrypted team package.'); }
     const text = await decryptPack(envelope, $('#pack-open-password').value);
     const preview = JSON.parse(await call('previewGroupPackage', { text }));
     $('#pack-open-password').value = '';

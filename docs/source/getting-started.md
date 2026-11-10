@@ -34,4 +34,4 @@ Sample people and outputs are labelled **Demo**. They must not be cited as real 
 - [Compare the group view with your own laboratory or consortium](groups.md).
 - [Tell us what is confusing or missing](feedback.md).
 
-**Reminder:** ORCID Playground is independent of ORCID, Inc. Public-record content is not identity or affiliation verification.
+**Reminder:** {{ disclaimer }} Public-record content is not identity or affiliation verification.

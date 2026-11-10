@@ -1,10 +1,14 @@
-# ORCID Playground
+# {{ brand }}
+
+*An open-source playground for ORCID records, developed and maintained independently by {{ owner }} under the {{ license }} license.*
+
+**{{ disclaimer }}**
 
 **Your ORCID record can do more.**
 
 Turn public ORCID records into profiles, record-quality reports, publication visualisations, funder-format drafts, and research-group tools. **Try the hosted playground without installing anything or signing in.**
 
-[Open the live Playground](https://orcid-playground-889.web.app/) · [Leave feedback without GitHub](/feedback/) · [Explore sample data](https://orcid-playground-889.web.app/network/?sample=1#groups) · [Suggest an improvement](https://github.com/dhuzard/orcid-playground/issues/new/choose)
+[Open the live app](https://orcid-playground-889.web.app/) · [Leave feedback without GitHub](/feedback/) · [Explore sample data](https://orcid-playground-889.web.app/network/?sample=1#groups) · [Suggest an improvement](https://github.com/dhuzard/orcid-playground/issues/new/choose)
 
 ## What can I use it for?
 
@@ -19,7 +23,7 @@ Turn public ORCID records into profiles, record-quality reports, publication vis
 
 ## Start in two minutes
 
-1. Open [the Playground](https://orcid-playground-889.web.app/).
+1. Open [the app](https://orcid-playground-889.web.app/).
 2. Choose **the maintainer's stored profile** for an offline example, or enter a public ORCID iD.
 3. Explore **Profile**, **Record check**, **Citations & data**, and a visualization.
 4. To test a team workflow, open the [research network with labelled sample data](https://orcid-playground-889.web.app/network/?sample=1#groups).
@@ -34,7 +38,7 @@ No ORCID account is required to browse public records. Providing feedback on Git
 - Funder-format biosketches are editable drafts, **not validated submissions**.
 - There is a distinction between **local/browser tools** and **private cloud workspaces**, which are implemented but not yet confirmed active on the public service. Read the [privacy and availability guide](trust.md) first.
 
-**Independent open-source project; not affiliated with or endorsed by ORCID, Inc.** [ORCID™](https://orcid.org) is a trademark of ORCID, Inc.
+**{{ disclaimer }}** Public data are read through the [ORCID Public API](https://info.orcid.org/what-is-orcid/services/public-api/). {{ trademark }}
 
 ```{toctree}
 :maxdepth: 2

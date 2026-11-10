@@ -1,4 +1,4 @@
-// Renders the ORCID Playground Studio + network demo from the web app's UI only (see demo/README.md).
+// Renders the Studio + network demo from the web app's UI only (see demo/README.md).
 //   node demo/render.mjs [site-dir]
 import { chromium } from 'playwright';
 import { resolve } from 'node:path';
@@ -100,7 +100,7 @@ try {
   const S = (a, z, n) => topic(st.mp4, st.segs, a, z, n);
   const studioAll = cut(st.mp4, st.segs.t0 + 0.1, st.segs.find(s => s.id === 'end').t - 0.05, resolve(RAW, 'studio-all.mp4'));
   const netAll = cut(nw.mp4, nw.segs.t0 + 0.1, nw.segs.find(x => x.id === 'end').t - 0.05, resolve(RAW, 'network-all.mp4'));
-  concat([intro, studioAll, netAll, outro], resolve(OUT, 'orcid-playground-full-demo.mp4'));
+  concat([intro, studioAll, netAll, outro], resolve(OUT, 'studio-full-demo.mp4'));
   const clips = {
     'clip-1-record-check': S('check', 'funder', 'k1'), 'clip-2-funder-templates': S('funder', 'citations', 'k2'),
     'clip-3-wrapped': S('wrapped', 'check', 'k3'), 'clip-4-card-and-heatmap': S('card', 'wrapped', 'k4'),

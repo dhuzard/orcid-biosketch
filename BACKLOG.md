@@ -72,6 +72,9 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | KF-18 | Feed views, scope, filters and group suggestions (#35) | P2 | done | session |
 | KF-20 | Add people to Contacts from ORCID pages (#33) | P2 | done | session |
 | KF-21 | Remove people from Contacts and from the workspace | P2 | in-review | session |
+| INF-12 | Independent identity per ORCID brand guidance (palette, disclaimer, ownership) | P0 | in-review | session |
+| INF-13 | Final product name, hostname and repository migration | P0 | planned | owner |
+| INF-14 | Rename `orcid_biosketch` / `orcid-biosketch` / `<orcid-*>` with compatibility aliases | P2 | planned | — |
 
 ---
 
@@ -908,6 +911,25 @@ imported person, so removing someone's tags did not remove them from the list.
 
 ---
 
+## INF-12 — Independent identity per ORCID brand guidance
+
+- **Priority** P0 · **Status** in-review · **Owner** session
+- **Why** ORCID Communications & Brand (reply of 9 Nov 2026) declined the "ORCID Playground" name, hostname and visual identity, and asked for a distinct name and palette, upfront independent authorship, a prominent disclaimer, and standard trademark attribution. Summary and decisions: `communications/branding-and-rename.md`.
+- **Files** `config/brand.json`, `scripts/build_site.py`, `web/playground/*.html`, `web/playground/playground.css`, `web/network/index.html`, `web/network/style.css`, `web/playground/icon*`, `docs/source/conf.py`, `demo/lib.mjs`.
+- **Done when** every hosted page shows the ownership line and ORCID's exact disclaimer in the header and the ® attribution in the footer; no page, manifest, doc or video card names the product "ORCID Playground"; the UI palette is muted pink / aubergine, not green/lime; the name comes from `config/brand.json` only. `tests/test_site.py` enforces this on the built site.
+- **Not in scope** storage keys, cache names and file-format identifiers (`orcid-playground-workspace`, `orcid-playground/roster-assertion`, …) stay unchanged so existing backups, packages and browser data keep working; they are not displayed.
+
+## INF-13 — Final product name, hostname and repository migration
+
+- **Priority** P0 · **Status** planned · **Owner** owner
+- **Why** "Research Record Lab" is a working title. ORCID asked for a distinct name *and* a matching hostname before it reviews the app again.
+- **Steps** choose the name (pun shortlist in `communications/branding-and-rename.md`) and check availability; set it in `config/brand.json`; create a new Firebase Hosting site or custom domain; update links, CSP `connect-src`, the exchange function's allowed origins and preview regex, OAuth redirect URIs and the ORCID client name; rename the GitHub repository; send ORCID the new link.
+
+## INF-14 — Rename package, CLI and web components
+
+- **Priority** P2 · **Status** planned · **Owner** —
+- **Why** `orcid_biosketch`, `orcid-biosketch`, `<orcid-biosketch>` and `<orcid-group>` also lead with ORCID. Renaming breaks imports and embeds, so add new names with deprecated aliases and a documented deprecation cycle after INF-13.
+
 ## Change log
 
 Append-only. Newest entries at the bottom. One line per status or scope change.
@@ -994,3 +1016,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-02 | KF-20 | Add from ORCID pages: `#contacts?add=` link and bookmarklet (#33); narrow cross-site navigation allowance on the local server; fix stray "false" under bulk previews | — → in-review |
 | 2026-11-02 | KF-21 | Remove from contacts and remove from workspace (`POST /api/contacts/remove`, `POST /api/people/remove`); Contacts lists people with a contact record only | — → in-review |
 | 2026-11-02 | KF-20 | Merged to main (146b86d, #39); CI and Firebase deploy green; live add link and bookmarklet checked headless and by hand (link, Import & tag, bookmarklet from an ORCID record page, tab reuse) | in-review → done |
+| 2026-11-10 | INF-12, INF-13, INF-14 | ORCID declined the current name, hostname and look (9 Nov 2026). Working title, muted-pink palette, ownership line, exact disclaimer and ® attribution applied; name/hostname migration and code renames planned | — → in-review / planned |

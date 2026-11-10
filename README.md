@@ -1,10 +1,16 @@
-# ORCID Playground
+# Research Record Lab *(working title)*
+
+*An open-source playground for ORCID records — developed and maintained independently by **Damien Huzard / Neuronautix** under the [MIT license](LICENSE).*
+
+> **This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID.** It reads public data through the [ORCID Public API](https://info.orcid.org/what-is-orcid/services/public-api/). ORCID® is a registered trademark of ORCID, Inc.
+>
+> The product is being renamed at ORCID's request; the final name is set in [`config/brand.json`](config/brand.json) (see [communications/branding-and-rename.md](communications/branding-and-rename.md)). The current hostname and repository name are temporary.
 
 **Your ORCID record can do more.** Explore public research profiles, inspect record quality, reuse publication data and experiment with a research network—without installing software.
 
-**[Try the Playground](https://orcid-playground-889.web.app/)** · **[Read documentation](https://orcid-playground-889.web.app/docs/)** · **[Send feedback](https://orcid-playground-889.web.app/feedback/)** · **[Five-minute guide](docs/source/getting-started.md)** · **[Sphinx documentation source](docs/source/index.md)** · **[Suggest a feature](https://github.com/dhuzard/orcid-playground/issues/new/choose)**
+**[Try it](https://orcid-playground-889.web.app/)** · **[Read documentation](https://orcid-playground-889.web.app/docs/)** · **[Send feedback](https://orcid-playground-889.web.app/feedback/)** · **[Five-minute guide](docs/source/getting-started.md)** · **[Sphinx documentation source](docs/source/index.md)** · **[Suggest a feature](https://github.com/dhuzard/orcid-playground/issues/new/choose)**
 
-> **Independent open-source project, not an official ORCID service.** ORCID data are public assertions, not independently verified credentials. The application does not silently invent scientific outputs, affiliations or group membership.
+> ORCID data are public assertions, not independently verified credentials. The application does not silently invent scientific outputs, affiliations or group membership.
 
 ## Try it in two minutes
 
@@ -90,4 +96,4 @@ Sphinx is built from [docs/source](docs/source/index.md) and deployed with the p
 
 ## License and attribution
 
-[MIT](LICENSE) for repository code. Public ORCID records are subject to their own data policies and visibility settings. ORCID Playground is independent from ORCID, Inc. Refer to the [ORCID public API](https://info.orcid.org/what-is-orcid/services/public-api/) and [brand guidelines](https://info.orcid.org/brand-guidelines/).
+[MIT](LICENSE) for repository code. Public ORCID records are subject to their own data policies and visibility settings. This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID. ORCID® is a registered trademark of ORCID, Inc. Refer to the [ORCID public API](https://info.orcid.org/what-is-orcid/services/public-api/) and [brand guidelines](https://info.orcid.org/brand-guidelines/).

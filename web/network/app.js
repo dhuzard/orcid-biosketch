@@ -1046,7 +1046,7 @@ function render() {
   ].map(([id, icon, label, count]) => el('a', { class: `nav-link${currentView === id ? ' active' : ''}`, href: `#${id}`, 'aria-current': currentView === id ? 'page' : null }, el('span', { class: 'nav-icon', 'aria-hidden': 'true' }, icon), label, el('span', { class: 'nav-count' }, count))));
   const heading = headings[currentView];
   ['eyebrow', 'title', 'subtitle'].forEach((id, index) => { document.getElementById(id).textContent = heading[index]; });
-  document.title = `${currentView[0].toUpperCase() + currentView.slice(1)} · ORCID Network pilot`;
+  document.title = `${currentView[0].toUpperCase() + currentView.slice(1)} · Research network`;
   document.querySelector('#demo-banner').hidden = !state.people.some(p => p.demo);
   document.querySelector('#summary').replaceChildren(...[[followed, 'researchers followed'], [state.works.length, 'research outputs'], [state.groups.length, 'working groups']].map(([count, label]) => el('div', { class: 'stat' }, el('strong', {}, count), el('span', {}, label))));
   const view = document.querySelector('#view');

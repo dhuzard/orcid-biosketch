@@ -1,4 +1,4 @@
-# Contributing to ORCID Playground
+# Contributing
 
 Contributions from researchers, data stewards, librarians and developers are welcome. **You do not need to code to improve the project.**
 
@@ -29,4 +29,4 @@ A new feature should not imply verification of identity, authorship, collaborati
 
 Do not publish tokens, contact notes, unpublished personal data, or private research information in screenshots, issues, or test fixtures. For real researcher feedback, use public records or clearly labelled synthetic examples.
 
-ORCID Playground is independent of ORCID, Inc.
+This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID. Do not reintroduce ORCID as the leading product name or ORCID-like colours; the display identity lives in `config/brand.json`.

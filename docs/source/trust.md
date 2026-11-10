@@ -35,6 +35,6 @@ A Group view link joins two records **only when the same DOI is listed in both p
 
 ## Independence and attribution
 
-ORCID Playground is an independent open-source experiment, **not an official ORCID service**. It does not write to public ORCID records through the Playground. Refer to [the official ORCID Public API documentation](https://info.orcid.org/what-is-orcid/services/public-api/) and [ORCID brand guidance](https://info.orcid.org/brand-guidelines/) for terms and proper attribution.
+**{{ disclaimer }}** {{ brand }} is developed and maintained independently by {{ owner }} under the {{ license }} license. It does not write to public ORCID records. {{ trademark }} Refer to [the official ORCID Public API documentation](https://info.orcid.org/what-is-orcid/services/public-api/) and [ORCID brand guidance](https://info.orcid.org/brand-guidelines/) for terms and proper attribution.
 
 For a methodological discussion or to report a misleading assertion, please [send feedback](feedback.md).

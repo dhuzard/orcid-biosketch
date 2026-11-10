@@ -9,6 +9,8 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const OUT = resolve(ROOT, 'demo/out');
 export const RAW = resolve(OUT, '.raw');
 export const SITE = 'orcid-playground-889.web.app';
+// Display identity shared with the site build (config/brand.json).
+export const BRAND = JSON.parse(readFileSync(resolve(ROOT, 'config/brand.json'), 'utf8'));
 export const W = 1280, H = 720, PORT = 8899;
 export const SITE_DIR = resolve(process.argv[2] || resolve(ROOT, 'site'));
 mkdirSync(RAW, { recursive: true });
@@ -16,17 +18,17 @@ mkdirSync(RAW, { recursive: true });
 export const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export const CSS = `
-:root{--ink:#143d37;--lime:#d6ea7a;--cream:#f6f5ef;--mute:#9db8b0}
+:root{--ink:#3a2737;--lime:#e2b4c0;--cream:#f6f5ef;--mute:#b89da6}
 *{box-sizing:border-box;margin:0}body{width:${W}px;height:${H}px;background:var(--ink);color:var(--cream);font:16px Inter,system-ui,sans-serif;overflow:hidden}
 .mark{position:absolute;left:36px;top:28px;display:flex;gap:12px;align-items:center;font-weight:600;letter-spacing:.02em}
-.mark b{background:var(--lime);color:var(--ink);width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font:700 22px Georgia,serif}
+.mark b{background:var(--lime);color:var(--ink);width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font:700 22px system-ui,sans-serif}
 .site{position:absolute;right:36px;top:36px;color:var(--mute);font-size:14px;letter-spacing:.06em}
 `;
 export const CAPCSS = `
-#cap{position:fixed;left:36px;right:36px;bottom:26px;padding:18px 28px 20px;background:#143d37!important;border:1px solid #2c5a51;border-radius:16px;box-shadow:0 12px 40px #0006;z-index:99999;pointer-events:none;opacity:0;transition:opacity .5s}
+#cap{position:fixed;left:36px;right:36px;bottom:26px;padding:18px 28px 20px;background:#3a2737!important;border:1px solid #582e3c;border-radius:16px;box-shadow:0 12px 40px #0006;z-index:99999;pointer-events:none;opacity:0;transition:opacity .5s}
 #cap.on{opacity:1}#cap *{margin:0!important;font-family:Inter,system-ui,sans-serif!important;color:#f6f5ef!important;background:none!important}
-#cap i{font-style:normal;color:#d6ea7a!important;font-size:13px;letter-spacing:.14em;display:block;margin-bottom:6px!important}
-#cap h2{font:400 34px Georgia,serif!important;margin-bottom:6px!important}#cap p{font-size:19px;color:#d6e3dd!important;line-height:1.35}`;
+#cap i{font-style:normal;color:#e2b4c0!important;font-size:13px;letter-spacing:.14em;display:block;margin-bottom:6px!important}
+#cap h2{font:400 34px ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,serif!important;margin-bottom:6px!important}#cap p{font-size:19px;color:#e3d6da!important;line-height:1.35}`;
 
 export async function caption(page, kicker, title, text) {
   await page.evaluate(([k, t, x, css]) => {
@@ -59,13 +61,15 @@ export function cut(src, from, to, dst) {
 }
 
 export const card = (inner) => `<style>${CSS}.c{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:60px}
-h1{font:400 76px/1.05 Georgia,serif;max-width:1000px}h1 em{color:var(--lime);font-style:normal}p{margin-top:24px;font-size:24px;color:#cfe0d9;max-width:880px;line-height:1.4;margin-inline:auto}
-.pill{display:inline-block;margin:26px 6px 0;padding:8px 16px;border:1px solid #3f776b;border-radius:99px;font-size:17px;color:var(--lime)}</style>
-<div class="mark"><b>o.</b>ORCID Playground</div><div class="site">${SITE}</div><div class="c">${inner}</div>`;
+h1{font:400 76px/1.05 ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,serif;max-width:1000px}h1 em{color:var(--lime);font-style:normal}p{margin-top:24px;font-size:24px;color:#e0cfd5;max-width:880px;line-height:1.4;margin-inline:auto}
+.legal{position:absolute;left:36px;right:36px;bottom:22px;text-align:center;font-size:13px;color:var(--mute)}
+.pill{display:inline-block;margin:26px 6px 0;padding:8px 16px;border:1px solid #773f52;border-radius:99px;font-size:17px;color:var(--lime)}</style>
+<div class="mark"><b>✦</b>${esc(BRAND.name)}</div><div class="site">${SITE}</div><div class="c">${inner}</div>
+<div class="legal">${esc(BRAND.disclaimer)} ${esc(BRAND.trademark)}</div>`;
 
 
 export function square(src, dst) {
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', src, '-vf', 'scale=1080:-2,pad=1080:1080:0:(oh-ih)/2:color=0x143d37', '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', dst]);
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', src, '-vf', 'scale=1080:-2,pad=1080:1080:0:(oh-ih)/2:color=0x3a2737', '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', dst]);
 }
 export function concat(files, dst) {
   const list = resolve(RAW, 'list.txt');

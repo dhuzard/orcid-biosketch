@@ -14,7 +14,7 @@ as a 7-day workflow artifact.
 
 | File | Length | Message |
 |---|---|---|
-| `orcid-playground-full-demo.mp4` | ~100 s | Studio tour, then the research network |
+| `studio-full-demo.mp4` | ~100 s | Studio tour, then the research network |
 | `clip-0-teaser` | ~5 s | "Your ORCID record, re-expressed." |
 | `clip-1-record-check` | ~12 s | Score and concrete fixes |
 | `clip-2-funder-templates` | ~12 s | ERC / NIH / Horizon from one record |
@@ -69,7 +69,7 @@ Post copy (draft): *You met twelve people at the conference. A month later, who 
 ## LinkedIn copy (drafts)
 
 **Full demo.** Your ORCID record already holds a decade of your work. What if you could reuse it, on your terms?
-ORCID Playground turns the public record into a biosketch, NIH/ERC/Horizon templates, citations, a quality check and a few playful extras.
+[Product name] turns the public record into a biosketch, NIH/ERC/Horizon templates, citations, a quality check and a few playful extras.
 The researcher controls the narrative; ORCID supplies the assertions; every field keeps its provenance. Open source, works offline.
 orcid-playground-889.web.app  #ORCID #OpenScience #FAIR #ResearchData
 

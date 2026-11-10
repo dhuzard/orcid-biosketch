@@ -1,0 +1,10 @@
+{
+  "_comment": "Single source of the product's display identity. The site build (scripts/build_site.py), the Sphinx docs and the demo videos read it. 'Research Record Lab' is a WORKING TITLE until the final name is chosen and cleared (communications/branding-and-rename.md); do not reintroduce ORCID as the leading name.",
+  "name": "Research Record Lab",
+  "short_name": "Record Lab",
+  "tagline": "An open-source playground for ORCID records",
+  "owner": "Damien Huzard / Neuronautix",
+  "license": "MIT",
+  "disclaimer": "This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID.",
+  "trademark": "ORCID® is a registered trademark of ORCID, Inc."
+}

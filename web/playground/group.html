@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#143d37">
+  <meta name="theme-color" content="#3a2737">
   <meta name="description" content="See a research group built live from its members' public ORCID records: who has published together, shown with the DOIs that prove it.">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <title>Group View · ORCID Playground</title>
+  <title>Group View · __BRAND_NAME__</title>
   <link rel="stylesheet" href="/playground.css">
   <script type="module" src="/group.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
-    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">o.</span> ORCID Playground</a>
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">✦</span><span class="brand-text">__BRAND_NAME__<span class="brand-owner">Independent open-source project by __BRAND_OWNER__ · __BRAND_LICENSE__ license</span></span></a>
     <nav aria-label="Main">
       <a href="/">Studio</a>
       <a href="/network/">Research network</a>
@@ -25,6 +25,7 @@
       <a href="/feedback/">Feedback</a>
     </nav>
   </header>
+  <p class="independence" role="note"><strong>__BRAND_DISCLAIMER__</strong> It reads public data through the <a href="https://info.orcid.org/what-is-orcid/services/public-api/" target="_blank" rel="noopener noreferrer">ORCID Public API</a>.</p>
 
   <main id="main" tabindex="-1">
     <section class="hero">
@@ -96,8 +97,8 @@
   </main>
 
   <footer class="site-footer">
-    <p>Uses the public ORCID API. An independent project, not an official ORCID service. A link between two members means only that both public records assert the same DOI; it does not prove collaboration, and records may be incomplete.</p>
-    <p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a> · <a href="/feedback/">Suggest an improvement</a>. ORCID™ is a trademark of ORCID, Inc.; no endorsement is implied.</p>
+    <p>Uses the public ORCID API. A link between two members means only that both public records assert the same DOI; it does not prove collaboration, and records may be incomplete.</p>
+    <p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a> · <a href="/feedback/">Suggest an improvement</a>. __BRAND_TRADEMARK__ __BRAND_NAME__ is developed and maintained independently by __BRAND_OWNER__ (<a href="https://github.com/dhuzard/orcid-playground/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">__BRAND_LICENSE__ license</a>).</p>
   </footer>
 </body>
 </html>

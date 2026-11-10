@@ -29,7 +29,7 @@ const recordFor = (p) => ({
   history: { 'last-modified-date': { value: Date.UTC(2026, 9, 1) } },
   person: {
     name: { 'given-names': { value: p.given }, 'family-name': { value: `${p.family} (Demo)` } },
-    biography: { content: `${p.headline}. Fictional researcher for the ORCID Playground demo.` },
+    biography: { content: `${p.headline}. Fictional researcher for the product demo.` },
     keywords: { keyword: p.keywords.map(content => ({ content })) },
     'researcher-urls': { 'researcher-url': [] },
     addresses: { address: [] },

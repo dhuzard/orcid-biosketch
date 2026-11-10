@@ -58,7 +58,7 @@ def test_config_carries_only_the_public_client_id(tmp_path, monkeypatch):
 
 def test_site_ignores_unlisted_file_types(tmp_path):
     root = tmp_path / "repo"
-    for folder in ("generated", "web", "src"):
+    for folder in ("generated", "web", "src", "config"):
         shutil.copytree(ROOT / folder, root / folder, ignore=shutil.ignore_patterns("__pycache__", "node_modules"))
     (root / "generated" / "roster.db").write_text("secret", encoding="utf-8")
     build_site.build(tmp_path / "out", root, client_id="")
@@ -100,7 +100,7 @@ def test_group_view_and_hosted_share_button_are_built(tmp_path):
 
 def test_service_worker_is_stamped_with_the_site_digest_and_manifest_is_valid(tmp_path):
     root = tmp_path / "repo"
-    for folder in ("generated", "web", "src"):
+    for folder in ("generated", "web", "src", "config"):
         shutil.copytree(ROOT / folder, root / folder, ignore=shutil.ignore_patterns("__pycache__", "node_modules"))
     worker = lambda name: (tmp_path / name / "sw.js").read_text(encoding="utf-8")
     build_site.build(tmp_path / "a", root, client_id="")
@@ -115,3 +115,52 @@ def test_service_worker_is_stamped_with_the_site_digest_and_manifest_is_valid(tm
     assert all((tmp_path / "a" / icon["src"].lstrip("/")).is_file() for icon in manifest["icons"])
     for page in ("index.html", "group/index.html", "network/index.html", "feedback/index.html"):
         assert 'rel="manifest"' in (tmp_path / "a" / page).read_text(encoding="utf-8"), page
+
+
+# ORCID brand guidance (communications/branding-and-rename.md, BACKLOG INF-12).
+DISCLAIMER = "This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID."
+
+
+def test_every_page_states_independence_ownership_and_trademark(tmp_path):
+    build_site.build(tmp_path / "site", client_id="")
+    brand = build_site.load_brand()
+    site = tmp_path / "site"
+    for page in ("index.html", "group/index.html", "team/index.html", "feedback/index.html"):
+        html = (site / page).read_text(encoding="utf-8")
+        header = html[html.index('<header class="site-header">'):html.index("<main")]
+        assert DISCLAIMER in header, page
+        assert "Damien Huzard / Neuronautix" in header and "MIT license" in header, page
+        assert f"<title>" in html and brand["name"] in html, page
+        assert "ORCID® is a registered trademark of ORCID, Inc." in html, page
+    network = (site / "network" / "index.html").read_text(encoding="utf-8")
+    assert DISCLAIMER in network and "Neuronautix" in network and "ORCID®" in network
+    manifest = json.loads((site / "manifest.webmanifest").read_text(encoding="utf-8"))
+    assert manifest["name"] == brand["name"] and not manifest["short_name"].lower().startswith("orcid")
+    assert brand["name"] in (site / "feedback.js").read_text(encoding="utf-8")
+
+
+def test_built_site_no_longer_uses_the_old_name_or_look(tmp_path):
+    build_site.build(tmp_path / "site", client_id="")
+    for path in (tmp_path / "site").rglob("*"):
+        if path.suffix in {".html", ".js", ".css", ".webmanifest", ".svg"} and "generated" not in path.parts:
+            text = path.read_text(encoding="utf-8")
+            assert "ORCID Playground" not in text and "__BRAND_" not in text, path
+            assert "ORCID™" not in text, path
+            # The former ORCID-like palette: dark green and lime.
+            assert "#143d37" not in text.lower() and "#d9ed8d" not in text.lower(), path
+
+
+def test_brand_name_must_not_lead_with_orcid(tmp_path):
+    (tmp_path / "config").mkdir()
+    brand = build_site.load_brand()
+    (tmp_path / "config" / "brand.json").write_text(json.dumps({**brand, "name": "ORCID Something"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="leading identifier"):
+        build_site.load_brand(tmp_path)
+
+
+def test_brand_values_are_escaped_into_html():
+    assert build_site.apply_brand("<b>__BRAND_NAME__</b>", {"name": "A & <B>"}, ".html") == "<b>A &amp; &lt;B&gt;</b>"
+    assert build_site.apply_brand("'__BRAND_NAME__'", {"name": "Q's \"x\""}, ".js") == "'Q\\'s \\\"x\\\"'"
+    assert build_site.apply_brand('"__BRAND_NAME__"', {"name": "Q's"}, ".webmanifest") == '"Q\'s"'
+    with pytest.raises(ValueError, match="Unknown __BRAND_"):
+        build_site.apply_brand("__BRAND_NOPE__", {"name": "x"}, ".html")

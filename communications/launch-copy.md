@@ -1,12 +1,12 @@
 # Community launch copy and lightweight pilot
 
-Do not publish until the public docs/feedback URLs are verified, branding permission or rename is resolved, and the recorded video is checked.
+Do not publish until the public docs/feedback URLs are verified, the final name is chosen (INF-13) and ORCID has reviewed the rebranded app, and the recorded video is checked.
 
 ## LinkedIn / community announcement (English)
 
 **Your ORCID record can do more than identify you.**
 
-I have been building **ORCID Playground**, an independent open-source experiment to see how public research records can become genuinely useful to scientists.
+I have been building **[Product name]**, an independent open-source experiment to see how public research records can become genuinely useful to scientists.
 
 Paste an ORCID iD and explore a biosketch, searchable works, record-quality suggestions, citation exports, a publication heatmap and a year in review. You can also try a local research network, manage contacts after conferences, curate working groups and visualize shared DOI assertions across public records.
 
@@ -18,7 +18,7 @@ I'm looking for researchers, lab coordinators and data stewards to spend five mi
 
 **Suggest a feature without GitHub:** https://orcid-playground-889.web.app/feedback/\n\n**Developer issues:** https://github.com/dhuzard/orcid-playground/issues/new/choose
 
-Built in the open. Independent of ORCID, Inc.
+Built in the open. This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID. ORCID® is a registered trademark of ORCID, Inc.
 
 ## Short teaser copy
 
