@@ -8,6 +8,7 @@ or token can, and nothing is stored server side.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import os
 import shutil
@@ -20,7 +21,7 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_SUFFIXES = {".json", ".jsonld", ".md", ".svg", ".txt"}
 PLAYGROUND = ("index.html", "playground.css", "studio.js", "auth.js", "engine.js", "engine-client.js", "network-bridge.js",
-              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png")
+              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "favicon.svg", "favicon.ico", "icon-192.png", "icon-512.png")
 # Fixed timestamp so the same source always produces the same archive.
 ZIP_DATE = (2026, 1, 1, 0, 0, 0)
 
@@ -65,7 +66,8 @@ def fetch_runtime(out: Path, *, cache: Path = RUNTIME_CACHE, download: Callable[
 NETWORK_PAGE = [
     ('<html lang="en">', '<html lang="en" data-hosted="true">'),
     ('<link rel="icon" href="data:,">',
-     '<link rel="icon" href="/icon.svg" type="image/svg+xml">\n  <link rel="manifest" href="/manifest.webmanifest">'),
+     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">'
+     '\n  <link rel="manifest" href="/manifest.webmanifest">'),
     ('href="/style.css"', 'href="/network/style.css"'),
     ('<script type="module" src="/app.js"></script>',
      '<script type="module" src="/network-bridge.js"></script>\n  <script type="module" src="/network/app.js"></script>'),
@@ -89,6 +91,44 @@ NETWORK_PAGE = [
      '<br><a href="/">← Back to the Studio</a>'),
     ("01 / LOCAL", "01 / BROWSER"),
 ]
+
+
+# The product's display identity lives in config/brand.json so a rename touches one file.
+# Pages and scripts carry __BRAND_<KEY>__ tokens that are filled in here.
+BRAND_KEYS = ("name", "short_name", "tagline", "owner", "license", "disclaimer", "trademark")
+BRANDED_SUFFIXES = {".html", ".js", ".webmanifest"}
+
+
+def load_brand(root: Path = ROOT) -> dict[str, str]:
+    brand = json.loads((root / "config" / "brand.json").read_text(encoding="utf-8"))
+    missing = [key for key in BRAND_KEYS if not str(brand.get(key, "")).strip()]
+    if missing:
+        raise ValueError(f"config/brand.json is missing {', '.join(missing)}")
+    if brand["name"].strip().lower().startswith("orcid"):
+        raise ValueError("ORCID must not be the leading identifier of the product name (ORCID brand guidelines)")
+    return {key: str(brand[key]).strip() for key in BRAND_KEYS}
+
+
+def apply_brand(text: str, brand: dict[str, str], suffix: str) -> str:
+    for key, value in brand.items():
+        # HTML is escaped; the manifest gets a JSON string body; scripts may quote with ' or ".
+        if suffix == ".html":
+            safe = html.escape(value, quote=True)
+        else:
+            safe = json.dumps(value, ensure_ascii=False)[1:-1]
+            if suffix == ".js":
+                safe = safe.replace("'", "\\'").replace("`", "\\`").replace("${", "\\${")
+        text = text.replace(f"__BRAND_{key.upper()}__", safe)
+    if "__BRAND_" in text:
+        raise ValueError("Unknown __BRAND_ token left in the site; add it to BRAND_KEYS and config/brand.json")
+    return text
+
+
+def brand_site(out: Path, brand: dict[str, str]) -> None:
+    for path in sorted(out.rglob("*")):
+        if path.is_file() and path.suffix in BRANDED_SUFFIXES and "generated" not in path.relative_to(out).parts:
+            text = path.read_text(encoding="utf-8")
+            path.write_text(apply_brand(text, brand, path.suffix), encoding="utf-8")
 
 
 def package_archive(destination: Path, root: Path = ROOT) -> None:
@@ -131,6 +171,7 @@ def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list
     shutil.copy2(root / "web" / "playground" / "team.html", out / "team" / "index.html")
     shutil.copy2(root / "web" / "playground" / "feedback.html", out / "feedback" / "index.html")
     package_archive(out / "py" / "orcid_biosketch.zip", root)
+    brand_site(out, load_brand(root))
     # The service worker carries a digest of everything else, so any change to the site
     # installs a fresh cache on the next visit.
     digest = hashlib.sha256()

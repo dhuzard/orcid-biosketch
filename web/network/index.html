@@ -3,22 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#143d37">
+  <meta name="theme-color" content="#3a2737">
   <link rel="icon" href="data:,">
-  <title>ORCID Network · Research, in good company</title>
+  <title>Research network · Research, in good company</title>
   <link rel="stylesheet" href="/style.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <aside class="sidebar">
-    <a href="#feed" class="brand"><span class="brand-mark" aria-hidden="true">o.</span><span>Research<br><strong>in good company.</strong></span></a>
+    <a href="#feed" class="brand"><span class="brand-mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#e2b4c0"/><circle cx="28" cy="36" r="22" fill="#3a2737"/><circle cx="28" cy="36" r="18" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="14.5" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="9.5" fill="#e2b4c0"/><path d="M25.5 31.5 33.5 36 25.5 40.5Z" fill="#3a2737"/><circle cx="53" cy="11" r="4" fill="#3a2737"/><path d="M53 11 49 30 41.5 35" fill="none" stroke="#3a2737" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Research<br><strong>in good company.</strong></span></a>
     <div class="workspace-label"><span class="status-dot"></span> LOCAL PILOT</div>
     <nav aria-label="Main navigation" id="navigation"></nav>
-    <div class="sidebar-note"><strong>Built around ORCID</strong><p>Your research circle, shared outputs, and a little less admin.</p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Visit ORCID ↗</a></div>
+    <div class="sidebar-note"><strong>Works with public ORCID records</strong><p>Your research circle, shared outputs, and a little less admin.</p><p>Independent open-source project by Damien Huzard / Neuronautix · MIT license.</p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site ↗</a></div>
     <div class="local-note">One local workspace.<br>No accounts or public profiles.</div>
   </aside>
   <div class="shell">
+    <p class="independence" role="note"><strong>This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID.</strong> By Damien Huzard / Neuronautix · MIT license.</p>
     <header class="topbar"><span>THE RESEARCH COMMONS <span class="muted">/ PILOT</span></span><button id="demo" class="button quiet">Explore sample data</button></header>
     <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
     <main id="main" tabindex="-1">
@@ -27,7 +28,7 @@
       <div id="summary" class="summary"></div>
       <section id="view" aria-label="Workspace content"><p class="empty">Loading your workspace…</p></section>
     </main>
-    <footer>Powered by public ORCID records. An independent pilot; not an official ORCID service.<br>Researcher information is imported, not identity-verified. Group membership is locally curated and unconfirmed.<br>ORCID™ is a trademark of ORCID, Inc.; no endorsement is implied. <a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a>.</footer>
+    <footer><strong>This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID.</strong> Developed and maintained independently by Damien Huzard / Neuronautix under the MIT license; reads public data through the ORCID Public API.<br>Researcher information is imported, not identity-verified. Group membership is locally curated and unconfirmed.<br>ORCID® is a registered trademark of ORCID, Inc. <a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a>.</footer>
   </div>
 </body>
 </html>

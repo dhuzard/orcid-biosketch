@@ -10,7 +10,7 @@ import { OUT, RAW, SITE, cut, concat, titleCard, square } from './lib.mjs';
 const duration = file => Number(execFileSync('ffprobe',
   ['-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',file],
   { encoding: 'utf8' }).trim());
-const required = ['orcid-playground-full-demo.mp4', 'groups-full-demo.mp4',
+const required = ['studio-full-demo.mp4', 'groups-full-demo.mp4',
   'contacts-full-demo.mp4', 'extras-privacy-and-feedback.mp4'];
 for (const name of required) if (!existsSync(resolve(OUT, name))) {
   throw new Error('Missing ' + name + '; render the four separate demo scripts first.');

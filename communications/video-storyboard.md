@@ -1,4 +1,4 @@
-# ORCID Playground — comprehensive scientist-facing video
+# Science Record Player — comprehensive scientist-facing video
 
 **Status:** ready-to-record / editing script. **No complete video is claimed as published.**
 **Primary audience:** individual scientists, lab coordinators, data stewards and research librarians.

@@ -44,7 +44,7 @@ export async function encryptPack(plaintext, password, { iterations = ITERATIONS
 // Checks the envelope only; says nothing about the contents until decrypted.
 export function readEnvelope(document) {
   const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-  if (!isObject(document) || document.format !== FORMAT) throw new Error('This is not an ORCID Playground team package.');
+  if (!isObject(document) || document.format !== FORMAT) throw new Error('This is not a valid encrypted team package.');
   if (document.version !== VERSION) throw new Error(`Unsupported team package version ${JSON.stringify(document.version)}; this site reads version ${VERSION}.`);
   const keys = Object.keys(document).sort().join(',');
   if (keys !== 'ciphertext,format,iv,kdf,version') throw new Error('The team package has unexpected fields.');

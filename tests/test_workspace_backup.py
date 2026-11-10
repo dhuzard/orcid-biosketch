@@ -74,7 +74,7 @@ def drop_key(key):
 
 
 BAD_FILES = [
-    ("wrong format", [set_key("format", "something-else")], "not an ORCID Playground workspace"),
+    ("wrong format", [set_key("format", "something-else")], "not a workspace backup file"),
     ("future version", [set_key("version", 2)], "Unsupported workspace file version 2"),
     ("boolean version", [set_key("version", True)], "Unsupported workspace file version"),
     ("unexpected key", [set_key("extra", 1)], "unexpected fields"),
@@ -116,7 +116,7 @@ def test_bad_files_are_rejected_without_any_change(source, tmp_path, name, path,
 @pytest.mark.parametrize("text, message", [
     ("not json", "not valid JSON"),
     ('{"format": "orcid-playground-workspace", "version": 1, "exported_at": "x", "data": NaN}', "not valid JSON|Non-finite"),
-    ("[]", "not an ORCID Playground workspace"),
+    ("[]", "not a workspace backup file"),
 ])
 def test_playground_rejects_unreadable_files(tmp_path, text, message):
     workspace = playground.Workspace(str(tmp_path / "w.sqlite3"))

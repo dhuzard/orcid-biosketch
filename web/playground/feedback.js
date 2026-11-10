@@ -1,6 +1,8 @@
 // The mailto workflow is deliberately client-only: no form POST, no analytics,
 // no access to the research-network workspace, and no claims of successful delivery.
 export const RECIPIENT = 'neuronautix@gmail.com';
+// __BRAND_NAME__ is filled in from config/brand.json by scripts/build_site.py.
+const SUBJECT = '__BRAND_NAME__ — scientist feedback';
 const safe = value => String(value || '').trim();
 export function composeFeedback({ role, area, task, observed, improvement }) {
   const chosen = safe(area);
@@ -8,7 +10,7 @@ export function composeFeedback({ role, area, task, observed, improvement }) {
   const actual = safe(observed);
   if (!chosen || !intended || !actual) throw new Error('Select a feature and describe your task and observation.');
   const message = [
-    'ORCID Playground — scientist feedback',
+    SUBJECT,
     '',
     'Research context: ' + (safe(role) || 'Not specified'),
     'Feature: ' + chosen,
@@ -25,7 +27,7 @@ export function composeFeedback({ role, area, task, observed, improvement }) {
     'Please do not include sensitive or private research data.',
   ].join('\n');
   // A reasonably short mailto URI works more reliably across mobile mail apps.
-  return { message, mailto: 'mailto:' + RECIPIENT + '?subject=' + encodeURIComponent('ORCID Playground — scientist feedback') + '&body=' + encodeURIComponent(message) };
+  return { message, mailto: 'mailto:' + RECIPIENT + '?subject=' + encodeURIComponent(SUBJECT) + '&body=' + encodeURIComponent(message) };
 }
 function setup() {
   const form = document.querySelector('#feedback-form');

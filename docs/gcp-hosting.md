@@ -45,7 +45,7 @@ The client belongs to the ORCID record of whoever registers it and cannot be tra
 3. Open the menu under your name (top right) and choose **Developer tools** (<https://orcid.org/developer-tools>).
 4. Read and accept the ORCID Public API Terms of Service, then click **Register for ORCID Public API Credentials** (the label may differ slightly).
 5. Fill in the form:
-   - **Name**: `ORCID Playground` (shown to people on the ORCID consent screen).
+   - **Name**: the `name` in `config/brand.json` (shown to people on the ORCID consent screen; must not lead with "ORCID"). Update the registered client name whenever the product is renamed.
    - **Application URL** (website): `https://orcid-playground-889.web.app/`
    - **Description**: for example `Optional sign-in for an in-browser playground that renders a researcher's public ORCID record into biosketches. Only the ORCID iD and name from the signed ID token are used, in the visitor's browser tab; nothing is stored on a server.`
    - **Redirect URIs**: exactly `https://orcid-playground-889.web.app/` (HTTPS, with the trailing `/`).

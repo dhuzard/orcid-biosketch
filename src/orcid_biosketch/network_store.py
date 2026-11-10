@@ -846,7 +846,7 @@ class NetworkStore:
     def validate_export(cls, document: Any) -> tuple[dict, dict]:
         """Validate a workspace file; return the clean data and a summary of it."""
         if not isinstance(document, dict) or document.get("format") != WORKSPACE_FORMAT:
-            raise ValueError("This is not an ORCID Playground workspace file")
+            raise ValueError("This is not a workspace backup file from this app")
         _version_one(document, "workspace file")
         _fields(document, "Workspace file", ("format", "version", "exported_at", "data"))
         if not isinstance(document["exported_at"], str):
@@ -881,7 +881,7 @@ class NetworkStore:
     @classmethod
     def _validate_group_package(cls, document: Any) -> tuple[dict, dict, str]:
         if not isinstance(document, dict) or document.get("format") != GROUP_PACKAGE_FORMAT:
-            raise ValueError("This file does not contain an ORCID Playground team package")
+            raise ValueError("This file does not contain a team package from this app")
         _version_one(document, "team package")
         _fields(document, "Team package", ("format", "version", "exported_at", "group", "profiles"))
         if not isinstance(document["exported_at"], str) or not isinstance(document["profiles"], dict):

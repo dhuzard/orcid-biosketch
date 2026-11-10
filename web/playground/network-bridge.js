@@ -101,7 +101,7 @@ document.querySelector('#export-workspace')?.addEventListener('click', async eve
   button.disabled = true;
   try {
     const text = await call('exportWorkspace');
-    saveFile(text, `orcid-playground-workspace-${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
+    saveFile(text, `research-workspace-${new Date().toISOString().slice(0, 10)}.json`, 'application/json');
   } catch (error) {
     alert(`Could not export the workspace: ${error.message}`);
   } finally {

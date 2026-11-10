@@ -50,8 +50,8 @@ test('tampered ciphertext, IV or settings fail', async () => {
 test('malformed or unsupported envelopes are refused before any decryption', async () => {
   const pack = await encryptPack('x', PASSWORD);
   const cases = [
-    [null, /not an ORCID Playground team package/],
-    [{ ...pack, format: 'orcid-playground-workspace' }, /not an ORCID Playground team package/],
+    [null, /not a valid encrypted team package/],
+    [{ ...pack, format: 'orcid-playground-workspace' }, /not a valid encrypted team package/],
     [{ ...pack, version: 2 }, /Unsupported team package version 2/],
     [{ ...pack, extra: 1 }, /unexpected fields/],
     [{ ...pack, kdf: { ...pack.kdf, iterations: 1000 } }, /key-derivation/],

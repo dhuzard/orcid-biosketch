@@ -3,18 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#143d37">
+  <meta name="theme-color" content="#3a2737">
   <meta name="description" content="Help improve a research tool built on public ORCID records. Send private feedback by email, without a GitHub account or an ORCID login.">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="/playground.css">
   <script type="module" src="/feedback.js"></script>
-  <title>Suggest an improvement · ORCID Playground</title>
+  <title>Suggest an improvement · __BRAND_NAME__</title>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
-    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">o.</span> ORCID Playground</a>
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#e2b4c0"/><circle cx="28" cy="36" r="22" fill="#3a2737"/><circle cx="28" cy="36" r="18" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="14.5" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="9.5" fill="#e2b4c0"/><path d="M25.5 31.5 33.5 36 25.5 40.5Z" fill="#3a2737"/><circle cx="53" cy="11" r="4" fill="#3a2737"/><path d="M53 11 49 30 41.5 35" fill="none" stroke="#3a2737" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="brand-text">__BRAND_NAME__<span class="brand-owner">Independent open-source project by __BRAND_OWNER__ · __BRAND_LICENSE__ license</span></span></a>
     <nav aria-label="Main">
       <a href="/">Studio</a>
       <a href="/network/">Research network</a>
@@ -23,6 +25,7 @@
       <a href="/feedback/" aria-current="page">Feedback</a>
     </nav>
   </header>
+  <p class="independence" role="note"><strong>__BRAND_DISCLAIMER__</strong> It reads public data through the <a href="https://info.orcid.org/what-is-orcid/services/public-api/" target="_blank" rel="noopener noreferrer">ORCID Public API</a>.</p>
   <main id="main" tabindex="-1">
     <section class="hero">
       <div class="eyebrow">SCIENTIST-LED DEVELOPMENT</div>
@@ -70,7 +73,7 @@
     </section>
   </main>
   <footer class="site-footer">
-    <p>Independent open-source experiment, not an official ORCID service. <a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a>. ORCID™ is a trademark of ORCID, Inc.; no endorsement is implied.</p>
+    <p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a>. __BRAND_TRADEMARK__ __BRAND_NAME__ is developed and maintained independently by __BRAND_OWNER__ (<a href="https://github.com/dhuzard/orcid-playground/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">__BRAND_LICENSE__ license</a>).</p>
   </footer>
 </body>
 </html>
