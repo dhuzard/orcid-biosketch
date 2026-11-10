@@ -1,11 +1,11 @@
-# AGENTS.md — ORCID Biosketch / Playground
+# AGENTS.md — Science Record Player (formerly ORCID Biosketch / Playground)
 
 ## Scope
 Researcher-controlled biosketches and structured outputs based on **public ORCID assertions**. ORCID is a source of asserted fields; the researcher controls narrative, selection and presentation. This is not an authority for scientific credentials or verified identity, and it must not invent affiliations, works, authorship or dates.
 
 ## Read first
-`README.md`, `BACKLOG.md`, `schema/biosketch.schema.json`, `src/orcid_biosketch/`, and `tests/`.
-The package/CLI on `main` currently owns `orcid-biosketch`; network/working-group functionality may exist only in feature PRs. Do not describe an unmerged PR as a released feature.
+`README.md`, `BACKLOG.md`, `schema/biosketch.schema.json`, `src/science_record_player/`, and `tests/`.
+The package `science_record_player` and CLI `srp` live on `main` (old `orcid_biosketch` / `orcid-biosketch` names are deprecated aliases); network/working-group functionality may exist only in feature PRs. Do not describe an unmerged PR as a released feature.
 
 ## Source/provenance rules
 - Preserve input origin and per-field provenance in JSON, Schema.org JSON-LD, Markdown and bibliographic exports.

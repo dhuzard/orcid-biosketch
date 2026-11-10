@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/dhuzard/orcid-playground/raw/main/schema/roster-assertion.schema.json",
+  "$id": "https://github.com/dhuzard/science-record-player/raw/main/schema/roster-assertion.schema.json",
   "title": "Researcher and group-roster assertions (public ORCID records + local curation)",
   "description": "A researcher-controlled, opt-in export of asserted identifiers for a local working group. Every value is an assertion with provenance. Nothing in this document grants access, confirms an invitation, implies authorship or confirms a CRediT role.",
   "type": "object",

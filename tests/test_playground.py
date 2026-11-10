@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from orcid_biosketch import playground
-from orcid_biosketch.core import OrcidError, fetch_orcid_record
+from science_record_player import playground
+from science_record_player.core import OrcidError, fetch_orcid_record
 
 RECORD = json.loads((Path(__file__).parent / "fixture.json").read_text(encoding="utf-8"))
 ORCID = RECORD["orcid-identifier"]["path"]

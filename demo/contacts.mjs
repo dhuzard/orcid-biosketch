@@ -68,7 +68,7 @@ try {
     <div><span class="pill">private notes</span><span class="pill">follow-ups</span><span class="pill">never shared</span></div>`, 5.5);
   const outro = await titleCard(browser, 'c-outro', `<h1>Your notes are yours.<br><em>Never in a team pack.</em></h1>
     <p>Open source · stored in your browser · public ORCID data only.</p>
-    <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/orcid-playground</span></div>`, 5);
+    <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/science-record-player</span></div>`, 5);
   const t = await take(browser, site.base);
   const all = cut(t.mp4, t.segs.t0 + 0.1, t.segs.find(s => s.id === 'end').t - 0.05, resolve(RAW, 'c-all.mp4'));
   concat([intro, all, outro], resolve(OUT, 'contacts-full-demo.mp4'));

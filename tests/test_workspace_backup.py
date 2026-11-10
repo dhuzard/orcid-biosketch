@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from orcid_biosketch import playground
-from orcid_biosketch.core import build_biosketch
-from orcid_biosketch.network_store import NetworkStore
+from science_record_player import playground
+from science_record_player.core import build_biosketch
+from science_record_player.network_store import NetworkStore
 
 ORCID_A = "0000-0002-1825-0097"
 ORCID_B = "0000-0001-5109-3700"

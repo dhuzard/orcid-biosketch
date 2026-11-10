@@ -6,7 +6,7 @@ outputs they selected, and which CRediT roles a source declared or they
 confirmed. The contract is
 [`schema/roster-assertion.schema.json`](../schema/roster-assertion.schema.json);
 the builder, validator and a reference consumer live in
-`orcid_biosketch.roster`.
+`science_record_player.roster`.
 
 The export is **inert**. It is not an authorization server, not proof of
 membership and not a substitute for ORCID OAuth. Every document carries a fixed

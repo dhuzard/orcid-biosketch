@@ -85,7 +85,7 @@ const scenes = {
     return record(b, 'outro', async (p) => {
       await p.setContent(card(`<h1>ORCID supplies the facts.<br><em>You tell the story.</em></h1>
         <p>Open source · works offline after one visit · no server-side code.</p>
-        <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/orcid-playground</span></div>`));
+        <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/science-record-player</span></div>`));
       await p.waitForTimeout(4800);
     }).then(m => cut(m, 0.3, 4.8, resolve(RAW, 'outro-c.mp4')));
   },

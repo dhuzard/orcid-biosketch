@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
-from orcid_biosketch import cli
+from science_record_player import cli
 
 FIXTURE = Path(__file__).parent / "fixture.json"
 
@@ -11,7 +11,7 @@ FIXTURE = Path(__file__).parent / "fixture.json"
 def biosketch(tmp_path):
     """A generated biosketch on disk, so CLI tests never touch the network."""
     path = tmp_path / "biosketch.json"
-    from orcid_biosketch.core import build_biosketch, load_record
+    from science_record_player.core import build_biosketch, load_record
     path.write_text(json.dumps(build_biosketch(load_record(FIXTURE))), encoding="utf-8")
     return path
 

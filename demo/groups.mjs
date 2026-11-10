@@ -113,7 +113,7 @@ try {
     <div><span class="pill">locally curated</span><span class="pill">linked by shared DOIs</span><span class="pill">no server</span></div>`, 5.5);
   const outro = await titleCard(browser, 'g-outro', `<h1>Membership is yours to curate.<br><em>Never presented as verified.</em></h1>
     <p>Open source · stored in your browser · public ORCID data only.</p>
-    <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/orcid-playground</span></div>`, 5);
+    <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/science-record-player</span></div>`, 5);
   const w = await working(browser, site.base), v = await view(browser, site.base);
   const all = (t, id = 'end') => cut(t.mp4, t.segs.t0 + 0.1, t.segs.find(s => s.id === id).t - 0.05, resolve(RAW, `${t === w ? 'w' : 'v'}-all.mp4`));
   concat([intro, all(w), all(v), outro], resolve(OUT, 'groups-full-demo.mp4'));

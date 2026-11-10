@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_SUFFIXES = {".json", ".jsonld", ".md", ".svg", ".txt"}
 PLAYGROUND = ("index.html", "playground.css", "studio.js", "auth.js", "engine.js", "engine-client.js", "network-bridge.js",
               "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "favicon.svg", "favicon.ico", "icon-192.png", "icon-512.png")
+WIDGETS = ("srp-biosketch.js", "srp-group.js", "orcid-biosketch.js", "orcid-group.js")
 # Fixed timestamp so the same source always produces the same archive.
 ZIP_DATE = (2026, 1, 1, 0, 0, 0)
 
@@ -132,11 +133,11 @@ def brand_site(out: Path, brand: dict[str, str]) -> None:
 
 
 def package_archive(destination: Path, root: Path = ROOT) -> None:
-    package = root / "src" / "orcid_biosketch"
+    package = root / "src" / "science_record_player"
     files = sorted(p for p in package.rglob("*") if p.is_file() and p.suffix in {".py", ".md"} and "__pycache__" not in p.parts)
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
         for path in files:
-            info = zipfile.ZipInfo(f"orcid_biosketch/{path.relative_to(package).as_posix()}", ZIP_DATE)
+            info = zipfile.ZipInfo(f"science_record_player/{path.relative_to(package).as_posix()}", ZIP_DATE)
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, path.read_bytes())
 
@@ -162,7 +163,8 @@ def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list
             copied.append(f"generated/{source.name}")
     for name in PLAYGROUND:
         shutil.copy2(root / "web" / "playground" / name, out / name)
-    for widget in ("orcid-biosketch.js", "orcid-group.js"):
+    # srp-*.js are the widgets; orcid-*.js are deprecated aliases kept for existing embeds.
+    for widget in WIDGETS:
         shutil.copy2(root / "web" / widget, out / widget)
     for name in ("app.js", "style.css"):
         shutil.copy2(root / "web" / "network" / name, out / "network" / name)
@@ -170,7 +172,7 @@ def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list
     shutil.copy2(root / "web" / "playground" / "group.html", out / "group" / "index.html")
     shutil.copy2(root / "web" / "playground" / "team.html", out / "team" / "index.html")
     shutil.copy2(root / "web" / "playground" / "feedback.html", out / "feedback" / "index.html")
-    package_archive(out / "py" / "orcid_biosketch.zip", root)
+    package_archive(out / "py" / "science_record_player.zip", root)
     brand_site(out, load_brand(root))
     # The service worker carries a digest of everything else, so any change to the site
     # installs a fresh cache on the next visit.
@@ -189,8 +191,8 @@ def build(out: Path, root: Path = ROOT, *, client_id: str | None = None) -> list
     if all(cloud.values()):
         settings["cloud"] = cloud
     (out / "config.json").write_text(json.dumps(settings) + "\n", encoding="utf-8")
-    return copied + [*PLAYGROUND, "orcid-biosketch.js", "orcid-group.js", "network/app.js", "network/style.css",
-                     "network/index.html", "group/index.html", "team/index.html", "feedback/index.html", "py/orcid_biosketch.zip", "sw.js", "config.json"]
+    return copied + [*PLAYGROUND, *WIDGETS, "network/app.js", "network/style.css",
+                     "network/index.html", "group/index.html", "team/index.html", "feedback/index.html", "py/science_record_player.zip", "sw.js", "config.json"]
 
 
 if __name__ == "__main__":

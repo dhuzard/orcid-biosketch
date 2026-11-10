@@ -231,10 +231,10 @@ const TABS = {
   },
   Embed() {
     const snapshot = JSON.stringify(extras.snapshot, null, 2);
-    const snippet = `<script type="module" src="${location.origin}/orcid-group.js"></script>\n<orcid-group src="/group.json"></orcid-group>`;
-    const preview = el('orcid-group', { src: URL.createObjectURL(new Blob([snapshot], { type: 'application/json' })), limit: '10' });
+    const snippet = `<script type="module" src="${location.origin}/srp-group.js"></script>\n<srp-group src="/group.json"></srp-group>`;
+    const preview = el('srp-group', { src: URL.createObjectURL(new Blob([snapshot], { type: 'application/json' })), limit: '10' });
     objectUrls.push(preview.getAttribute('src'));
-    import('/orcid-group.js');
+    import('/srp-group.js');
     return [el('p', {}, 'Show this group on a lab website. Host the snapshot file next to your page and paste the snippet. The widget reads only that file; refresh it by downloading a new snapshot.'),
       el('div', { class: 'tools' }, download('Snapshot (group.json)', snapshot, 'group.json', 'application/json'),
         el('button', { class: 'button quiet small', type: 'button', onclick: async () => {

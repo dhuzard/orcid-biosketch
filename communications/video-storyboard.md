@@ -6,7 +6,7 @@
 
 ## Use the existing video pipeline
 
-PR [#31](https://github.com/dhuzard/orcid-playground/pull/31) already proposes Playwright + FFmpeg screen capture, with `demo/render.mjs`, `demo/groups.mjs` and `demo/contacts.mjs`. **Extend/rebase that PR rather than starting a second screen-recording implementation.**
+PR [#31](https://github.com/dhuzard/science-record-player/pull/31) already proposes Playwright + FFmpeg screen capture, with `demo/render.mjs`, `demo/groups.mjs` and `demo/contacts.mjs`. **Extend/rebase that PR rather than starting a second screen-recording implementation.**
 
 Its known coverage: Studio, local research network, working-group flows, public Group view, Contacts. It currently excludes some live-auth scenarios and encrypted team packages. The Group scene uses explicitly labelled *fictional Demo* researchers and synthetic DOIs; never suggest those are live publications.
 

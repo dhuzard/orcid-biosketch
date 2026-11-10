@@ -1,9 +1,9 @@
 # Local network pilot contract
 
-Implementation coordination contract for [epic #6](https://github.com/dhuzard/orcid-playground/issues/6). The pilot is one local workspace,
+Implementation coordination contract for [epic #6](https://github.com/dhuzard/science-record-player/issues/6). The pilot is one local workspace,
 not authenticated multi-user hosting. Bind to 127.0.0.1 only. No scheduled polling.
 The local working-group extension is implemented and locally verified under
-[milestone #8](https://github.com/dhuzard/orcid-playground/issues/8); its detailed
+[milestone #8](https://github.com/dhuzard/science-record-player/issues/8); its detailed
 validation and bulk-import contract is [group-workflow-api.md](group-workflow-api.md).
 
 ## HTTP

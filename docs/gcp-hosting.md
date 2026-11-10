@@ -8,16 +8,16 @@ A static site whose code runs in the visitor's browser:
 
 - `/` **Studio**: any public ORCID iD, the stored sample, or the signed-in visitor's own record, rendered into every single-record output.
 - `/network/` **Research network**: the unchanged pilot app (`web/network/app.js`). `network-bridge.js` answers its `/api/*` calls from the in-browser engine instead of a server.
-- `/group/` **Group view**: a link carrying a group name and public ORCID iDs in the URL fragment, which is never sent to a server. It is read only on request and shows an evidence-backed collaboration graph (an edge exists only when both records assert the same DOI), shared outputs, record health for coordinators (each member's record check, issues ranked by how many members share them), a draft team biosketch in ERC/Horizon/NIH format, Group Wrapped, a printable card deck, an embeddable snapshot for the `<orcid-group>` widget, a group heatmap and a merged bibliography.
+- `/group/` **Group view**: a link carrying a group name and public ORCID iDs in the URL fragment, which is never sent to a server. It is read only on request and shows an evidence-backed collaboration graph (an edge exists only when both records assert the same DOI), shared outputs, record health for coordinators (each member's record check, issues ranked by how many members share them), a draft team biosketch in ERC/Horizon/NIH format, Group Wrapped, a printable card deck, an embeddable snapshot for the `<srp-group>` widget, a group heatmap and a merged bibliography.
 - `sw.js` makes the site installable and usable offline: site files network-first, the pinned runtime cache-first in a cache kept across deploys, the ORCID API never intercepted. The build stamps it with a digest of the site so every deploy refreshes the cache.
-- `orcid-group.js` and `orcid-biosketch.js` are served with `Access-Control-Allow-Origin: *` so other sites can load them as modules. The network app's "Share & visualise" builds such a link from a group's real iDs; sample people are never included.
-- `engine.js` is a Web Worker that loads Pyodide from this site (`/pyodide/0.26.4/`, each file checked against a pinned SHA-256 by `scripts/build_site.py`) and the package from `py/orcid_biosketch.zip`. It patches `urllib` with a synchronous XHR restricted to `pub.orcid.org`, so `fetch_orcid_record` runs unchanged (`orcid_biosketch.playground`).
+- `srp-group.js` and `srp-biosketch.js` are served with `Access-Control-Allow-Origin: *` so other sites can load them as modules. The network app's "Share & visualise" builds such a link from a group's real iDs; sample people are never included.
+- `engine.js` is a Web Worker that loads Pyodide from this site (`/pyodide/0.26.4/`, each file checked against a pinned SHA-256 by `scripts/build_site.py`) and the package from `py/science_record_player.zip`. It patches `urllib` with a synchronous XHR restricted to `pub.orcid.org`, so `fetch_orcid_record` runs unchanged (`science_record_player.playground`).
 - The network workspace is the pilot's SQLite file on an IndexedDB-backed filesystem. It never leaves that browser, and each visitor has their own; "Clear this workspace" deletes it.
 
 What may be hosted, and what may not:
 
 - Hosted: public `generated/*` outputs, the web pages and the package source. `scripts/build_site.py` copies nothing else.
-- Never hosted: a server-side workspace or the loopback server itself. It has no authentication, and a shared copy would publish curated rosters (issues #6, #8, #9). The same goes for roster exports (`orcid_biosketch.roster`) and any ORCID token; public reads need none.
+- Never hosted: a server-side workspace or the loopback server itself. It has no authentication, and a shared copy would publish curated rosters (issues #6, #8, #9). The same goes for roster exports (`science_record_player.roster`) and any ORCID token; public reads need none.
 
 The CSP allows only `self`, `pub.orcid.org` and ORCID's JWKS, plus `wasm-unsafe-eval`; `unsafe-eval` is not needed and no third-party script runs. Generated SVGs contain untrusted ORCID text, so they are shown through `<img>` with blob URLs and never inlined.
 
@@ -63,8 +63,8 @@ What is public and what is not:
 ### Turn it on
 
 ```bash
-gh variable set ORCID_CLIENT_ID --repo dhuzard/orcid-playground --body APP-XXXXXXXXXXXXXXXX
-gh workflow run deploy-hosting.yml --repo dhuzard/orcid-playground --ref main -f channel=live
+gh variable set ORCID_CLIENT_ID --repo dhuzard/science-record-player --body APP-XXXXXXXXXXXXXXXX
+gh workflow run deploy-hosting.yml --repo dhuzard/science-record-player --ref main -f channel=live
 ```
 
 Setting a variable is not a push, so nothing redeploys by itself; the manual `channel=live` run rebuilds the site with the new id (the next merge to `main` would also do it). The build writes the id into `config.json`; an empty value hides the button again. Check it with `curl -s https://science-record-player.web.app/config.json`.
@@ -138,10 +138,10 @@ gcloud iam workload-identity-pools create github --location=global --project PRO
 gcloud iam workload-identity-pools providers create-oidc repo --location=global --workload-identity-pool=github \
   --issuer-uri=https://token.actions.githubusercontent.com \
   --attribute-mapping=google.subject=assertion.sub,attribute.repository=assertion.repository \
-  --attribute-condition="assertion.repository=='dhuzard/orcid-playground'" --project PROJECT_ID
+  --attribute-condition="assertion.repository=='dhuzard/science-record-player'" --project PROJECT_ID
 gcloud iam service-accounts add-iam-policy-binding gh-deploy@PROJECT_ID.iam.gserviceaccount.com \
   --role=roles/iam.workloadIdentityUser \
-  --member="principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/dhuzard/orcid-playground"
+  --member="principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/dhuzard/science-record-player"
 ```
 
 Then set these GitHub repository **variables** (not secrets, none are sensitive): `GCP_PROJECT_ID`, `GCP_WORKLOAD_IDENTITY_PROVIDER` (`projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github/providers/repo`) and `GCP_DEPLOY_SERVICE_ACCOUNT`. `.github/workflows/deploy-hosting.yml` builds `site/` with `scripts/build_site.py` and deploys it; `firebase.json` carries the CSP and cache headers.

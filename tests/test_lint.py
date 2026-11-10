@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from orcid_biosketch.lint import CHECKS, TOTAL_WEIGHT, lint, render_report, to_badge
+from science_record_player.lint import CHECKS, TOTAL_WEIGHT, lint, render_report, to_badge
 
 NOW = datetime(2026, 8, 31, tzinfo=timezone.utc)
 ORCID = "0000-0003-4820-7951"
@@ -232,7 +232,7 @@ def test_venue_check_ignores_types_without_a_venue():
 def test_rubric_weights_are_documented_and_total_one_hundred():
     assert TOTAL_WEIGHT == 100
     assert len(CHECKS) == 14
-    docstring = __import__("orcid_biosketch.lint", fromlist=["lint"]).__doc__ or ""
+    docstring = __import__("science_record_player.lint", fromlist=["lint"]).__doc__ or ""
     for name, weight, _ in CHECKS:
         assert f"`{name}`" in docstring
         assert f"| {weight:2d} " in docstring or f"|{weight:3d} " in docstring

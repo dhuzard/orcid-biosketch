@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
-from orcid_biosketch import build_biosketch, render_markdown, to_jsonld
+from science_record_player import build_biosketch, render_markdown, to_jsonld
 
 
 def fixture():
@@ -199,8 +199,8 @@ from email.message import Message
 from email.utils import format_datetime
 
 import pytest
-from orcid_biosketch import core
-from orcid_biosketch.core import OrcidError, load_record, normalize_orcid
+from science_record_player import core
+from science_record_player.core import OrcidError, load_record, normalize_orcid
 
 
 def test_normalizes_orcid_ids_and_urls():
@@ -472,7 +472,7 @@ def test_sandbox_base_url_is_honoured(monkeypatch):
 
 
 def test_period_does_not_invent_ongoing_engagements():
-    from orcid_biosketch.core import _period
+    from science_record_player.core import _period
     assert _period({"start_date": "2018", "end_date": None}, ongoing=False) == "2018"
     assert _period({"start_date": "2018", "end_date": None}) == "2018–present"
     assert _period({"start_date": None, "end_date": None}) == ""

@@ -10,7 +10,7 @@
 
 **Your ORCID record can do more.** Explore public research profiles, inspect record quality, reuse publication data and experiment with a research network—without installing software.
 
-**[Try it](https://science-record-player.web.app/)** · **[Read documentation](https://science-record-player.web.app/docs/)** · **[Send feedback](https://science-record-player.web.app/feedback/)** · **[Five-minute guide](docs/source/getting-started.md)** · **[Sphinx documentation source](docs/source/index.md)** · **[Suggest a feature](https://github.com/dhuzard/orcid-playground/issues/new/choose)**
+**[Try it](https://science-record-player.web.app/)** · **[Read documentation](https://science-record-player.web.app/docs/)** · **[Send feedback](https://science-record-player.web.app/feedback/)** · **[Five-minute guide](docs/source/getting-started.md)** · **[Sphinx documentation source](docs/source/index.md)** · **[Suggest a feature](https://github.com/dhuzard/science-record-player/issues/new/choose)**
 
 > ORCID data are public assertions, not independently verified credentials. The application does not silently invent scientific outputs, affiliations or group membership.
 
@@ -20,7 +20,7 @@
 2. Select **The maintainer's profile (stored, offline)**, or paste any public ORCID iD. No sign-in is needed to explore public records.
 3. Open **Record check**, explore the works table and download a **BibTeX**, **RIS**, **JSON-LD** or Markdown export.
 4. Try the [research network with labelled sample data](https://science-record-player.web.app/network/?sample=1#groups). Experiment with following people, private contact tags and a project group.
-5. Tell us **what would be useful for your research** through a [scientist feedback issue](https://github.com/dhuzard/orcid-playground/issues/new/choose). You can use the in-app email feedback form without a GitHub account; GitHub issues remain available for developers.
+5. Tell us **what would be useful for your research** through a [scientist feedback issue](https://github.com/dhuzard/science-record-player/issues/new/choose). You can use the in-app email feedback form without a GitHub account; GitHub issues remain available for developers.
 
 ## What can you do?
 
@@ -51,23 +51,23 @@ We especially welcome feedback from **individual scientists, lab and consortium 
 
 No code is necessary. Try a real task (or clearly labelled sample data), then tell us what was confusing, which result needs correction, and what would make the tool worth using again.
 
-**[Send scientist feedback without GitHub](https://science-record-player.web.app/feedback/)** · [Open a GitHub issue](https://github.com/dhuzard/orcid-playground/issues/new/choose) · [How to contribute](CONTRIBUTING.md) · [Existing backlog](BACKLOG.md)
+**[Send scientist feedback without GitHub](https://science-record-player.web.app/feedback/)** · [Open a GitHub issue](https://github.com/dhuzard/science-record-player/issues/new/choose) · [How to contribute](CONTRIBUTING.md) · [Existing backlog](BACKLOG.md)
 
 Scientific correctness, provenance and privacy concerns are prioritized over decorative additions.
 
 ## For Python users
 
-The package and executable remain named `orcid_biosketch` and `orcid-biosketch`:
+Install the `science-record-player` package (import `science_record_player`) and use the `srp` command. The former names `orcid_biosketch`, `orcid-biosketch` and `orcid-network`, and the `<orcid-biosketch>` / `<orcid-group>` tags, still work as deprecated aliases and will be removed in a future release.
 
 ```bash
 python -m pip install -e .
 
-orcid-biosketch generate 0000-0003-4820-7951 \
+srp generate 0000-0003-4820-7951 \
   --config config/biosketch.json --output generated
-orcid-biosketch lint 0000-0003-4820-7951
-orcid-biosketch export 0000-0003-4820-7951 --format bibtex > refs.bib
-orcid-biosketch export 0000-0003-4820-7951 --template nih
-orcid-biosketch wrapped 0000-0003-4820-7951 --year 2025
+srp lint 0000-0003-4820-7951
+srp export 0000-0003-4820-7951 --format bibtex > refs.bib
+srp export 0000-0003-4820-7951 --template nih
+srp wrapped 0000-0003-4820-7951 --year 2025
 ```
 
 Generated files include `biosketch.json` (provenance-aware), `biosketch.jsonld` (Schema.org) and `biosketch.md`. The CLI also supports `card`, `heatmap`, `fortune`, `badge`, offline `--record` / `--biosketch` input, `--sandbox`, and optional public-record details. Do not commit access tokens.
@@ -75,14 +75,14 @@ Generated files include `biosketch.json` (provenance-aware), `biosketch.jsonld` 
 Local SQLite research-network pilot:
 
 ```bash
-python -m orcid_biosketch.network --port 8877 --data .local/network.sqlite3
+python -m science_record_player.network --port 8877 --data .local/network.sqlite3
 ```
 
 Open `http://127.0.0.1:8877`. The pilot is local-only and has no shared logins or verified group membership. See [the local network guide](docs/network-pilot.md).
 
 ### Embedding in your website
 
-The `<orcid-biosketch>` Web Component reads a published `biosketch.json` and supports biography, a searchable works table, source details and print/PDF export; the `<orcid-group>` component reads a published group snapshot. Follow the [website integration guide](docs/website-integration.md). The static snapshot does not update itself until regenerated.
+The `<srp-biosketch>` Web Component reads a published `biosketch.json` and supports biography, a searchable works table, source details and print/PDF export; the `<srp-group>` component reads a published group snapshot. Follow the [website integration guide](docs/website-integration.md). The static snapshot does not update itself until regenerated.
 
 ### Build, tests and documentation
 
@@ -94,7 +94,7 @@ python -m pip install -r docs/requirements.txt
 python -m sphinx -b html -n -W --keep-going docs/source docs/_build/html
 ```
 
-Sphinx is built from [docs/source](docs/source/index.md) and deployed with the playground at [the hosted documentation](https://science-record-player.web.app/docs/). A separate video-production workflow is proposed in [PR #31](https://github.com/dhuzard/orcid-playground/pull/31); the [comprehensive video storyboard](communications/video-storyboard.md) identifies remaining footage and scientific disclaimers.
+Sphinx is built from [docs/source](docs/source/index.md) and deployed with the playground at [the hosted documentation](https://science-record-player.web.app/docs/). A separate video-production workflow is proposed in [PR #31](https://github.com/dhuzard/science-record-player/pull/31); the [comprehensive video storyboard](communications/video-storyboard.md) identifies remaining footage and scientific disclaimers.
 
 ## License and attribution
 

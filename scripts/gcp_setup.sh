@@ -4,7 +4,7 @@
 set -euo pipefail
 
 PROJECT_ID="${PROJECT_ID:-orcid-playground-889}"   # GCP project IDs are lowercase
-REPO="${REPO:-dhuzard/orcid-playground}"
+REPO="${REPO:-dhuzard/science-record-player}"
 SA="gh-deploy@${PROJECT_ID}.iam.gserviceaccount.com"
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')"
 

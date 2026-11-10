@@ -1,8 +1,8 @@
 # Local research network pilot
 
 Status: the local pilot and working-group extension are verified and ready for
-coordinator testing under [milestone #8](https://github.com/dhuzard/orcid-playground/issues/8)
-and [epic #6](https://github.com/dhuzard/orcid-playground/issues/6).
+coordinator testing under [milestone #8](https://github.com/dhuzard/science-record-player/issues/8)
+and [epic #6](https://github.com/dhuzard/science-record-player/issues/6).
 
 The pilot tests whether following research outputs and preparing a working-group
 team pack are useful enough to return to. It runs as one local workspace with
@@ -15,11 +15,11 @@ Use Python 3.10 or newer. From the repository directory:
 
 ```bash
 python -m pip install -e .
-python -m orcid_biosketch.network --port 8877 --data .local/network.sqlite3
+python -m science_record_player.network --port 8877 --data .local/network.sqlite3
 ```
 
 Open <http://127.0.0.1:8877> and leave the terminal running. Stop with `Ctrl+C`.
-The installed `orcid-network` command accepts the same options.
+The installed `srp-network` command accepts the same options.
 The server binds only to `127.0.0.1`; another participant runs their own copy or
 joins a facilitated screen-sharing session. A localhost URL is not a public
 invitation link.
@@ -130,7 +130,7 @@ Feedback prompts:
 4. Which matters most next: shared groups, sign-in, a digest, or better exports?
 
 Add observations and reproducible failures to
-[milestone #8](https://github.com/dhuzard/orcid-playground/issues/8), including the view,
+[milestone #8](https://github.com/dhuzard/science-record-player/issues/8), including the view,
 steps, expected result, actual result, and whether the data were sample or live.
 The developer contract is in [network-api.md](network-api.md), with the working-group
 extension in [group-workflow-api.md](group-workflow-api.md).

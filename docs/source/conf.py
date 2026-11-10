@@ -21,7 +21,7 @@ html_show_sphinx = False
 html_logo = "../../brand/mark.svg"
 html_favicon = "../../brand/favicon.svg"
 html_theme_options = {
-    "source_repository": "https://github.com/dhuzard/orcid-playground/",
+    "source_repository": "https://github.com/dhuzard/science-record-player/",
     "source_branch": "main",
     "source_directory": "docs/source/",
     "announcement": f"{BRAND['disclaimer']} Developed and maintained independently by {BRAND['owner']} under the {BRAND['license']} license.",

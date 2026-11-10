@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator, FormatChecker
-from orcid_biosketch.roster import (
+from science_record_player.roster import (
     RosterError,
     build_export,
     build_revocation,
@@ -303,7 +303,7 @@ def test_access_effect_cannot_be_changed():
 
 
 def test_public_outputs_never_read_rosters():
-    package = ROOT / "src" / "orcid_biosketch"
+    package = ROOT / "src" / "science_record_player"
     # The local network pilot curates group rosters in its private workspace; it
     # must still never load the roster assertion contract.
     private_workspace = {"roster.py", "network.py", "network_store.py"}
@@ -312,7 +312,7 @@ def test_public_outputs_never_read_rosters():
         if module.name not in private_workspace:
             assert "roster" not in text, module.name
         elif module.name != "roster.py":
-            assert "from .roster" not in text and "orcid_biosketch.roster" not in text, module.name
+            assert "from .roster" not in text and "science_record_player.roster" not in text, module.name
     for path in (ROOT / "generated").iterdir():
         assert "roster-assertion" not in path.read_text(encoding="utf-8", errors="ignore"), path.name
     assert "roster" not in (ROOT / ".github" / "workflows" / "sync.yml").read_text(encoding="utf-8")

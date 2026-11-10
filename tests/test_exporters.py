@@ -2,7 +2,7 @@ import json
 import re
 
 import pytest
-from orcid_biosketch.exporters import (
+from science_record_player.exporters import (
     available_templates,
     render_template,
     to_bibtex,
