@@ -10,18 +10,23 @@ const browser = await chromium.launch();
 try {
   let begin = 0, finish = 0;
   const capture = await record(browser, 'extra-take', async (page, now) => {
-    page.on('dialog', dialog => dialog.accept());
+    // Log every dialog: an export failure surfaces as an alert, which would otherwise be accepted silently.
+    page.on('dialog', dialog => { console.log(`dialog (${dialog.type()}): ${dialog.message().split('\n')[0]}`); dialog.accept(); });
+    page.on('pageerror', error => console.log('page error:', error.message));
+    page.on('console', message => { if (message.type() === 'error') console.log('console error:', message.text()); });
     await page.goto(site.base + 'network/');
     await page.waitForSelector('#demo');
     await page.waitForTimeout(10000);
     await page.click('#demo');
+    // Wait for the in-browser engine to finish loading the sample workspace before exporting it.
+    await page.waitForSelector('#demo-banner:not([hidden])', { timeout: 120000 });
     await page.waitForTimeout(1100);
     begin = now();
     await caption(page, 'BROWSER-LOCAL', 'Keep your working notes on your device.',
       'Download a backup of the browser workspace. It can include private notes; share carefully.');
     await page.waitForTimeout(3300);
     const [backup] = await Promise.all([
-      page.waitForEvent('download', { timeout: 25000 }),
+      page.waitForEvent('download', { timeout: 90000 }),
       page.locator('#export-workspace').click(),
     ]);
     const bytes = readFileSync(await backup.path());
