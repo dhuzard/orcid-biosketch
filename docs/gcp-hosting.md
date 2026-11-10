@@ -126,7 +126,7 @@ Firebase Hosting is in use today (live site plus on-demand preview channels); mo
 
 ## One-time GCP setup for the static showcase
 
-Project: `orcid-playground-889` (Firebase sites `science-record-player`, the app, and `orcid-playground-889`, the legacy address; see "Moving to science-record-player.web.app" below). Run `scripts/gcp_setup.sh` as a project owner; it does everything below and prints the three GitHub variables to set. The commands are kept here for reference.
+Project: `orcid-playground-889` (Firebase site `science-record-player`; the default site `orcid-playground-889` is disabled; see "Moving to science-record-player.web.app" below). Run `scripts/gcp_setup.sh` as a project owner; it does everything below and prints the three GitHub variables to set. The commands are kept here for reference.
 
 ```bash
 gcloud projects create PROJECT_ID && gcloud billing projects link PROJECT_ID --billing-account=ACCOUNT
@@ -167,20 +167,16 @@ The in-browser playground already covers individual use; this service is only ne
 
 ## Moving to science-record-player.web.app (INF-13)
 
-ORCID asked that the hostname not lead with "ORCID". The app now lives on its own Firebase Hosting **site**, `science-record-player`, in the same GCP project. The project ID `orcid-playground-889` is never shown to visitors and stays. `.firebaserc` maps two deploy targets:
+ORCID asked that the hostname not lead with "ORCID". The app lives on its own Firebase Hosting **site**, `science-record-player` → <https://science-record-player.web.app>, in the same GCP project. The project ID `orcid-playground-889` is never shown to visitors and stays. `.firebaserc` maps the only deploy target, `app`, to that site. Live deploys and preview channels both use it.
 
-| Target | Site | Serves |
-|---|---|---|
-| `app` | `science-record-player` → <https://science-record-player.web.app> | The app |
-| `legacy` | `orcid-playground-889` → `orcid-playground-889.web.app` | The same build. `web/playground/moved.js` forwards visitors to the new address, keeping the path, query and `#fragment`. Visitors who have a research network saved in this browser on the old address are not forwarded. They see a banner telling them to **Download my workspace** and **Restore from file** on the new site, because browser storage belongs to an address. |
+The former address `orcid-playground-889.web.app` is the project's **default** site. Firebase does not allow the default site to be deleted, so it is **disabled**: it serves "Site Not Found". Never deploy without the `app` target; that would publish to the default site and bring it back. A test (`test_hosting_deploys_only_to_the_science_record_player_site`) guards this.
 
-A live deploy (`firebase deploy --only hosting`) updates both sites. Preview channels use `--only app`.
+History: from 10 Nov 2026 the old address briefly served the same build and forwarded visitors (`moved.js`, PR #48). It was then disabled at the owner's request. Browser-local research networks saved on the old address can no longer be opened.
 
-One-time steps, in order (owner):
+One-time steps (owner), already done unless noted:
 
-1. **Create the site.** Firebase console → Hosting → *Add another site* → `science-record-player`. Or: `npx firebase-tools hosting:sites:create science-record-player --project orcid-playground-889`. The deploy service account already has `roles/firebasehosting.admin` on the project, which covers every site.
-2. **ORCID client** (<https://orcid.org/developer-tools>): rename the application to **Science Record Player**, set the website to `https://science-record-player.web.app/`, and **add** the redirect URI `https://science-record-player.web.app/`. Keep the old one until the move is verified, then remove it.
-3. **Merge** the PR that adds the targets. Deploy-hosting publishes both sites.
-4. **Verify** in a private window: <https://science-record-player.web.app/> loads with sign-in, and `https://orcid-playground-889.web.app/network/?sample=1#groups` lands on the same path on the new host.
-5. **Exchange function** (team workspaces, when Blaze is enabled): redeploy with `scripts/deploy_backend.sh`. Its allowed origins now point to the new host.
-6. **Optional: rename the GitHub repository** to `science-record-player`. GitHub redirects old links. Deploys authenticate through Workload Identity with a condition on the repository *name* (`attribute.repository`), so update that condition, or re-run `scripts/gcp_setup.sh` with `REPO=dhuzard/science-record-player`, in the same sitting. Then update the GitHub links in the code.
+1. Create the site `science-record-player` (Firebase console → Hosting & Serverless → Hosting → *Add another site*).
+2. **ORCID client** (<https://orcid.org/developer-tools>): rename the application to **Science Record Player**, set the website to `https://science-record-player.web.app/`, and set the redirect URI to exactly that address. Remove the old one.
+3. Disable the old address once the deploys no longer target it: `npx firebase-tools hosting:disable --site orcid-playground-889 --project orcid-playground-889`, or in the console: Hosting → the `orcid-playground-889` site → ⋮ → *Disable site*.
+4. **Exchange function** (team workspaces, Blaze is enabled): redeploy with `scripts/deploy_backend.sh`. Its allowed origins point only to the new host.
+5. **Optional: rename the GitHub repository** to `science-record-player`. GitHub redirects old links. Deploys authenticate through Workload Identity with a condition on the repository *name* (`attribute.repository`), so update that condition, or re-run `scripts/gcp_setup.sh` with `REPO=dhuzard/science-record-player`, in the same sitting. Then update the GitHub links in the code.
