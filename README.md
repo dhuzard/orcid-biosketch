@@ -1,3 +1,5 @@
+<p><img src="brand/wordmark.png" alt="Science Record Player — Publish or Play" width="420"></p>
+
 # Science Record Player (SRP)
 
 **Publish or Play.** *An open-source playground for ORCID records — developed and maintained independently by **Damien Huzard / Neuronautix** under the [MIT license](LICENSE).*

@@ -21,7 +21,7 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_SUFFIXES = {".json", ".jsonld", ".md", ".svg", ".txt"}
 PLAYGROUND = ("index.html", "playground.css", "studio.js", "auth.js", "engine.js", "engine-client.js", "network-bridge.js",
-              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png")
+              "group.js", "group-link.js", "cloud.js", "team.js", "sync.js", "digest.js", "teampack.js", "feedback.js", "manifest.webmanifest", "icon.svg", "favicon.svg", "favicon.ico", "icon-192.png", "icon-512.png")
 # Fixed timestamp so the same source always produces the same archive.
 ZIP_DATE = (2026, 1, 1, 0, 0, 0)
 
@@ -66,7 +66,8 @@ def fetch_runtime(out: Path, *, cache: Path = RUNTIME_CACHE, download: Callable[
 NETWORK_PAGE = [
     ('<html lang="en">', '<html lang="en" data-hosted="true">'),
     ('<link rel="icon" href="data:,">',
-     '<link rel="icon" href="/icon.svg" type="image/svg+xml">\n  <link rel="manifest" href="/manifest.webmanifest">'),
+     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">'
+     '\n  <link rel="manifest" href="/manifest.webmanifest">'),
     ('href="/style.css"', 'href="/network/style.css"'),
     ('<script type="module" src="/app.js"></script>',
      '<script type="module" src="/network-bridge.js"></script>\n  <script type="module" src="/network/app.js"></script>'),

@@ -13,7 +13,8 @@ button{cursor:pointer}
 .site-header{display:flex;align-items:center;gap:24px;padding:14px max(16px,calc((100% - 1120px)/2));background:var(--brand);color:#fff;flex-wrap:wrap}
 .site-header a{color:#fff;text-decoration:none}
 .brand{font-weight:700;display:flex;align-items:center;gap:8px}
-.brand-mark{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--brand);font-weight:800;font-size:1.05rem;line-height:1}
+.brand-mark{display:inline-block;width:34px;height:34px;flex:none}
+.brand-mark svg{display:block;width:100%;height:100%}
 .brand-text{display:flex;flex-direction:column;line-height:1.15}
 .brand-owner{font-weight:400;font-size:.74rem;opacity:.85}
 .independence{background:var(--accent);color:var(--brand);font-size:.86rem;padding:8px max(16px,calc((100% - 1120px)/2));margin:0}

@@ -10,6 +10,7 @@ export const OUT = resolve(ROOT, 'demo/out');
 export const RAW = resolve(OUT, '.raw');
 export const SITE = 'orcid-playground-889.web.app';
 // Display identity shared with the site build (config/brand.json).
+export const MARK = readFileSync(resolve(ROOT, 'brand/mark-on-dark.svg'), 'utf8');
 export const BRAND = JSON.parse(readFileSync(resolve(ROOT, 'config/brand.json'), 'utf8'));
 export const W = 1280, H = 720, PORT = 8899;
 export const SITE_DIR = resolve(process.argv[2] || resolve(ROOT, 'site'));
@@ -21,7 +22,7 @@ export const CSS = `
 :root{--ink:#3a2737;--lime:#e2b4c0;--cream:#f6f5ef;--mute:#b89da6}
 *{box-sizing:border-box;margin:0}body{width:${W}px;height:${H}px;background:var(--ink);color:var(--cream);font:16px Inter,system-ui,sans-serif;overflow:hidden}
 .mark{position:absolute;left:36px;top:28px;display:flex;gap:12px;align-items:center;font-weight:600;letter-spacing:.02em}
-.mark b{background:var(--lime);color:var(--ink);width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font:700 22px system-ui,sans-serif}
+.mark b{width:40px;height:40px;display:block}.mark b svg{width:100%;height:100%;display:block}
 .site{position:absolute;right:36px;top:36px;color:var(--mute);font-size:14px;letter-spacing:.06em}
 `;
 export const CAPCSS = `
@@ -64,7 +65,7 @@ export const card = (inner) => `<style>${CSS}.c{position:absolute;inset:0;displa
 h1{font:400 76px/1.05 ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,serif;max-width:1000px}h1 em{color:var(--lime);font-style:normal}p{margin-top:24px;font-size:24px;color:#e0cfd5;max-width:880px;line-height:1.4;margin-inline:auto}
 .legal{position:absolute;left:36px;right:36px;bottom:22px;text-align:center;font-size:13px;color:var(--mute)}
 .pill{display:inline-block;margin:26px 6px 0;padding:8px 16px;border:1px solid #773f52;border-radius:99px;font-size:17px;color:var(--lime)}</style>
-<div class="mark"><b>✦</b>${esc(BRAND.name)}</div><div class="site">${SITE}</div><div class="c">${inner}</div>
+<div class="mark"><b>${MARK}</b>${esc(BRAND.name)}</div><div class="site">${SITE}</div><div class="c">${inner}</div>
 <div class="legal">${esc(BRAND.disclaimer)} ${esc(BRAND.trademark)}</div>`;
 
 

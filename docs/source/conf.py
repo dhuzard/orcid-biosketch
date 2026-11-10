@@ -18,6 +18,8 @@ exclude_patterns = []
 html_theme = "furo"
 html_title = f"{BRAND['name']} | Documentation"
 html_show_sphinx = False
+html_logo = "../../brand/mark.svg"
+html_favicon = "../../brand/favicon.svg"
 html_theme_options = {
     "source_repository": "https://github.com/dhuzard/orcid-playground/",
     "source_branch": "main",
