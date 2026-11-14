@@ -239,8 +239,10 @@ def test_remove_demo_keeps_a_sample_group_that_holds_the_users_own_curation(stor
     real_work = next(w["id"] for w in store.state()["works"] if not w["demo"])
     store.select_group_work("demo-open-science", real_work, True)
     store.create_group_request("demo-open-science", "Share the protocol", "", ORCID_A, "")
-    assert store.remove_demo() == {"people": 3, "groups": 0, "kept_groups": ["Open Science Circle"]}
+    result = store.remove_demo()
+    assert (result["people"], result["groups"]) == (3, 0)
     [group] = store.state()["groups"]
+    assert result["kept_groups"] == [{"id": group["id"], "from": "Open Science Circle · Demo", "name": "Open Science Circle"}]
     assert group["id"] != "demo-open-science" and group["name"] == "Open Science Circle"
     assert group["description"] == ""
     assert group["member_ids"] == [ORCID_A]
@@ -250,7 +252,23 @@ def test_remove_demo_keeps_a_sample_group_that_holds_the_users_own_curation(stor
     # A sample group with only a request of the user's own is kept too; an untouched one is not.
     store.add_demo()
     store.create_group_request("demo-open-science", "Book a room", "", None, "")
-    assert store.remove_demo()["kept_groups"] == ["Open Science Circle"]
+    assert [g["name"] for g in store.remove_demo()["kept_groups"]] == ["Open Science Circle"]
     store.add_demo()
     assert store.remove_demo() == {"people": 3, "groups": 1, "kept_groups": []}
     assert len(store.state()["groups"]) == 2
+
+
+def test_remove_demo_keeps_a_sample_group_the_user_renamed_or_described(store):
+    # Follow-up review of #66: the user's own text is kept even with only sample people in it.
+    store.add_demo()
+    store.update_group("demo-open-science", "Neuro consortium plan", "Our real plan for 2027: WP1 imaging", ["demo-ada"])
+    store.set_group_member("demo-open-science", "demo-ada", "Coordinator", "", "")
+    result = store.remove_demo()
+    assert [g["name"] for g in result["kept_groups"]] == ["Neuro consortium plan"] and result["groups"] == 0
+    [group] = store.state()["groups"]
+    assert group["description"] == "Our real plan for 2027: WP1 imaging"
+    assert group["member_ids"] == [] and group["member_details"] == {}
+    # Only a new description counts too.
+    store.add_demo()
+    store.update_group("demo-open-science", "Open Science Circle · Demo", "Notes for our lab", ["demo-ada"])
+    assert [g["name"] for g in store.remove_demo()["kept_groups"]] == ["Open Science Circle"]

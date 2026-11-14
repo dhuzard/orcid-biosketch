@@ -13,6 +13,7 @@ const BASE = process.argv[2].replace(/\/$/, '');
 const SHIM = readFileSync(join(__dirname, 'engine-shim.js'), 'utf8');
 const STORED = '0000-0003-4820-7951'; // the maintainer's stored profile (generated/biosketch.json)
 const FIXTURE = '0000-0002-1825-0097';
+const SECOND = '0000-0001-5109-3700';
 const UNREACHABLE = '0000-0002-1111-1115';
 const SLOW = '0000-0002-2222-2224';
 
@@ -218,6 +219,12 @@ const checks = {
     await page.click('#lookup button[type=submit]');
     await page.locator('#result:not([hidden])').waitFor();
     assert.equal(await text(page, '#r-orcid'), `ORCID ${STORED}`);
+    // The way back survives a refresh of the result (Copilot review of #66).
+    assert.equal(page.url(), `${BASE}/?orcid=${STORED}&from=contacts`);
+    await page.reload();
+    await page.locator('#status a', { hasText: 'Back to My Network' }).waitFor();
+    await page.click('#lookup button[type=submit]');
+    await page.locator('#result:not([hidden])').waitFor();
     await Promise.all([page.waitForURL(`${BASE}/network/#contacts`), page.locator('#r-back a').click()]);
     await card.waitFor();
 
@@ -251,6 +258,35 @@ const checks = {
     assert.deepEqual(shared, { n: 'Imaging working group', m: [STORED] });
     const body = await page.locator('body').innerText();
     for (const secret of ['imaging protocol', 'FENS 2026']) assert.ok(!body.includes(secret), `Group View shows "${secret}"`);
+
+    // Follow after Save as contact really follows: the import keeps the earlier "not followed",
+    // so the confirmed Follow sets it explicitly (Copilot review of #66).
+    assert.equal((await workspace(page)).people[0].following, false);
+    await page.goto(`${BASE}/network/?import=${STORED}`);
+    await loaded(page);
+    await page.waitForFunction(async id => {
+      const r = await fetch('/__engine', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'api', args: { method: 'GET', target: '/api/state' } }) });
+      return JSON.parse(JSON.parse((await r.json()).result).body).people.find(p => p.id === id)?.following === true;
+    }, STORED);
+    // Saving a followed researcher as a contact says the follow is unchanged, not "Not followed".
+    await page.goto(`${BASE}/network/?import=${SECOND}`);
+    await loaded(page);
+    await page.locator('.person-card', { hasText: 'Second Fixture Researcher' }).waitFor();
+    await openNetwork(page, `/network/#contacts?save=${SECOND}`);
+    await page.getByRole('button', { name: 'Save as contact', exact: true }).click();
+    await page.locator(`#contact-${SECOND}`).waitFor();
+    assert.match(await text(page, '#notice'), /You already follow them; that is unchanged/);
+
+    // Choosing "A new group…" sticks even when one of your own groups would be the default.
+    await openNetwork(page, `/network/#groups?add=${SECOND}`);
+    assert.equal(await page.locator('#handoff-group option:checked').innerText(), 'Imaging working group');
+    await page.selectOption('#handoff-group', '');
+    await page.locator('#handoff-group-name').waitFor();
+    assert.equal(await page.locator('#handoff-group option:checked').innerText(), 'A new group…');
+    await page.fill('#handoff-group-name', 'Second group');
+    await page.getByRole('button', { name: 'Add to group', exact: true }).click();
+    await page.waitForURL(/\/network\/#groups\/[\w-]+$/);
+    assert.deepEqual((await workspace(page)).groups.find(g => g.name === 'Second group').member_ids, [SECOND]);
     assert.deepEqual(errors, []);
     await close();
   },
@@ -423,6 +459,29 @@ const checks = {
     assert.equal(imports().length, 0);
     page.answer = null;
 
+    // The contact is saved but the optional note fails: the form, the error and the draft stay,
+    // and Retry finishes the job without a duplicate (Copilot review of #66).
+    await page.route('**/__engine', route => (route.request().postData() || '').includes('/api/contacts/notes')
+      ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: false, error: 'Storage is full.' }) })
+      : route.fallback());
+    await openNetwork(page, `/network/#contacts?save=${FIXTURE}`);
+    await page.fill('#handoff-note', 'Keep this note');
+    await page.getByRole('button', { name: 'Read record & save as contact' }).click();
+    await page.locator('#handoff-error').waitFor();
+    assert.match(await text(page, '#handoff-error'), /public record was stored, but the next step failed: Storage is full\. Retry uses the stored record/);
+    assert.equal(await page.inputValue('#handoff-note'), 'Keep this note');
+    await page.unroute('**/__engine');
+    // The contact card already shows below the panel (the contact was saved), so wait for the panel to finish.
+    await Promise.all([page.waitForURL(`${BASE}/network/#contacts`), page.getByRole('button', { name: /^Retry/ }).click()]);
+    let saved = await workspace(page);
+    assert.deepEqual(saved.contacts[FIXTURE].notes.map(n => n.text), ['Keep this note']);
+    assert.equal(saved.people.length, 1);
+    const removed = await page.evaluate(async id => {
+      const r = await fetch('/__engine', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'api', args: { method: 'POST', target: '/api/people/remove', body: JSON.stringify({ id }) } }) });
+      return JSON.parse((await r.json()).result).status;
+    }, FIXTURE);
+    assert.equal(removed, 200);
+
     // ORCID unreachable: a plain error, nothing saved, Retry offered.
     await openNetwork(page, `/network/#contacts?save=${UNREACHABLE}`);
     await page.fill('#handoff-note', 'Should not be stored');
@@ -435,10 +494,8 @@ const checks = {
     assert.equal((await workspace(page)).people.length, 0);
 
     // Interrupted: a reload while the record is being read never leaves a half-saved contact.
-    // Only invariants that hold for both engines are asserted: in the hosted Pyodide engine the
-    // reload stops the read, so nothing is stored; with this test server (like the local pilot
-    // server) the read may finish in the background. Either way no contact exists until a new
-    // confirmation, the question is asked again, and confirming never duplicates the person.
+    // The test server stops a slow read when the page that asked for it goes away, as the in-page
+    // Pyodide engine does, so the outcome is deterministic: nothing is stored.
     await openNetwork(page, `/network/#contacts?save=${SLOW}`);
     await page.fill('#handoff-note', 'Interrupted note');
     await page.getByRole('button', { name: 'Read record & save as contact' }).click();
@@ -447,15 +504,17 @@ const checks = {
     await loaded(page);
     await page.locator('#handoff').waitFor();
     assert.equal(await text(page, '#handoff h2'), 'Save as contact', 'the question is asked again');
+    await page.waitForTimeout(3500); // longer than the slow read would have taken
     const state = await workspace(page);
-    assert.deepEqual(state.contacts, {}, 'no contact without a completed, confirmed save');
-    assert.ok(state.people.filter(p => p.id === SLOW).length <= 1, 'never a duplicate person');
+    assert.deepEqual(state.people, [], 'the interrupted read stored nothing');
+    assert.deepEqual(state.contacts, {});
     // A draft is kept after an error (above), not across a reload: the reloaded form starts empty.
     assert.equal(await page.inputValue('#handoff-note'), '');
-    await page.getByRole('button', { name: /save as contact$/i }).click();
-    await page.locator(`#contact-${SLOW}`).waitFor();
+    const reads = imports().length;
+    await Promise.all([page.waitForURL(`${BASE}/network/#contacts`), page.getByRole('button', { name: 'Read record & save as contact' }).click()]);
     const after = await workspace(page);
-    assert.equal(after.people.filter(p => p.id === SLOW).length, 1);
+    assert.equal(imports().length, reads + 1, 'confirming again reads the record exactly once');
+    assert.equal(after.people.length, 1);
     assert.deepEqual(after.contacts[SLOW].notes, []);
     await close();
   },
@@ -485,8 +544,11 @@ const checks = {
     await editor.getByRole('button', { name: 'Save member details' }).click();
     await page.locator('#notice', { hasText: 'Local details saved' }).waitFor();
     await page.locator('#demo-banner').getByRole('button', { name: 'Remove sample data' }).click();
-    assert.match(dialogs.at(-1).message, /“Open Science Circle · Demo” holds your own members or requests, so it stays as “Open Science Circle”/);
+    assert.match(dialogs.at(-1).message, /“Open Science Circle · Demo” holds your own members, requests or text, so it stays as “Open Science Circle”/);
     await page.locator('#demo-banner').waitFor({ state: 'hidden' });
+    // The page follows the kept group to its new address instead of leaving a stale URL.
+    await page.waitForURL(/\/network\/#groups\/(?!demo-)[\w-]+$/);
+    await page.locator('.group-title h2', { hasText: 'Open Science Circle' }).waitFor();
     await page.locator('#notice', { hasText: 'Kept as your own group: Open Science Circle' }).waitFor();
     const state = await workspace(page);
     assert.equal(state.groups.length, 1);
