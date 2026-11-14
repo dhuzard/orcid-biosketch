@@ -34,7 +34,7 @@ Next step: **Add to my research network →** on a profile hands that iD to My N
 **Outcome:** a labelled sample workspace with a contact note and a curated group, ready to export as a team pack. **About 5 steps, 5 minutes.** Everything stays in this browser unless you download a file.
 
 1. Open **[My Network with sample data](https://science-record-player.web.app/network/?sample=1#groups)** and confirm the prompt. Sample data is added only after you confirm; every sample person is labelled **Demo**.
-2. In **Contacts**, add a tag, a note and a follow-up with a due date to a person. To start from real people, use **I just met people**, paste ORCID iDs, name the context and choose **Import & tag**. Nobody is notified.
+2. The sample adds people and a group but no contacts. In **People**, select **+** on a Demo person and add a tag (for example a conference name): that makes them a contact. Then open **Contacts** and add a note and a follow-up with a due date. With real people, use **I just met people** in Contacts: paste ORCID iDs, name the context and choose **Import & tag**. Nobody is notified.
 3. In **Groups**, open the demonstration group: review the roster and locally entered roles, then choose which member outputs belong to the project.
 4. Open **Team pack** and download it for the selected people, outputs and dates. Team packs never include Contacts notes.
 5. Optional: compose a shareable **[Public Group View](https://science-record-player.web.app/group/)** link from public ORCID iDs. It carries only a group name and the iDs.

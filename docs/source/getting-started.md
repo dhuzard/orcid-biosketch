@@ -20,7 +20,7 @@
 ## Connect & Organize: people and groups
 
 1. Open [My Network with sample data](https://science-record-player.web.app/network/?sample=1#groups) and confirm the prompt. Nothing is added until you confirm. Sample people and outputs are labelled **Demo** and must not be cited as real scientific records.
-2. Open **Contacts**. Add a tag, a note and a follow-up with a due date to one person. With real people, use **I just met people**: paste ORCID iDs, name the context and choose **Import & tag**.
+2. The sample adds people and a group but no contacts yet. Open **People**, select **+** on a Demo person and, under **Tag**, type a context such as a conference name and choose **Add tag**: that makes them a contact. Then open **Contacts** and add a note and a follow-up with a due date. With real people, use **I just met people** in Contacts: paste ORCID iDs, name the context and choose **Import & tag**.
 3. Open **Groups** and the demonstration group. Inspect its roster and locally entered roles, choose project outputs and look at its requests.
 4. Open **Team pack** and download it. A team pack does not contain Contacts notes.
 5. Optional: visit [Public Group View](https://science-record-player.web.app/group/) to compose a shareable link from real public ORCID iDs. The link contains only a group name and the iDs, never your notes, local roles or selected outputs.
