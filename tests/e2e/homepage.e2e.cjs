@@ -75,7 +75,8 @@ const checks = {
       assert.equal(await links.count(), 2);
       const [explore, connect] = [await box(page, '.paths a >> nth=0'), await box(page, '.paths a >> nth=1')];
       // Both paths on the first screen, side by side and equally sized, right below the headline.
-      for (const r of [explore, connect]) assert.ok(r.visible && r.bottom <= viewport.height, `${viewport.width}: path visible on first screen (bottom ${r.bottom})`);
+      // A 24px margin absorbs font-metric differences between machines (CI fonts render taller).
+      for (const r of [explore, connect]) assert.ok(r.visible && r.bottom <= viewport.height - 24, `${viewport.width}: path visible on first screen with margin (bottom ${r.bottom})`);
       assert.equal(Math.round(explore.top), Math.round(connect.top));
       assert.equal(Math.round(explore.height), Math.round(connect.height));
       assert.ok(explore.top >= h1.bottom && explore.top - h1.bottom < 40, `${viewport.width}: chooser follows the headline`);

@@ -1,6 +1,7 @@
 """The homepage's two equally weighted paths (issue #53): copy, link targets and layout."""
 
 import importlib.util
+import os
 import re
 import shutil
 import subprocess
@@ -131,8 +132,10 @@ def _playwright_available():
 
 def test_homepage_in_a_browser(site):
     """Layouts at 320/375px and desktop, keyboard order, CTA targets, consent and loading/empty states."""
+    required = os.environ.get("SRP_REQUIRE_BROWSER") == "1"  # CI: a missing browser is a failure
     node = _playwright_available()
     if not node:
+        assert not required, "Node.js with Playwright is required (SRP_REQUIRE_BROWSER=1)"
         pytest.skip("Node.js with Playwright is not available")
     handler = partial(QuietHandler, directory=str(site))
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
@@ -145,5 +148,6 @@ def test_homepage_in_a_browser(site):
     finally:
         server.shutdown()
     if result.returncode == 77:
+        assert not required, f"No usable Chromium: {result.stderr.strip()[:200]}"
         pytest.skip(f"No usable Chromium: {result.stderr.strip()[:200]}")
     assert result.returncode == 0, result.stdout + result.stderr

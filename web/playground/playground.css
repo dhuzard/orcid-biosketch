@@ -179,9 +179,11 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3vw,2.1rem)
 
 @media (max-width:760px){
   .network-teaser{grid-template-columns:1fr;padding:24px}
-  .hero{padding:24px 0 16px}
-  .paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0 0}
-  .path{display:flex;flex-direction:column;justify-content:center;min-height:56px;border:1px solid var(--brand);border-radius:12px;padding:10px 12px;background:var(--white);font-weight:700;text-decoration:none;line-height:1.25}
+  /* Keep both path buttons on a 320×568 first screen, with room for taller system fonts. */
+  .hero{padding:16px 0 12px}
+  .hero h1{font-size:1.75rem;margin:.2em 0}
+  .paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 0}
+  .path{display:flex;flex-direction:column;justify-content:center;min-height:48px;border:1px solid var(--brand);border-radius:12px;padding:8px 12px;background:var(--white);font-weight:700;text-decoration:none;line-height:1.25}
   .path span{font-weight:400;font-size:.8rem;color:var(--muted);margin-top:2px}
   .tracks{grid-template-columns:1fr;gap:16px;margin-top:16px}
   .track{padding:18px}
@@ -189,4 +191,15 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3vw,2.1rem)
   .track>.eyebrow,.track>h2{padding-right:0}
   .lookup{flex-direction:column}
   .result{padding:16px}
+}
+
+/* Narrowest phones: the shared header is tall, so the hero drops secondary text and moves the
+   Publish-or-Play line below the path chooser to keep both paths on the first screen. */
+@media (max-width:360px){
+  .hero{padding-top:12px;display:flex;flex-direction:column}
+  .hero>*{order:2}
+  .hero>h1,.hero>.paths{order:0}
+  .hero>.eyebrow{order:1;margin-top:12px}
+  .hero h1{font-size:1.6rem}
+  .hero .eyebrow-more,.path span{display:none}
 }
