@@ -260,7 +260,8 @@ async function load(op, args, label) {
 
 function explore(orcid) {
   $('#orcid').value = orcid;
-  history.replaceState(null, '', `?orcid=${encodeURIComponent(orcid)}`);
+  // Keep the validated way back to My Network, so it survives a refresh of the result.
+  history.replaceState(null, '', `?orcid=${encodeURIComponent(orcid)}${backTo ? `&from=${backTo}` : ''}`);
   load('profile', { orcid }, `Reading the public ORCID record for ${orcid}…`);
 }
 

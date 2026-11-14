@@ -1219,7 +1219,8 @@ async function confirmHandoff() {
   const note = h.note.trim();
   const newGroup = !contact && (!h.groupId || !state.groups.some(g => g.id === h.groupId));
   if (newGroup && !h.groupName.trim()) { h.error = 'Name the new group, or choose an existing one.'; h.status = 'error'; render(); document.querySelector('#handoff-group-name')?.focus(); return; }
-  busy = true; h.status = 'busy'; h.error = ''; render();
+  // started: once a save has begun, the panel keeps its form (and any error) until it is done or cancelled.
+  busy = true; h.status = 'busy'; h.error = ''; h.started = true; render();
   let imported = false;
   try {
     let person = knownPerson(state, h.id);
@@ -1235,7 +1236,9 @@ async function confirmHandoff() {
       await postState('/api/contacts/tags', { person_ids: [person.id], add: tagName ? [tagName] : [], met_on: h.met || '' });
       if (note) await postState('/api/contacts/notes', { person_id: person.id, text: note });
       busy = false;
-      closeHandoff('#contacts', `${person.name} saved as a contact${imported ? ' from their public ORCID record' : ''}. Not followed: choose Follow in People if you want their new outputs in your Feed.`);
+      const following = state.people.find(p => p.id === person.id)?.following;
+      closeHandoff('#contacts', `${person.name} saved as a contact${imported ? ' from their public ORCID record' : ''}. `
+        + (following ? 'You already follow them; that is unchanged.' : 'Not followed: choose Follow in People if you want their new outputs in your Feed.'));
       const card = document.getElementById(`contact-${person.id}`);
       card?.scrollIntoView({ block: 'center' });
       card?.focus();
@@ -1284,7 +1287,7 @@ function handoffPanel() {
   }
   const person = knownPerson(state, h.id);
   const name = person ? `${person.name} (${h.id})` : h.id;
-  if (contact && person && state.contacts?.[person.id]) {
+  if (contact && person && state.contacts?.[person.id] && !h.started) {
     return wrap(el('p', {}, `${name} is already one of your contacts. Nothing new was saved, so there is no duplicate.`),
       el('div', { class: 'card-actions' },
         button('Open their contact card', () => {

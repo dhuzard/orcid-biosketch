@@ -97,7 +97,18 @@ if (handoff || sample) {
   const ready = setup().then(async wanted => {
     if (!wanted) return;
     const response = await direct(wanted[0], { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(wanted[1]) });
-    if (response.ok) return;
+    if (response.ok) {
+      // Follow means follow: an import keeps an existing preference (e.g. someone saved as a contact
+      // without following), so set it explicitly after the confirmed import.
+      if (!handoff) return;
+      const state = await response.json();
+      const id = handoff.trim().replace(/^https?:\/\/(?:www\.)?orcid\.org\//i, '').replace(/\/$/, '').toUpperCase();
+      const person = state.people.find(p => p.orcid === id);
+      if (person && !person.following) {
+        await direct('/api/follow', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: person.id, following: true }) });
+      }
+      return;
+    }
     const { error } = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
     alert(handoff ? `Could not add ${handoff}: ${error}` : `Could not load the sample data: ${error}`);
   }).catch(() => {});
