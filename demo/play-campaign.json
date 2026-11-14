@@ -40,11 +40,15 @@
   "hide_selectors": [
     "#result ~ *",
     ".result-actions",
+    ".next",
+    ".keep",
     "#me",
     "[data-guide]",
     ".guide",
     ".onboarding",
-    "#account"
+    "#account",
+    "#explore-guide",
+    "#r-back"
   ],
   "sample_label": "Stored demo profile · local build",
   "coauthor_mask": {

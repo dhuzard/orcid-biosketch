@@ -79,7 +79,16 @@ def test_tabs_exist_and_the_unmerged_bridge_and_guides_are_not_captured():
     assert {"Profile", "Trading card", "Heatmap", "Wrapped", "Record check", "Citations & data"} <= tabs
     used = {a["tab"] for _, s in SEGMENTS for a in s.get("actions", []) if "tab" in a}
     assert used <= tabs
-    assert ".result-actions" in COMPOSITION["hide_selectors"]  # holds the "Add to my research network" bridge
+    # The Studio → My Network bridge and first-run guide (#56, PR #66) stay out of the footage.
+    hidden = set(COMPOSITION["hide_selectors"])
+    assert {".result-actions", ".keep", ".next", "#explore-guide", "#r-back"} <= hidden
+    index_html = (ROOT / "web/playground/index.html").read_text(encoding="utf-8")
+    for marker in ('id="to-network"', 'id="to-contact"', 'id="to-group"'):
+        if marker in index_html:  # each bridge link sits inside a hidden container
+            before = index_html[:index_html.index(marker)]
+            assert before.rfind('class="result-actions"') > before.rfind("</div>")
+    if 'class="next"' in index_html:
+        assert ".next" in hidden
     assert "#me" in COMPOSITION["hide_selectors"]
     actions = json.dumps([s.get("actions", []) for _, s in SEGMENTS]).lower()
     clicks = [a["click"] for _, s in SEGMENTS for a in s.get("actions", []) if "click" in a]
