@@ -41,6 +41,11 @@ jobs:
         env:
           NODE_PATH: demo/node_modules
           SRP_REQUIRE_BROWSER: "1"
+      # Dual-path homepage: layouts, keyboard order, consent and loading states (#53).
+      - run: pytest -q tests/test_homepage.py -rs
+        env:
+          NODE_PATH: demo/node_modules
+          SRP_REQUIRE_BROWSER: "1"
 
   rules:
     # Firestore security rules for private team workspaces, in the emulator.

@@ -38,7 +38,21 @@ button{cursor:pointer}
 .account .button{background:var(--accent);color:var(--brand)}
 
 main{max-width:1120px;margin:0 auto;padding:0 16px}
-.hero{padding:56px 0 32px}
+.hero{padding:40px 0 24px}
+.hero .lede{margin:.4em 0 0}
+/* Two equally weighted journeys (issue #53). The path chooser only shows on small screens,
+   where the second track would otherwise start below the first screen. */
+.paths{display:none}
+.tracks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0 16px}
+.track{position:relative;background:var(--white);border:1px solid var(--line);border-top:4px solid var(--brand);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;scroll-margin-top:16px;min-width:0}
+.track h2{margin:.1em 0 .3em}
+.track p{margin:0 0 8px}
+.track .lookup{margin:12px 0 10px;max-width:none}
+.track .result-actions{margin:12px 0 16px}
+.track .status{margin:4px 0 8px}
+.track-preview{position:absolute;top:20px;right:24px;width:160px;height:72px}
+.track>.eyebrow,.track>h2{padding-right:176px}
+.track-note{font-size:.85rem;color:var(--muted);margin-top:auto !important;padding-top:12px;border-top:1px solid var(--line)}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(2rem,5vw,3.4rem);line-height:1.1;margin:.3em 0}
 h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3vw,2.1rem);margin:.2em 0}
 .lede{font-size:1.1rem;max-width:720px}
@@ -165,6 +179,14 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3vw,2.1rem)
 
 @media (max-width:760px){
   .network-teaser{grid-template-columns:1fr;padding:24px}
+  .hero{padding:24px 0 16px}
+  .paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0 0}
+  .path{display:flex;flex-direction:column;justify-content:center;min-height:56px;border:1px solid var(--brand);border-radius:12px;padding:10px 12px;background:var(--white);font-weight:700;text-decoration:none;line-height:1.25}
+  .path span{font-weight:400;font-size:.8rem;color:var(--muted);margin-top:2px}
+  .tracks{grid-template-columns:1fr;gap:16px;margin-top:16px}
+  .track{padding:18px}
+  .track-preview{position:static;display:block;width:120px;height:54px;margin:0 0 8px}
+  .track>.eyebrow,.track>h2{padding-right:0}
   .lookup{flex-direction:column}
   .result{padding:16px}
 }
