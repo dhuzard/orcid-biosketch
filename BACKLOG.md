@@ -959,7 +959,7 @@ imported person, so removing someone's tags did not remove them from the list.
 - **Priority** P1 · **Status** in-progress · **Owner** session
 - **Scope** README first screen: homepage headline, Publish or Play tagline, equal Explore & Play / Connect & Organize pathways with live CTAs, exact ORCID disclaimer, one Quick Start per path, availability matrix (live web / browser-local / local Python / experimental cloud / planned) distinguishing local Groups, Public Group View links and private cloud Teams. Docs `index`, `getting-started`, `research-network`, `faq`, `trust`, `feedback`, video storyboard and demo README aligned; PR #31 described as merged; no unscoped "works offline" claim.
 - **Evidence** `tests/test_readme.py` (README CTAs resolve to routes in the built site, canonical host/repo only, headline matches the homepage, no published-video link); Sphinx `-n -W`; `tests/test_claims.py`, `tests/test_navigation.py`.
-- [x] Explore → Contact → Group tutorials (`docs/source/tutorials.md`) written against #56 at PR #66 head `a32226c`; must merge after #66.
+- [x] Explore → Contact → Group tutorials (`docs/source/tutorials.md`) written against #56 at PR #66 head `9902c71`; must merge after #66.
 - [ ] Human check: a new user finds the right guide in two clicks; tutorials reproduced on the live site.
 
 ## Change log
