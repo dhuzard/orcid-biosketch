@@ -147,6 +147,7 @@ def test_drafts_are_marked_unpublished_and_blocked():
     checklist = (DRAFTS / "review-checklist-DRAFT.md").read_text(encoding="utf-8")
     assert "_not signed_" in checklist and "[x]" not in checklist.lower()
     assert "hosted" in checklist
+    assert "**Blocking:** co-author names" in checklist
 
 
 def _cues(path, sep):
