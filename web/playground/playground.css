@@ -19,9 +19,21 @@ button{cursor:pointer}
 .brand-owner{font-weight:400;font-size:.74rem;opacity:.85}
 .independence{background:var(--accent);color:var(--brand);font-size:.86rem;padding:8px max(16px,calc((100% - 1120px)/2));margin:0}
 .independence a{color:var(--brand);font-weight:600}
-.site-header nav{display:flex;gap:6px 18px;flex:1;flex-wrap:wrap;justify-content:flex-end}
-.site-header nav a{white-space:nowrap}
-.site-header nav a{opacity:.8}.site-header nav a[aria-current],.site-header nav a:hover{opacity:1;text-decoration:underline}
+/* One SRP menu on every page (#54): same items, same selected-route cue, same focus ring. */
+.site-header nav{display:flex;gap:4px 6px;flex:1;flex-wrap:wrap;justify-content:flex-end}
+.site-header nav a{display:flex;flex-direction:column;justify-content:center;min-height:44px;padding:4px 10px;border-radius:10px;border-bottom:3px solid transparent;white-space:nowrap;line-height:1.2;opacity:.85}
+.site-header nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.site-header nav a[aria-current="page"]{opacity:1;background:rgba(255,255,255,.14);border-bottom-color:var(--accent);font-weight:700}
+.nav-hint{font-size:.68rem;font-weight:400;opacity:.8}
+.site-header .brand-owner{max-width:22rem}
+.site-header :focus-visible{outline-color:var(--accent)}
+.experimental{background:var(--soft);color:var(--ink);border-left:6px solid var(--brand);font-size:.92rem;padding:10px max(16px,calc((100% - 1120px)/2));margin:0}
+@media (max-width:720px){
+  .site-header{gap:10px;padding-top:10px;padding-bottom:6px}
+  .site-header nav{flex-basis:100%;justify-content:flex-start;gap:4px}
+  .site-header nav a{flex:1 1 auto;align-items:center;text-align:center;padding:4px 8px;font-size:.9rem}
+  .nav-hint{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+}
 .account{display:flex;gap:8px;align-items:center;font-size:.9rem}
 .account .button{background:var(--accent);color:var(--brand)}
 
@@ -144,6 +156,8 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3vw,2.1rem)
 .packages summary{cursor:pointer;display:flex;flex-direction:column;gap:4px}
 .packages h3{margin:24px 0 8px}
 .stack select,.stack input[type=file]{font-weight:400;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--white)}
+/* Long option labels must not push forms wider than a 320px screen (#54). */
+.stack>*,.stack label>*{min-width:0;max-width:100%}
 .table-scroll{overflow-x:auto;margin:12px 0}
 .table-scroll td{vertical-align:top;overflow-wrap:anywhere;min-width:90px}
 
@@ -152,7 +166,5 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3vw,2.1rem)
 @media (max-width:760px){
   .network-teaser{grid-template-columns:1fr;padding:24px}
   .lookup{flex-direction:column}
-  .site-header{gap:12px}
-  .site-header nav{flex:1 1 100%;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding-bottom:4px}
   .result{padding:16px}
 }

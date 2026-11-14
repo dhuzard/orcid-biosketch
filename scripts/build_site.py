@@ -87,9 +87,8 @@ NETWORK_PAGE = [
      '<label><input id="sync-auto" type="checkbox"> Save automatically after changes</label><br>'
      '<button id="sync-delete" class="button quiet small" type="button">Delete my saved copy</button>'
      '<p id="sync-status" class="sync-status"></p></div>'
-     '<br><a href="/team/">Private team workspaces →</a>'
-     '<br><a href="/group/?packages=1">Encrypted team packages →</a>'
-     '<br><a href="/">← Back to the Studio</a>'),
+     '<br><a href="/group/?packages=1">Hand a group to a teammate (encrypted file) →</a>'
+     '<br><a href="/">← Back to Explore</a>'),
     ("01 / LOCAL", "01 / BROWSER"),
 ]
 

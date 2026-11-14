@@ -17,6 +17,31 @@ jobs:
       - run: pytest -q
       - run: node --test web/srp-biosketch.test.mjs web/srp-group.test.mjs web/rename-compat.test.mjs web/network/app.test.mjs web/playground/digest.test.mjs web/playground/auth.test.mjs web/playground/teampack.test.mjs web/playground/feedback.test.mjs
 
+  browser:
+    # Shared navigation, deep links and 320px layout in Chromium, on the built site (#54).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: pip install -e ".[dev]"
+      - run: |
+          npm --prefix demo install --ignore-scripts --no-audit --no-fund
+          ./demo/node_modules/.bin/playwright install --with-deps chromium
+      - uses: actions/cache@v4
+        with:
+          path: .cache/pyodide-0.26.4
+          key: pyodide-0.26.4-verified-runtime
+      - run: python scripts/build_site.py site
+      - run: node --test web/navigation.browser.test.mjs
+        env:
+          NODE_PATH: demo/node_modules
+          SRP_REQUIRE_BROWSER: "1"
+
   rules:
     # Firestore security rules for private team workspaces, in the emulator.
     runs-on: ubuntu-latest

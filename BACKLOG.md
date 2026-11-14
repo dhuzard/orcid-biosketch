@@ -932,6 +932,14 @@ imported person, so removing someone's tags did not remove them from the list.
 - **New names** distribution `science-record-player` 0.3.0, import `science_record_player`, commands `srp` / `science-record-player` / `srp-network`, widgets `<srp-biosketch>` / `<srp-group>` (`srp-*.js`). Deprecated aliases: `orcid_biosketch` (shim package returning the same module objects, with a DeprecationWarning), `orcid-biosketch` / `orcid-network` (print a notice), `<orcid-biosketch>` / `<orcid-group>` tags and `orcid-*.js` files, and `--orcid-group-*` CSS variables as fallbacks. Data-format identifiers (`orcid-group-snapshot/1`, `orcid-playground-workspace`, …) are unchanged. Tests: `tests/test_rename_compat.py`, `web/rename-compat.test.mjs`.
 - **Why** `orcid_biosketch`, `orcid-biosketch`, `<orcid-biosketch>` and `<orcid-group>` also lead with ORCID. Renaming breaks imports and embeds, so add new names with deprecated aliases and a documented deprecation cycle after INF-13.
 
+## NAV-01 — One SRP navigation and brand across the app (#54)
+
+- **Priority** P0 · **Status** in-review · **Owner** session
+- **Menu** Explore (`/`) · My Network (`/network/`, sections Feed / People / Contacts / Groups / Saved) · Public Group View (`/group/`) · How it works (`/docs/`) · Feedback (`/feedback/`), with the same brand, ownership line, selected-route cue (`aria-current="page"`), focus ring and 320px layout on Studio, Network, Group, Feedback, Teams and the docs announcement bar. The network page's separate "Research in good company / THE RESEARCH COMMONS / LOCAL PILOT" identity is replaced by the SRP brand.
+- **Teams** Private cloud Teams have no menu entry and are no longer linked from My Network; `/team/` stays reachable directly and says it is experimental and not available. Storage keys, backup formats and import behaviour are unchanged.
+- **Evidence** `tests/test_navigation.py`; `web/navigation.browser.test.mjs` (Chromium: menu and brand on every page, no dead links, keyboard order and focus ring, 320px, `#feed`/`#people`/`#contacts`/`#groups`/`#saved`, `?sample=1#groups`, `/group/`, `/group/#v1.…`, `/group/?packages=1`), run by the CI `browser` job.
+- **Open** a small user test of the menu labels; merge and check on the live site.
+
 ## Change log
 
 Append-only. Newest entries at the bottom. One line per status or scope change.
@@ -1025,3 +1033,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-10 | INF-13 | #48 merged; science-record-player.web.app live. Owner chose to retire the old address: legacy deploy target and forwarder removed; default site to be disabled | scope |
 | 2026-11-10 | INF-13 | Old address disabled by the owner; GitHub repository renamed to dhuzard/science-record-player and links updated | scope |
 | 2026-11-10 | INF-14 | Package, CLI and widgets renamed with deprecated aliases | planned → in-review |
+| 2026-11-14 | NAV-01 | Shared SRP menu and brand on every page, network page rebranded, cloud Teams removed from navigation and labelled experimental; regression tests for deep links, keyboard and 320px (#54) | — → in-review |
