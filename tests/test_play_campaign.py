@@ -3,9 +3,12 @@
 The composition in demo/play-campaign.json drives demo/play-campaign.mjs. These checks need no browser or
 ffmpeg: they hold the script to the issue's storyboard and to the claim rules of communications/claims-privacy-audit.md.
 """
+import hashlib
 import importlib.util
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -191,3 +194,73 @@ def test_provenance_claims_are_limited_to_the_biosketch_json():
         for m in re.finditer(r"per-field provenance", text):
             sentence = re.split(r"(?<=[.;])\s", text[:m.start()])[-1]
             assert "Biosketch JSON" in sentence, sentence
+
+
+# ---- Co-author masking (capture layer only) ----
+
+_mspec = importlib.util.spec_from_file_location("coauthor_mask", ROOT / "demo" / "coauthor_mask.py")
+coauthor_mask = importlib.util.module_from_spec(_mspec)
+_mspec.loader.exec_module(coauthor_mask)
+STORED = ROOT / "generated" / "biosketch.json"
+
+
+def _third_party(bio):
+    family = bio["person"]["family_name"].lower()
+    return {a["name"] for w in bio["works"] for a in (w.get("authors") or []) if family not in a["name"].lower()}
+
+
+def test_masking_is_on_by_default_and_needs_an_explicit_flag_to_unmask():
+    mask = COMPOSITION["coauthor_mask"]
+    assert mask["default"] is True and mask["opt_out_flag"] == "--show-coauthor-names"
+    assert "co-author names masked" in mask["label_masked"]
+    script = (ROOT / "demo" / "play-campaign.mjs").read_text(encoding="utf-8")
+    assert "const showNames = args.includes(COMPOSITION.coauthor_mask.opt_out_flag);" in script
+    assert "const maskOn = COMPOSITION.coauthor_mask.default && !showNames;" in script
+    assert "if (maskOn) await p.route('**/generated/biosketch.json'" in script
+    assert "coauthor_masking: { enabled: maskOn, masked_names: maskedNames" in script
+    checklist = (DRAFTS / "review-checklist-DRAFT.md").read_text(encoding="utf-8")
+    assert "--show-coauthor-names" in checklist and "written consent" in checklist
+    for name in ("transcript-DRAFT.md", "play-campaign-DRAFT.vtt", "play-walkthrough-DRAFT.vtt"):
+        assert "masked" in (DRAFTS / name).read_text(encoding="utf-8")
+
+
+def test_mask_hides_every_third_party_name_on_screen_without_touching_the_stored_profile(tmp_path):
+    from science_record_player import fun, playground
+
+    raw = STORED.read_bytes()
+    bio = json.loads(raw)
+    original = json.loads(raw)
+    masked, count = coauthor_mask.mask_biosketch(bio)
+    assert bio == original  # input object not mutated
+    names = _third_party(original)
+    assert count == len({n.lower() for n in names}) > 0
+    out = playground.outputs(masked)
+    screens = [masked["person"]["biography"], out["card_svg"], out["heatmap_svg"], out["wrapped_text"],
+               fun.fortune(masked, 1), json.dumps(out["lint"], ensure_ascii=False), *out["templates"].values()]
+    tokens = {t for n in names for t in re.findall(r"[A-ZÀ-Ý][\w\-À-ÿ]{3,}", n)} - set(original["person"]["name"].split())
+    for text in screens:
+        assert not [n for n in names if n in text]
+        assert not [t for t in tokens if re.search(rf"\b{re.escape(t)}\b", text)]
+    assert "Co-author 1" in out["wrapped_text"]
+    # Same structure as the unmasked record: the mask renames, it does not change counts or scores.
+    before = playground.outputs(original)
+    assert out["wrapped"]["totals"] == before["wrapped"]["totals"]
+    assert len(out["wrapped"].get("first_time_coauthors", [])) == len(before["wrapped"].get("first_time_coauthors", []))
+    assert out["lint"]["percentage"] == before["lint"]["percentage"]
+    assert original["person"]["name"] in out["wrapped_text"]  # the owner is never masked
+    # The command-line entry the renderer calls leaves the file byte-identical.
+    copy = tmp_path / "biosketch.json"
+    copy.write_bytes(raw)
+    digest = hashlib.sha256(raw).hexdigest()
+    result = subprocess.run([sys.executable, str(ROOT / "demo" / "coauthor_mask.py"), str(copy)],
+                            capture_output=True, check=True)
+    assert hashlib.sha256(copy.read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(STORED.read_bytes()).hexdigest() == digest
+    payload = json.loads(result.stdout.decode("utf-8"))
+    assert payload["masked_names"] == count and payload["biosketch"] == masked
+
+
+def test_manifest_checks_the_stored_profile_hash_after_rendering():
+    script = (ROOT / "demo" / "play-campaign.mjs").read_text(encoding="utf-8")
+    assert "unchanged_after_render = sha256(servedSample) === sampleHashBefore" in script
+    assert "throw new Error('the stored profile changed during the render')" in script

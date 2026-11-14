@@ -12,7 +12,9 @@
 | Every caption matches the UI at that commit (tab names, export formats, draft wording on Funder biosketch) | | [ ] |
 | Stored profile is labelled on screen: “stored, offline” chip in the profile segment and the “Stored demo profile · local build” tag on every Studio caption | | [ ] |
 | Only the maintainer's stored public profile appears, and the maintainer consents to its use in this video | | [ ] |
-| **Blocking:** co-author names visible in the Wrapped tab ("First time together") come from that public record; the owner accepts showing them, or the segment is re-cut to avoid them | | [ ] |
+| **Blocking:** co-author names are masked: manifest `coauthor_masking.enabled: true`, and no real third-party name is visible in the profile biography, Wrapped (“First time together”) or Funder biosketch frames; the “co-author names masked” tag is on every Studio caption | | [ ] |
+| **Blocking:** if any cut was rendered with `--show-coauthor-names` (unmasked), the owner has given written consent to show those names; otherwise that cut is not used | | [ ] |
+| Stored profile unchanged by the render: manifest `captured_site.sample.unchanged_after_render: true` | | [ ] |
 | No invented numbers: every figure on screen is the app's own output for that record | | [ ] |
 | No caption equates output counts with quality, impact or merit | | [ ] |
 | Not shown: the Studio → network bridge, first-run guides, sign-in, cloud Teams/sync, contacts or notes, browser chrome, e-mail addresses, tokens | | [ ] |

@@ -47,6 +47,13 @@
     "#account"
   ],
   "sample_label": "Stored demo profile · local build",
+  "coauthor_mask": {
+    "_comment": "On by default for every cut. Third-party author names are replaced with 'Co-author N' in the copy of the stored profile served to the filmed browser (demo/coauthor_mask.py). The stored file, the engine, exports for normal visitors and the ORCID record are not changed. Unmasked footage needs --show-coauthor-names and owner consent (review checklist).",
+    "default": true,
+    "placeholder": "Co-author N",
+    "opt_out_flag": "--show-coauthor-names",
+    "label_masked": "Stored demo profile · local build · co-author names masked"
+  },
   "variants": {
     "play-campaign": {
       "title": "Explore & Play — LinkedIn cut",

@@ -11,6 +11,8 @@ the renderer can mix one in only if a file is passed explicitly (`--narration=`,
 
 **Data on screen:** The stored demonstration profile served with the built site (generated/biosketch.json), shown with its on-screen 'stored, offline' label. No live ORCID API call is made.
 
+**Co-author names:** masked by default. Every third-party author name is shown as “Co-author N”, and each Studio caption carries the tag “Stored demo profile · local build · co-author names masked”. The stored profile itself is not changed. Unmasked footage needs `--show-coauthor-names` and the owner's consent.
+
 ## Explore & Play — LinkedIn cut (`play-campaign`, 42 s, square + landscape)
 
 | Time | Segment | On screen | Caption |

@@ -17,6 +17,7 @@ Everything is re-expressed from what the public record asserts. The playful outp
 measure of quality, impact or merit, and they do not verify identity, authorship or affiliations.
 
 The video uses a stored copy of the maintainer's public record, labelled on screen, recorded from a local build.
+Co-author names are masked in the footage.
 
 Open source, no account needed to explore public records: science-record-player.web.app
 

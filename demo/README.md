@@ -74,6 +74,8 @@ approved for publication**: blocked by #44 and Release B in `communications/rele
 Screens are the Studio on the stored profile (labelled on screen); each named segment is cut to its exact planned
 length from one continuous take. The Studio → network bridge and first-run guides are hidden. The cuts are silent with
 burned-in captions; `--narration=<file>` / `--music=<file>` add an optional audio version, and no audio file is included.
+Co-author names are masked by default (`demo/coauthor_mask.py` serves the filmed browser a masked copy of the stored
+profile; the file itself is not changed). `--show-coauthor-names` turns this off and needs the owner's consent.
 `node demo/play-campaign.mjs --text-only` rewrites only the caption files and transcript
 (`communications/video-drafts/`). In the manual workflow, tick the `play_campaign` input.
 

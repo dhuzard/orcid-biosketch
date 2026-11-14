@@ -16,6 +16,12 @@
 [`demo/play-campaign.json`](../../demo/play-campaign.json). Edit the JSON and regenerate; `tests/test_play_campaign.py`
 fails if the caption files drift from it or break the claim rules in [`../claims-privacy-audit.md`](../claims-privacy-audit.md).
 
+**Co-author names:** masked by default in every cut. The renderer serves the filmed browser a masked copy of the
+stored profile (`demo/coauthor_mask.py`), so third-party author names read “Co-author N” in the biography, Wrapped
+and Funder biosketch screens, and each Studio caption says “co-author names masked”. The stored file, the Studio
+engine, exports for normal visitors and the ORCID record are not changed. `--show-coauthor-names` renders unmasked
+footage and needs the owner's written consent (review checklist).
+
 **Audio:** the videos are silent with burned-in captions. No narration or music exists in this repository. The
 renderer can mix in a narration or music file only when one is passed explicitly (`--narration=`, `--music=`); any
 music must be original or licensed, and its licence recorded here before use.
