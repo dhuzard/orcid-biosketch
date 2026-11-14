@@ -365,6 +365,10 @@ const checks = {
       assert.ok(Object.keys(files).length >= 3, Object.keys(files).join(', '));
       assert.match(everything, /Ada Rivera/);
       for (const secret of ['shared atlas privately', 'staining protocol', 'FENS 2026']) assert.ok(!everything.includes(secret), `team pack holds "${secret}"`);
+      // The last guide step shows Done straight after the download, without a reload, and focus stays put.
+      await page.locator('#guide .guide-steps li.done', { hasText: 'Download the group’s team pack' }).waitFor();
+      assert.equal(await page.locator('#guide .guide-steps li.done').count(), 7);
+      assert.match(await page.evaluate(() => document.activeElement?.textContent || ''), /Download team pack/);
 
       // The guide reflects every step, and survives a refresh.
       await page.reload();

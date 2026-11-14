@@ -894,6 +894,7 @@ function renderTeamPack(view, group) {
       document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
       guideMemory = { ...guideMemory, pack: true };
       remember('srp-network-guide', guideMemory);
+      renderGuide();
       notice('Team pack downloaded with your selected scope and filters. It holds no contact tags, notes or follow-ups.');
     } catch (failure) { error.textContent = failure.message || 'Could not reach the server. Please try again.'; }
     finally { submit.disabled = busy || bulkRunning; submit.textContent = '↓ Download team pack'; }
@@ -1356,6 +1357,22 @@ const headings = {
   saved: ['GOOD WORK, KEPT CLOSE', 'Your next good read.', 'A personal collection of papers, datasets, and ideas worth returning to.']
 };
 
+// The guide (or a pending handoff) above the view. Redrawn on its own after a team-pack download,
+// so focus stays on the download button.
+function renderGuide() {
+  const guide = document.querySelector('#guide');
+  if (guide) {
+    guide.replaceChildren(...[handoff ? handoffPanel() : !guideMemory.hidden && guidePanel()].filter(Boolean));
+    const toggle = document.querySelector('#guide-toggle');
+    if (toggle) {
+      // The guide steps aside while a handoff waits for an answer; the toggle says so.
+      toggle.setAttribute('aria-expanded', String(!guideMemory.hidden && !handoff));
+      toggle.disabled = Boolean(handoff);
+      toggle.title = handoff ? 'Answer or cancel the pending question first' : '';
+    }
+  }
+}
+
 function render() {
   if (!loaded) return;
   // Controls marked data-focus keep keyboard focus when the view is rebuilt around them.
@@ -1373,20 +1390,10 @@ function render() {
   banner.hidden = !state.people.some(p => p.demo);
   banner.replaceChildren(el('span', {}, 'Sample workspace: illustrative people, outputs and groups are labelled “Demo”. Your own imports stay separate. '),
     button('Remove sample data', removeSample, 'quiet small'));
-  const guide = document.querySelector('#guide');
-  if (guide) {
-    guide.replaceChildren(...[handoff ? handoffPanel() : !guideMemory.hidden && guidePanel()].filter(Boolean));
-    const toggle = document.querySelector('#guide-toggle');
-    if (toggle) {
-      // The guide steps aside while a handoff waits for an answer; the toggle says so.
-      toggle.setAttribute('aria-expanded', String(!guideMemory.hidden && !handoff));
-      toggle.disabled = Boolean(handoff);
-      toggle.title = handoff ? 'Answer or cancel the pending question first' : '';
-    }
-    if (handoff?.focus) {
-      handoff.focus = false;
-      document.querySelector('#handoff-title')?.focus();
-    }
+  renderGuide();
+  if (handoff?.focus) {
+    handoff.focus = false;
+    document.querySelector('#handoff-title')?.focus();
   }
   document.querySelector('#summary').replaceChildren(...[[followed, 'researchers followed'], [state.works.length, 'research outputs'], [state.groups.length, 'working groups']].map(([count, label]) => el('div', { class: 'stat' }, el('strong', {}, count), el('span', {}, label))));
   const view = document.querySelector('#view');
