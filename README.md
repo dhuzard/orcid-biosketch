@@ -54,7 +54,7 @@ Before investing time in notes, download a **workspace backup** (it contains you
 | Optional ORCID sign-in | Live public web app (not re-checked on the current hostname) | Tab-scoped session state |
 | Python package, `srp` CLI, local SQLite network pilot, Web Components | Local Python pilot / self-hosted | Your local files |
 | **Private cloud Teams** and personal cloud sync | **Experimental — not available.** Not yet confirmed active on the public site | Would use an EU cloud database if activated; code and emulator tests exist, no production test or security review recorded |
-| Guided first-run journeys and Explore → My Network handoffs (Save as contact, Add to group) | Added by #56 ([PR #66](https://github.com/dhuzard/science-record-player/pull/66), which merges before this documentation); not verified on the live site | This browser, after you confirm each import |
+| Guided first-run journeys and Explore → My Network handoffs (Save as contact, Add to group) | Added by #56, merged via [PR #66](https://github.com/dhuzard/science-record-player/pull/66) (merge `783a286`); not verified on the live site | This browser, after you confirm each import |
 | Published demo video | Planned; no video published yet | — |
 
 “Live public web app” means the feature is deployed with the site; the [claims and privacy audit](communications/claims-privacy-audit.md) records that **no feature has yet been verified on the live deploy** and that public promotion is blocked until the [release checklist](communications/release-checklist.md) is signed. Studio and My Network never require private cloud Teams. See [Provenance, limits and privacy](docs/source/trust.md).

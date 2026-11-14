@@ -1,9 +1,9 @@
 # Five-minute tutorials
 
-```{admonition} Depends on #56
+```{admonition} Guided journeys from #56
 :class: important
 
-These two tutorials describe the guided first-run journeys and the Explore → My Network handoffs added by issue #56 ([PR #66](https://github.com/dhuzard/science-record-player/pull/66)). The labels follow that pull request at its reviewed head `9902c71` (14 November 2026). They have **not yet been checked on the live site**; if a label differs there, please [tell us](feedback.md). The [Get started](getting-started.md) steps do not depend on #56.
+These two tutorials describe the guided first-run journeys and the Explore → My Network handoffs added by issue #56, merged via [PR #66](https://github.com/dhuzard/science-record-player/pull/66) (merge `783a286`, 14 November 2026). They have **not yet been checked on the live site**; if a label differs there, please [tell us](feedback.md). The steps under “Explore & Play” and “Connect & Organize” in [Get started](getting-started.md) do not depend on #56.
 ```
 
 Both tutorials work without an account, a GitHub login or cloud Teams (which are not available). Each one says when something is read from ORCID and where your data ends up.

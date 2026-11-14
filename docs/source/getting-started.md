@@ -29,7 +29,7 @@
 
 ## Moving between the paths
 
-With the guided journeys from #56 ([PR #66](https://github.com/dhuzard/science-record-player/pull/66), not yet checked on the live site):
+With the guided journeys from #56 (merged via [PR #66](https://github.com/dhuzard/science-record-player/pull/66), merge `783a286`; not yet checked on the live site):
 
 - Under a profile in Explore, **Keep this researcher in My Network** offers **Save as contact**, **Add to group** or **Follow**. Each opens My Network with the iD filled in and asks before anything is read from ORCID or saved.
 - On contact, person and group-member cards in My Network, **Open in Explore →** opens the same record in Explore, which waits for you to press **Explore** and offers **← Back to My Network**.
