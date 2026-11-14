@@ -16,7 +16,7 @@ source_suffix = {".md": "markdown"}
 templates_path = []
 exclude_patterns = []
 html_theme = "furo"
-html_title = f"{BRAND['name']} | Documentation"
+html_title = f"{BRAND['name']} | How it works"
 html_show_sphinx = False
 html_logo = "../../brand/mark.svg"
 html_favicon = "../../brand/favicon.svg"
@@ -24,7 +24,10 @@ html_theme_options = {
     "source_repository": "https://github.com/dhuzard/science-record-player/",
     "source_branch": "main",
     "source_directory": "docs/source/",
-    "announcement": f"{BRAND['disclaimer']} Developed and maintained independently by {BRAND['owner']} under the {BRAND['license']} license.",
+    # The same Science Record Player menu as the app pages (#54); the docs are served at /docs/.
+    "announcement": (f"{BRAND['disclaimer']} Developed and maintained independently by {BRAND['owner']} under the {BRAND['license']} license."
+                     ' <nav aria-label="Science Record Player"><a href="/">Explore</a> · <a href="/network/">My Network</a> · '
+                     '<a href="/group/">Public Group View</a> · <a href="/docs/" aria-current="page">How it works</a> · <a href="/feedback/">Feedback</a></nav>'),
     # Muted pink / aubergine, distinct from ORCID's visual identity.
     "light_css_variables": {"color-brand-primary": "#3a2737", "color-brand-content": "#7a3d55", "color-announcement-background": "#e2b4c0", "color-announcement-text": "#3a2737"},
     "dark_css_variables": {"color-brand-primary": "#e2b4c0", "color-brand-content": "#e2b4c0", "color-announcement-background": "#3a2737", "color-announcement-text": "#f6e6eb"},

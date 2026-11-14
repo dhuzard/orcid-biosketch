@@ -4,23 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#3a2737">
+  <meta name="application-name" content="Science Record Player">
   <link rel="icon" href="data:,">
-  <title>Research network · Research, in good company</title>
+  <title>My Network · Science Record Player</title>
   <link rel="stylesheet" href="/style.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <aside class="sidebar">
-    <a href="#feed" class="brand"><span class="brand-mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#e2b4c0"/><circle cx="28" cy="36" r="22" fill="#3a2737"/><circle cx="28" cy="36" r="18" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="14.5" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="9.5" fill="#e2b4c0"/><path d="M28 30.2C28.5 34 30 35.5 33.8 36 30 36.5 28.5 38 28 41.8 27.5 38 26 36.5 22.2 36 26 35.5 27.5 34 28 30.2Z" fill="#3a2737"/><circle cx="53" cy="11" r="4" fill="#3a2737"/><path d="M53 11 49 30 41.5 35" fill="none" stroke="#3a2737" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Research<br><strong>in good company.</strong></span></a>
-    <div class="workspace-label"><span class="status-dot"></span> LOCAL PILOT</div>
-    <nav aria-label="Main navigation" id="navigation"></nav>
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#e2b4c0"/><circle cx="28" cy="36" r="22" fill="#3a2737"/><circle cx="28" cy="36" r="18" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="14.5" fill="none" stroke="#e2b4c0" stroke-opacity=".3"/><circle cx="28" cy="36" r="9.5" fill="#e2b4c0"/><path d="M28 30.2C28.5 34 30 35.5 33.8 36 30 36.5 28.5 38 28 41.8 27.5 38 26 36.5 22.2 36 26 35.5 27.5 34 28 30.2Z" fill="#3a2737"/><circle cx="53" cy="11" r="4" fill="#3a2737"/><path d="M53 11 49 30 41.5 35" fill="none" stroke="#3a2737" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="brand-text"><strong>Science Record Player</strong><span class="brand-owner">Independent open-source project by Damien Huzard / Neuronautix · MIT license</span></span></a>
+    <div class="workspace-label" id="network-sections-label"><span class="status-dot"></span> MY NETWORK · LOCAL PILOT</div>
+    <nav aria-labelledby="network-sections-label" id="navigation"></nav>
     <div class="sidebar-note"><strong>Works with public ORCID records</strong><p>Your research circle, shared outputs, and a little less admin.</p><p>Independent open-source project by Damien Huzard / Neuronautix · MIT license.</p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site ↗</a></div>
     <div class="local-note">One local workspace.<br>No accounts or public profiles.</div>
   </aside>
   <div class="shell">
     <p class="independence" role="note"><strong>This is an independent open-source project and is not affiliated with, sponsored by, or endorsed by ORCID.</strong> By Damien Huzard / Neuronautix · MIT license.</p>
-    <header class="topbar"><span>THE RESEARCH COMMONS <span class="muted">/ PILOT</span></span><button id="demo" class="button quiet">Explore sample data</button></header>
+    <header class="topbar"><nav class="srp-nav" aria-label="Main"><a href="/"><span class="nav-label">Explore</span><span class="nav-hint">any public record</span></a><a href="/network/" aria-current="page"><span class="nav-label">My Network</span><span class="nav-hint">stored in this browser</span></a><a href="/group/"><span class="nav-label">Public Group View</span><span class="nav-hint">shareable link</span></a><a href="/docs/"><span class="nav-label">How it works</span></a><a href="/feedback/"><span class="nav-label">Feedback</span></a></nav><span class="local-title">MY NETWORK <span class="muted">· LOCAL PILOT</span></span><button id="demo" class="button quiet">Explore sample data</button></header>
     <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
     <main id="main" tabindex="-1">
       <section class="page-heading"><div><div class="eyebrow" id="eyebrow">YOUR RESEARCH CIRCLE</div><h1 id="title">The latest, together.</h1><p id="subtitle">A quieter way to keep up with the people behind the research.</p></div><span class="edition">EARLY ACCESS<br><b>01 / LOCAL</b></span></section>
