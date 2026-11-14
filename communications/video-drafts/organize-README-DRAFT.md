@@ -33,7 +33,7 @@ sample workspace, workspace backup files.
 renderer can mix in a narration or music file only when one is passed explicitly (`--narration=`, `--music=`); any
 music must be original or licensed, and its licence recorded here before use.
 
-The MP4s, thumbnails and the render manifest (commit SHA, date, measured durations, per-segment slack, blocked
-requests, team-pack check) are written to `demo/out/`, which is not committed. Render them with
+The MP4s, thumbnails and the render manifest (renderer commit, served build digest and whether it equals a fresh
+build of that commit, date, measured durations, per-segment slack, blocked requests, team-pack check) are written to `demo/out/`, which is not committed. Render them with
 `node demo/organize-campaign.mjs site` or the manual **Render scientist-facing demo videos** workflow (input
 `organize_campaign`, off by default).

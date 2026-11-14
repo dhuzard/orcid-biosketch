@@ -7,7 +7,7 @@
 
 | Check | Evidence (fill in) | OK |
 |---|---|---|
-| Rendered from the commit signed off in Release A, after PR #66 is merged (`commit` in `demo/out/organize-campaign-manifest.json`, `working_tree_clean: true`) | | [ ] |
+| Rendered from the commit signed off in Release A, after PR #66 is merged: in `demo/out/organize-campaign-manifest.json`, `renderer.commit` is that commit, `renderer.working_tree_clean: true` and `captured_site.matches_fresh_build_of_renderer_commit: true` (the filmed site equals a fresh build of that commit; record `captured_site.build_digest`). `synthetic_records.sha256` identifies the fictional people | | [ ] |
 | Measured durations match the plan: social cut 65 s (16:9 + square), walkthrough 150 s (manifest `measured_seconds`) | | [ ] |
 | **Storyboard/screenshot gate:** before watching, compare the manifest thumbnails and one frame per segment (`ffmpeg -ss <segment start + 3> -i <file> -frames:v 1 <png>`) with the segment table in `organize-transcript-DRAFT.md`; every frame shows the screen its row describes | | [ ] |
 | The full Contact → note → follow-up → Group → project output → team pack path is one **continuous** take in each cut (manifest `takes[].continuous_segments`), not stitched scenes | | [ ] |

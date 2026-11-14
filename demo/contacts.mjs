@@ -27,6 +27,13 @@ export const contactSteps = {
     await p.click('button:text-is("Preview list")'); await p.waitForTimeout(700);
     await p.click('button:text-is("Import & tag")');
     await p.waitForSelector('#notice:has-text("Finished")', { timeout: 90000 });
+    // "Finished" is also shown when an entry failed: every requested iD must have reached "done".
+    for (const id of list) {
+      if (await p.locator('.bulk-entry.done', { hasText: id }).count() !== 1) {
+        const status = await p.locator('.bulk-entry', { hasText: id }).first().innerText().catch(() => 'not listed');
+        throw new Error(`Import & tag did not complete for ${id}: ${status.replace(/\s+/g, ' ')}`);
+      }
+    }
     await p.getByLabel('ORCID list').evaluate(el => { el.closest('.editor').scrollIntoView({ block: 'start' }); window.scrollBy(0, 260); });
   },
   // The "Save as contact" confirmation that Explore opens (#56): context, date met, private note, then confirm.

@@ -42,7 +42,7 @@ the renderer can mix one in only if a file is passed explicitly (`--narration=`,
 | 1:26–1:42 | `group` | Groups: new local group from two contacts, created and opened | LOCAL GROUP · **Turn contacts into working groups.** · A group you curate in this browser. Curated membership/project attribution is not independently verified. |
 | 1:42–1:56 | `curate` | Group, Project outputs tab: two member outputs selected for the project | PROJECT OUTPUTS · **Choose what belongs to the project.** · Selecting an output records your decision. It does not change ORCID or confirm authorship. |
 | 1:56–2:10 | `export` | Group, Team pack tab: the team pack ZIP is downloaded | TEAM PACK · **Organize the science.** · Roster, bibliography and member biosketches in one file. Contact tags, notes and follow-ups are not included. |
-| 2:10–2:21 | `done` | Contacts opened from the sidebar: the guide again, every step marked done | ALL DONE · **Every step completed in the app.** · The team pack is a file on this device. You decide whether to share it. |
+| 2:10–2:21 | `done` | Back to the top of the page: the guide again, every step marked done | ALL DONE · **Every step completed in the app.** · The team pack is a file on this device. You decide whether to share it. |
 | 2:21–2:30 | `cta` | Closing card: product name, research-network link, repository, independence disclaimer | OPEN SOURCE · NO ACCOUNT NEEDED · **Try Science Record Player.** · science-record-player.web.app/network/ · github.com/dhuzard/science-record-player |
 
 Every network caption carries the tag “Fictional (Demo) data · local build”. Every closing card also shows the exact disclaimer and trademark line from `config/brand.json`.

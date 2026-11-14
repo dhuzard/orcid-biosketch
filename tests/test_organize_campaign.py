@@ -43,7 +43,8 @@ UI_LABELS = [
     "'+ New group'", "'Group name'", "'Create group'", "Group created.", "'Open group →'",
     "['outputs', 'Project outputs']", "['pack', 'Team pack']", "'Select for'", "'Output selected for this project.'",
     "'↓ Download team pack'", "Your contact tags, notes and follow-ups are never included.",
-    "Team pack downloaded with your selected scope", "href: `#${id}`",
+    "Team pack downloaded with your selected scope", "class: `bulk-entry ${e.status}`", "entry.status = 'done'",
+    "renderGuide();",  # step 7 is marked done right after the download (#66 at 94c4d8a)
 ]
 # The same labels as the demo steps use them.
 STEP_LABELS = [
@@ -53,7 +54,7 @@ STEP_LABELS = [
     "Follow-up with ", "'Due date'", "'Add follow-up'", "'Follow-up added.'", "Open follow-ups",
     "'+ New group'", "'Group name'", "'Create group'", "'Group created.'", "'Open group →'",
     "'Project outputs'", "'Team pack'", "Select for project", "'Output selected for this project.'", "'↓ Download team pack'",
-    "Team pack downloaded", 'a[href="#contacts"]',
+    "Team pack downloaded", ".bulk-entry.done",
 ]
 
 
@@ -149,6 +150,11 @@ def test_only_fictional_demo_data_in_an_isolated_browser():
     script = (ROOT / "demo" / "organize-campaign.mjs").read_text(encoding="utf-8")
     assert "serveSyntheticOrcid(ctx)" in script and "blocked_external_requests" in script and "route.abort()" in script
     assert "inspectPack" in script  # the downloaded team pack is opened and checked for private contact text
+    # The manifest identifies the renderer commit and, separately, the served build, and refuses a stale build.
+    lib = (ROOT / "demo" / "lib.mjs").read_text(encoding="utf-8")
+    assert "export function siteIdentity()" in lib and "matches_fresh_build_of_renderer_commit" in lib
+    assert "siteIdentity()" in script and "=== false) {\n  throw new Error" in script
+    assert "synthetic_records" in script
     # Neither the app's own sample workspace, nor Public Group View, nor sign-in or cloud features are driven.
     for absent in ("#demo'", "offerSample", "/group/", "#sync", "/team/"):
         assert absent not in script, absent
@@ -235,7 +241,8 @@ def test_drafts_are_marked_unpublished_and_blocked():
                 assert claims.NEGATION.search(claims._context(text, match.start(), 45)), (f.name, pattern)
     checklist = (DRAFTS / "organize-review-checklist-DRAFT.md").read_text(encoding="utf-8")
     assert "_not signed_" in checklist and "[x]" not in checklist.lower()
-    for gate in ("hosted", "**Storyboard/screenshot gate", "**Mobile playback", "continuous", "#55"):
+    for gate in ("hosted", "**Storyboard/screenshot gate", "**Mobile playback", "continuous", "#55",
+                 "captured_site.matches_fresh_build_of_renderer_commit: true", "renderer.commit", "synthetic_records.sha256"):
         assert gate in checklist, gate
     post = (DRAFTS / "organize-post-caption-DRAFT.md").read_text(encoding="utf-8")
     for caption in REQUIRED:

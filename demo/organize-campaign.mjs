@@ -93,7 +93,7 @@ if (textOnly) { console.log('wrote caption drafts to', DRAFTS); process.exit(0);
 // ---------- Rendering ----------
 
 const { chromium } = await import('playwright');
-const { OUT, RAW, MARK, BRAND, record, cut, concat, serveSite, esc } = await import('./lib.mjs');
+const { OUT, RAW, MARK, BRAND, record, cut, concat, serveSite, esc, siteIdentity } = await import('./lib.mjs');
 const { serveSyntheticOrcid, demoPeople } = await import('./synthetic.mjs');
 const { contactSteps } = await import('./contacts.mjs');
 const { groupSteps } = await import('./groups.mjs');
@@ -180,9 +180,8 @@ function stepRunner(evidence) {
   return {
     guide: (p) => top(p, '#guide'),
     guideSteps: (p) => top(p, '#guide .guide-steps'),
-    // The guide re-renders on navigation (the app does not redraw it on the download itself), so open Contacts.
+    // Back to the top of the page, where the guide sits above every view.
     guideDone: async (p) => {
-      await p.click('#navigation a[href="#contacts"]'); await p.locator('#guide .guide-steps').waitFor();
       await p.evaluate(() => window.scrollTo(0, 0)); await top(p, '#guide .guide-steps');
       const done = await p.locator('#guide .guide-steps li.done').count();
       evidence.guide_steps_done = done;
@@ -273,11 +272,19 @@ function withAudio(src, dst, total) {
   return dst;
 }
 
-const git = (a) => { try { return execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return 'unknown'; } };
+// The renderer commit and, separately, the identity of the served build that is filmed (demo/lib.mjs).
+const identity = siteIdentity();
+if (identity.captured_site.matches_fresh_build_of_renderer_commit === false) {
+  throw new Error(`the served site (${identity.captured_site.dir}, build ${identity.captured_site.build_digest}) is not a fresh build of ${identity.renderer.commit}; rebuild it with python scripts/build_site.py`);
+}
+if (identity.captured_site.matches_fresh_build_of_renderer_commit === null) console.warn('WARNING: could not rebuild the site to compare it; check captured_site by hand.');
+const { createHash } = await import('node:crypto');
 const manifest = {
   status: COMPOSITION.status, blocked_by: COMPOSITION.blocked_by,
-  commit: git(['rev-parse', 'HEAD']), working_tree_clean: git(['status', '--porcelain']) === '',
-  rendered_at: new Date().toISOString(), source: 'locally built site (scripts/build_site.py), served on 127.0.0.1; not the hosted deployment',
+  ...identity,
+  // The people on screen come from the renderer checkout, not from the site build.
+  synthetic_records: { path: 'demo/synthetic.mjs', sha256: createHash('sha256').update(readFileSync(resolve(HERE, 'synthetic.mjs'))).digest('hex') },
+  rendered_at: new Date().toISOString(),
   data: COMPOSITION.data_source,
   audio: (flag('narration') || flag('music')) ? 'optional audio versions rendered from files passed on the command line' : 'none (silent; captions burned in)',
   outputs: [],

@@ -109,5 +109,5 @@ tick the `organize_campaign` input.
 | `organize-campaign-landscape.mp4` | 65 s, 1280x720 | hook 6 · import 10 · note 12 · follow-up 10 · group 12 · export 6 · cta 9 |
 | `organize-campaign-square.mp4` | 65 s, 1080x1080 | same, recorded natively square |
 | `organize-walkthrough-landscape.mp4` | 150 s, 1280x720 | intro, guide, import, Save as contact, note, follow-ups, group, project outputs, team pack, all done, cta |
-| `organize-campaign-manifest.json` | | commit SHA, render date, data source, measured durations, per-segment slack, blocked requests, team-pack check |
+| `organize-campaign-manifest.json` | | renderer commit, served build digest (checked against a fresh build), render date, data source, measured durations, per-segment slack, blocked requests, team-pack check |
 | `organize-*-thumbnail.png` | | frame 3 s into each cut |
