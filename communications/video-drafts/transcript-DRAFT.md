@@ -31,10 +31,10 @@ the renderer can mix one in only if a file is passed explicitly (`--narration=`,
 | 0:20–0:32 | `card` | Studio, Trading card tab | TRADING CARD · **Your scientific trading card.** · Every value on the card comes from an asserted field. It is a playful format, not a measure of merit or impact. |
 | 0:32–0:44 | `heatmap` | Studio, Heatmap tab | HEATMAP · **Honest about quiet years.** · One cell per month of dated outputs. Undated outputs are noted, not placed, and gaps stay visible. |
 | 0:44–0:58 | `wrapped` | Studio, Wrapped tab | WRAPPED · **A year in review, no invented numbers.** · Every figure traces back to a field in the record. Counts describe activity, not quality or impact. |
-| 0:58–1:06 | `fortune` | Studio, Fortune tab | FORTUNE · **Rediscover something you wrote.** · A random title from the record itself. |
+| 0:58–1:06 | `fortune` | Studio, Fortune tab, then its own “Another one” button (seeded draw) | FORTUNE · **Rediscover something you wrote.** · A title drawn from the record itself. |
 | 1:06–1:21 | `check` | Studio, Record check tab (scrolling through findings) | RECORD CHECK · **Know what to fix, and why.** · A scored rubric over the public record, with a concrete fix for each finding. It checks record metadata, not research quality. |
 | 1:21–1:34 | `funder` | Studio, Funder biosketch tab | FUNDER TEMPLATES · **Draft NIH, ERC or Horizon biosketches.** · Pre-filled from asserted fields only. A draft, not an official funder form: review and complete it. |
-| 1:34–1:46 | `citations` | Studio, Citations & data tab | CITATIONS & DATA · **Take your data with you.** · BibTeX, RIS, CSL JSON, Schema.org JSON-LD and Markdown, with per-field provenance kept. |
+| 1:34–1:46 | `citations` | Studio, Citations & data tab | CITATIONS & DATA · **Take your data with you.** · BibTeX, RIS, CSL JSON, Schema.org JSON-LD and Markdown. Biosketch JSON keeps per-field provenance. |
 | 1:46–1:55 | `cta` | Closing card: product name, URL, independence disclaimer | OPEN SOURCE · NO ACCOUNT NEEDED · **Science Record Player · Publish or Play** · science-record-player.web.app · github.com/dhuzard/science-record-player |
 
 Every closing card also shows the exact disclaimer and trademark line from `config/brand.json`.

@@ -29,7 +29,8 @@ ORCID® is a registered trademark of ORCID, Inc.
 
 A two-minute tour of the Explore & Play side of Science Record Player: a profile you control, a trading card, a
 heatmap that keeps quiet years visible, a year-in-review Wrapped, Fortune, a record check, draft NIH/ERC/Horizon
-biosketches (drafts, not official funder forms) and citation and data exports with per-field provenance.
+biosketches (drafts, not official funder forms) and citation and data exports (BibTeX, RIS, CSL JSON, JSON-LD,
+Markdown); the Biosketch JSON export keeps per-field provenance.
 
 Recorded from a locally built site at commit `<short SHA from demo/out/play-campaign-manifest.json>` on
 `<recording date>`; the hosted version was checked on `<date>` (fill in from the signed Release B checklist).

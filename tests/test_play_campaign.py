@@ -64,7 +64,7 @@ def test_segments_are_named_and_deterministic(variant):
         actions = s.get("actions", [])
         assert s["kind"] == "studio" or not actions
         for action in actions:
-            assert len(action) == 1 and next(iter(action)) in {"tab", "wait", "scroll", "scrollTo"}
+            assert len(action) == 1 and next(iter(action)) in {"tab", "wait", "scroll", "scrollTo", "click"}
         # Waits inside a segment must leave time for the caption to be read on the last screen.
         assert sum(a.get("wait", 0) for a in actions) <= s["duration"] - 2.5
 
@@ -79,6 +79,9 @@ def test_tabs_exist_and_the_unmerged_bridge_and_guides_are_not_captured():
     assert ".result-actions" in COMPOSITION["hide_selectors"]  # holds the "Add to my research network" bridge
     assert "#me" in COMPOSITION["hide_selectors"]
     actions = json.dumps([s.get("actions", []) for _, s in SEGMENTS]).lower()
+    clicks = [a["click"] for _, s in SEGMENTS for a in s.get("actions", []) if "click" in a]
+    assert clicks == ["#panel .tools button"]  # only Fortune's own seeded "Another one" button
+    assert "let seed = 1;" in studio and "seed: seed++" in studio
     assert "network" not in actions and "guide" not in actions and "team" not in actions
     index = (ROOT / "web/playground/index.html").read_text(encoding="utf-8")
     assert COMPOSITION["preroll_scroll"] == ".try" and 'class="try"' in index
@@ -178,3 +181,13 @@ def test_transcript_lists_every_caption():
     transcript = (DRAFTS / "transcript-DRAFT.md").read_text(encoding="utf-8")
     for _, s in SEGMENTS:
         assert s["title"] in transcript and s["screen"] in transcript
+
+
+def test_provenance_claims_are_limited_to_the_biosketch_json():
+    """BibTeX, RIS and CSL JSON do not carry per-field provenance; only the Biosketch JSON does."""
+    texts = [" ".join(_captions(s)) for _, s in SEGMENTS]
+    texts += [(DRAFTS / n).read_text(encoding="utf-8") for n in ("post-caption-DRAFT.md", "transcript-DRAFT.md")]
+    for text in texts:
+        for m in re.finditer(r"per-field provenance", text):
+            sentence = re.split(r"(?<=[.;])\s", text[:m.start()])[-1]
+            assert "Biosketch JSON" in sentence, sentence

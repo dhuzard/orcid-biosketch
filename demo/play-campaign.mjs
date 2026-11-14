@@ -156,6 +156,8 @@ async function runAction(p, a) {
     return p.waitForTimeout(500);
   }
   if (a.scrollTo) { await p.evaluate((sel) => document.querySelector(sel).scrollIntoView({ behavior: 'smooth', block: 'start' }), a.scrollTo); return p.waitForTimeout(700); }
+  // A real button on the page; the Fortune tab's "Another one" draws with seed 1 first, so the title is reproducible.
+  if (a.click) { await p.click(a.click); return p.waitForTimeout(900); }
   if (a.scroll) { await p.mouse.wheel(0, a.scroll); return p.waitForTimeout(400); }
   throw new Error(`unknown action ${JSON.stringify(a)}`);
 }
@@ -205,15 +207,35 @@ function withAudio(src, dst, total) {
 }
 
 const git = (a) => { try { return execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return 'unknown'; } };
-const stored = JSON.parse(readFileSync(resolve(ROOT, 'generated/biosketch.json'), 'utf8')).provenance || {};
+const { createHash } = await import('node:crypto');
+const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+// The build digest that scripts/build_site.py writes into sw.js (a hash over every other site file).
+const buildDigest = (dir) => readFileSync(resolve(dir, 'sw.js'), 'utf8').match(/const VERSION = '([0-9a-f]+)'/)?.[1] || 'unknown';
+// Provenance comes from the site that is served and filmed, not from the checkout.
+const { SITE_DIR } = await import('./lib.mjs');
+const servedSample = resolve(SITE_DIR, 'generated/biosketch.json');
+const stored = JSON.parse(readFileSync(servedSample, 'utf8')).provenance || {};
+// Does the served site equal a fresh build of this checkout? If not, the renderer commit says nothing about the screens.
+let siteMatchesCheckout = null;
+try {
+  const check = resolve(RAW, 'site-check');
+  execFileSync('python', [resolve(ROOT, 'scripts/build_site.py'), check], { cwd: ROOT, stdio: 'ignore' });
+  siteMatchesCheckout = buildDigest(check) === buildDigest(SITE_DIR);
+} catch { /* rebuild unavailable (e.g. no Pyodide cache): left as null, to be checked by hand */ }
 const manifest = {
   status: COMPOSITION.status, blocked_by: COMPOSITION.blocked_by,
-  commit: git(['rev-parse', 'HEAD']), working_tree_clean: git(['status', '--porcelain']) === '',
-  rendered_at: new Date().toISOString(), source: 'locally built site (scripts/build_site.py), served on 127.0.0.1; not the hosted deployment',
-  data: { description: COMPOSITION.data_source, primary_source: stored.primary_source, stored_copy_generated_at: stored.generated_at },
+  renderer: { commit: git(['rev-parse', 'HEAD']), working_tree_clean: git(['status', '--porcelain']) === '' },
+  captured_site: {
+    dir: SITE_DIR, build_digest: buildDigest(SITE_DIR), matches_fresh_build_of_renderer_commit: siteMatchesCheckout,
+    served_from: 'locally on 127.0.0.1; not the hosted deployment',
+    sample: { path: 'generated/biosketch.json', sha256: sha256(servedSample), primary_source: stored.primary_source, stored_copy_generated_at: stored.generated_at },
+  },
+  rendered_at: new Date().toISOString(),
+  data: COMPOSITION.data_source,
   audio: (flag('narration') || flag('music')) ? 'optional audio versions rendered from files passed on the command line' : 'none (silent; captions burned in)',
   outputs: [],
 };
+if (siteMatchesCheckout === false) console.warn('WARNING: the served site differs from a fresh build of this commit; see captured_site in the manifest.');
 
 const site = await serveSite();
 const browser = await chromium.launch();

@@ -6,7 +6,7 @@
 
 | Check | Evidence (fill in) | OK |
 |---|---|---|
-| Rendered from the commit signed off in Release A (`commit` in `demo/out/play-campaign-manifest.json`, `working_tree_clean: true`) | | [ ] |
+| Rendered from the commit signed off in Release A: `renderer.commit` in `demo/out/play-campaign-manifest.json`, `renderer.working_tree_clean: true` and `captured_site.matches_fresh_build_of_renderer_commit: true` | | [ ] |
 | Measured durations match the plan: social cut 42 s (square + 16:9), walkthrough 115 s (manifest `measured_seconds`) | | [ ] |
 | Watched end to end, both cuts, with sound off: the message is clear from captions alone | | [ ] |
 | Every caption matches the UI at that commit (tab names, export formats, draft wording on Funder biosketch) | | [ ] |

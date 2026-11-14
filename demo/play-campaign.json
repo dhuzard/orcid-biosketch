@@ -236,13 +236,19 @@
           "id": "fortune",
           "kind": "studio",
           "duration": 8,
-          "screen": "Studio, Fortune tab",
+          "screen": "Studio, Fortune tab, then its own “Another one” button (seeded draw)",
           "kicker": "FORTUNE",
           "title": "Rediscover something you wrote.",
-          "text": "A random title from the record itself.",
+          "text": "A title drawn from the record itself.",
           "actions": [
             {
               "tab": "Fortune"
+            },
+            {
+              "wait": 1.5
+            },
+            {
+              "click": "#panel .tools button"
             }
           ]
         },
@@ -299,7 +305,7 @@
           "screen": "Studio, Citations & data tab",
           "kicker": "CITATIONS & DATA",
           "title": "Take your data with you.",
-          "text": "BibTeX, RIS, CSL JSON, Schema.org JSON-LD and Markdown, with per-field provenance kept.",
+          "text": "BibTeX, RIS, CSL JSON, Schema.org JSON-LD and Markdown. Biosketch JSON keeps per-field provenance.",
           "actions": [
             {
               "tab": "Citations & data"

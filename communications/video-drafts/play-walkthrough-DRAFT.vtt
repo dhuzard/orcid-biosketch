@@ -32,7 +32,7 @@ Every figure traces back to a field in the record. Counts describe activity, not
 fortune
 00:00:58.400 --> 00:01:05.900
 Rediscover something you wrote.
-A random title from the record itself.
+A title drawn from the record itself.
 
 check
 00:01:06.400 --> 00:01:20.900
@@ -47,7 +47,7 @@ Pre-filled from asserted fields only. A draft, not an official funder form: revi
 citations
 00:01:34.400 --> 00:01:45.900
 Take your data with you.
-BibTeX, RIS, CSL JSON, Schema.org JSON-LD and Markdown, with per-field provenance kept.
+BibTeX, RIS, CSL JSON, Schema.org JSON-LD and Markdown. Biosketch JSON keeps per-field provenance.
 
 cta
 00:01:46.400 --> 00:01:54.900
