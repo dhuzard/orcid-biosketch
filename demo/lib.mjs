@@ -95,3 +95,24 @@ export async function serveSite() {
   await new Promise(r => setTimeout(r, 1500));
   return { base: `http://127.0.0.1:${PORT}/`, stop: () => server.kill() };
 }
+
+// What was filmed, as evidence for a render manifest: the renderer checkout and, separately, the served build.
+// The build digest is the one scripts/build_site.py writes into sw.js (a hash over every other site file). The
+// served site is compared with a fresh build of the renderer commit, so a stale build cannot pass as this commit.
+// `matches_fresh_build_of_renderer_commit` is null when a fresh build is not possible here (e.g. no Pyodide cache).
+// Same manifest fields as demo/play-campaign.mjs (#58), so the two video drafts can be checked the same way.
+export function siteIdentity() {
+  const git = (a) => { try { return execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return 'unknown'; } };
+  const digest = (dir) => { try { return readFileSync(resolve(dir, 'sw.js'), 'utf8').match(/const VERSION = '([0-9a-f]+)'/)?.[1] || 'unknown'; } catch { return 'unknown'; } };
+  let matches = null;
+  try {
+    const check = resolve(RAW, 'site-check'); rmSync(check, { recursive: true, force: true });
+    execFileSync('python', [resolve(ROOT, 'scripts/build_site.py'), check], { cwd: ROOT, stdio: 'ignore' });
+    matches = digest(check) !== 'unknown' && digest(check) === digest(SITE_DIR);
+  } catch { /* left as null: check by hand */ }
+  return {
+    renderer: { commit: git(['rev-parse', 'HEAD']), working_tree_clean: git(['status', '--porcelain']) === '' },
+    captured_site: { dir: SITE_DIR, build_digest: digest(SITE_DIR), matches_fresh_build_of_renderer_commit: matches,
+      served_from: 'locally on 127.0.0.1; not the hosted deployment' },
+  };
+}
