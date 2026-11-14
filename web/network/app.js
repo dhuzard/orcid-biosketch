@@ -101,13 +101,17 @@ export function workspaceSummary(data) {
 
 const plural = (count, word, many = `${word}s`) => `${count} ${count === 1 ? word : many}`;
 
-// What "Remove sample data" would do. A sample group that holds the user's own members or
-// requests is kept (renamed without "· Demo"); see NetworkStore.remove_demo.
+// The sample group as NetworkStore.add_demo creates it; any other name or description is the user's.
+const SAMPLE_GROUP = { name: 'Open Science Circle · Demo', description: 'A fictional working group for trying the pilot.' };
+
+// What "Remove sample data" would do. A sample group that holds the user's own members, requests,
+// name or description is kept (renamed without "· Demo"); the same rule as NetworkStore.remove_demo.
 export function sampleRemoval(data) {
   const sample = new Set(data.people.filter(p => p.demo).map(p => p.id));
   const groups = data.groups.filter(isSampleGroup);
-  const kept = groups.filter(g => g.member_ids.some(id => !sample.has(id)) || (g.requests || []).length > 0);
-  return { people: sample.size, deleted: groups.length - kept.length, kept: kept.map(g => ({ from: g.name, to: g.name.replace(/\s*·\s*Demo$/, '').trim() || 'Working group' })) };
+  const kept = groups.filter(g => g.member_ids.some(id => !sample.has(id)) || (g.requests || []).length > 0
+    || g.name !== SAMPLE_GROUP.name || (g.description || '') !== SAMPLE_GROUP.description);
+  return { people: sample.size, deleted: groups.length - kept.length, kept: kept.map(g => ({ id: g.id, from: g.name, to: g.name.replace(/\s*·\s*Demo$/, '').trim() || 'Working group' })) };
 }
 
 // Default group for "Add to group": one of the user's own groups the person is not in yet,
@@ -1187,11 +1191,19 @@ async function offerSample() {
 
 async function removeSample() {
   const removal = sampleRemoval(state);
-  const kept = removal.kept.map(g => `“${g.from}” holds your own members or requests, so it stays as “${g.to}”, without the sample people. The roles, selected outputs and requests you added there are kept.`);
+  const kept = removal.kept.map(g => `“${g.from}” holds your own members, requests or text, so it stays as “${g.to}”, without the sample people. Its name, description, and the roles, selected outputs and requests of your own members are kept.`);
   if (!confirm([`Remove the labelled sample from this workspace?\n\nThis removes ${plural(removal.people, 'sample person', 'sample people')}, their Demo outputs and anything you added to them (tags, notes, follow-ups, saved outputs)${removal.deleted ? `, and ${plural(removal.deleted, 'unchanged sample group')}` : ''}.`,
     ...kept, 'Your own researchers, contacts and groups stay; sample people are taken out of your own groups.'].join('\n\n'))) return;
   const done = removal.kept.length ? ` Kept as your own group: ${removal.kept.map(g => g.to).join(', ')}.` : '';
-  if (await mutate('/api/demo/remove', {}, `Sample data removed. Your own records were not changed.${done}`)) render();
+  const before = new Set(state.groups.map(g => g.id));
+  const viewed = currentView === 'groups' && selectedGroup ? removal.kept.find(g => g.id === selectedGroup) : null;
+  const viewingSample = currentView === 'groups' && selectedGroup && isSampleGroup({ id: selectedGroup });
+  if (!await mutate('/api/demo/remove', {}, `Sample data removed. Your own records were not changed.${done}`)) return;
+  // A kept group has a new address; follow it if it was open, rather than leave a stale URL.
+  const moved = viewed && state.groups.find(g => !before.has(g.id) && g.name === viewed.to);
+  if (moved) location.hash = `groups/${encodeURIComponent(moved.id)}`;
+  else if (viewingSample) location.hash = 'groups';
+  else render();
 }
 
 function readHandoff() {

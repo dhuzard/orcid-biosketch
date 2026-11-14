@@ -17,6 +17,9 @@ Usage: python tests/e2e/onboarding_server.py SITE_DIR WORK_DIR  (prints the port
 from __future__ import annotations
 
 import copy
+import select
+import socket
+import threading
 import json
 import re
 import sys
@@ -58,10 +61,28 @@ def read_public_record(value: str) -> dict:
     if orcid == UNREACHABLE:
         raise OrcidError("Could not reach the ORCID API. Check your connection and try again.")
     if orcid == SLOW:
-        time.sleep(3)
+        # Like the in-page Pyodide engine, a read stops when the page that asked for it goes away.
+        for _ in range(30):
+            time.sleep(0.1)
+            if _client_gone():
+                raise OrcidError("The page that asked for this record was closed.")
     if orcid not in RECORDS:
         raise OrcidError(f"No public ORCID record was found for {orcid}.")
     return copy.deepcopy(RECORDS[orcid])
+
+
+_request = threading.local()
+
+
+def _client_gone() -> bool:
+    connection = getattr(_request, "connection", None)
+    if connection is None:
+        return False
+    try:
+        readable, _, _ = select.select([connection], [], [], 0)
+        return bool(readable) and connection.recv(1, socket.MSG_PEEK) == b""
+    except OSError:
+        return True
 
 
 # Workspace.request routes /api/import through this module-level name.
@@ -88,6 +109,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404)
             return
         request = json.loads(self.rfile.read(int(self.headers.get("Content-Length", "0"))))
+        _request.connection = self.connection
         op, args = request.get("op"), request.get("args") or {}
         try:
             result = self.operation(op, args)

@@ -282,12 +282,15 @@ test('the Connect & Organize guide follows the workspace, step by step', () => {
 
 test('Remove sample data keeps a sample group holding your own members or requests (review of #66)', () => {
   const people = [sample, real];
-  const untouched = { id: 'demo-open-science', name: 'Open Science Circle · Demo', member_ids: ['demo-ada'], requests: [] };
+  const untouched = { id: 'demo-open-science', name: 'Open Science Circle · Demo', description: 'A fictional working group for trying the pilot.', member_ids: ['demo-ada'], requests: [] };
   assert.deepEqual(sampleRemoval({ people, groups: [untouched] }), { people: 1, deleted: 1, kept: [] });
   const withReal = { ...untouched, member_ids: ['demo-ada', real.id] };
-  assert.deepEqual(sampleRemoval({ people, groups: [withReal] }), { people: 1, deleted: 0, kept: [{ from: 'Open Science Circle · Demo', to: 'Open Science Circle' }] });
+  assert.deepEqual(sampleRemoval({ people, groups: [withReal] }), { people: 1, deleted: 0, kept: [{ id: 'demo-open-science', from: 'Open Science Circle · Demo', to: 'Open Science Circle' }] });
   const withRequest = { ...untouched, requests: [{ id: 'r' }] };
   assert.equal(sampleRemoval({ people, groups: [withRequest] }).kept.length, 1);
+  // The user's own name or description is kept too, as in NetworkStore.remove_demo.
+  assert.deepEqual(sampleRemoval({ people, groups: [{ ...untouched, name: 'Neuro consortium plan' }] }).kept.map(g => g.to), ['Neuro consortium plan']);
+  assert.equal(sampleRemoval({ people, groups: [{ ...untouched, description: 'Notes for our lab' }] }).kept.length, 1);
 });
 
 test('Add to group never defaults to the sample group', () => {

@@ -494,10 +494,8 @@ const checks = {
     assert.equal((await workspace(page)).people.length, 0);
 
     // Interrupted: a reload while the record is being read never leaves a half-saved contact.
-    // Only invariants that hold for both engines are asserted: in the hosted Pyodide engine the
-    // reload stops the read, so nothing is stored; with this test server (like the local pilot
-    // server) the read may finish in the background. Either way no contact exists until a new
-    // confirmation, the question is asked again, and confirming never duplicates the person.
+    // The test server stops a slow read when the page that asked for it goes away, as the in-page
+    // Pyodide engine does, so the outcome is deterministic: nothing is stored.
     await openNetwork(page, `/network/#contacts?save=${SLOW}`);
     await page.fill('#handoff-note', 'Interrupted note');
     await page.getByRole('button', { name: 'Read record & save as contact' }).click();
@@ -506,15 +504,17 @@ const checks = {
     await loaded(page);
     await page.locator('#handoff').waitFor();
     assert.equal(await text(page, '#handoff h2'), 'Save as contact', 'the question is asked again');
+    await page.waitForTimeout(3500); // longer than the slow read would have taken
     const state = await workspace(page);
-    assert.deepEqual(state.contacts, {}, 'no contact without a completed, confirmed save');
-    assert.ok(state.people.filter(p => p.id === SLOW).length <= 1, 'never a duplicate person');
+    assert.deepEqual(state.people, [], 'the interrupted read stored nothing');
+    assert.deepEqual(state.contacts, {});
     // A draft is kept after an error (above), not across a reload: the reloaded form starts empty.
     assert.equal(await page.inputValue('#handoff-note'), '');
-    await page.getByRole('button', { name: /save as contact$/i }).click();
-    await page.locator(`#contact-${SLOW}`).waitFor();
+    const reads = imports().length;
+    await Promise.all([page.waitForURL(`${BASE}/network/#contacts`), page.getByRole('button', { name: 'Read record & save as contact' }).click()]);
     const after = await workspace(page);
-    assert.equal(after.people.filter(p => p.id === SLOW).length, 1);
+    assert.equal(imports().length, reads + 1, 'confirming again reads the record exactly once');
+    assert.equal(after.people.length, 1);
     assert.deepEqual(after.contacts[SLOW].notes, []);
     await close();
   },
@@ -544,8 +544,11 @@ const checks = {
     await editor.getByRole('button', { name: 'Save member details' }).click();
     await page.locator('#notice', { hasText: 'Local details saved' }).waitFor();
     await page.locator('#demo-banner').getByRole('button', { name: 'Remove sample data' }).click();
-    assert.match(dialogs.at(-1).message, /“Open Science Circle · Demo” holds your own members or requests, so it stays as “Open Science Circle”/);
+    assert.match(dialogs.at(-1).message, /“Open Science Circle · Demo” holds your own members, requests or text, so it stays as “Open Science Circle”/);
     await page.locator('#demo-banner').waitFor({ state: 'hidden' });
+    // The page follows the kept group to its new address instead of leaving a stale URL.
+    await page.waitForURL(/\/network\/#groups\/(?!demo-)[\w-]+$/);
+    await page.locator('.group-title h2', { hasText: 'Open Science Circle' }).waitFor();
     await page.locator('#notice', { hasText: 'Kept as your own group: Open Science Circle' }).waitFor();
     const state = await workspace(page);
     assert.equal(state.groups.length, 1);
