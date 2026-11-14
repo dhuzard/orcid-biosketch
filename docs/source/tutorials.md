@@ -3,7 +3,7 @@
 ```{admonition} Depends on #56
 :class: important
 
-These two tutorials describe the guided first-run journeys and the Explore → My Network handoffs added by issue #56 ([PR #66](https://github.com/dhuzard/science-record-player/pull/66)). The labels follow that pull request as reviewed on 14 November 2026. They have **not yet been checked on the live site**; if a label differs there, please [tell us](feedback.md). The [Get started](getting-started.md) steps do not depend on #56.
+These two tutorials describe the guided first-run journeys and the Explore → My Network handoffs added by issue #56 ([PR #66](https://github.com/dhuzard/science-record-player/pull/66)). The labels follow that pull request at its reviewed head `a32226c` (14 November 2026). They have **not yet been checked on the live site**; if a label differs there, please [tell us](feedback.md). The [Get started](getting-started.md) steps do not depend on #56.
 ```
 
 Both tutorials work without an account, a GitHub login or cloud Teams (which are not available). Each one says when something is read from ORCID and where your data ends up.
@@ -24,21 +24,21 @@ Both tutorials work without an account, a GitHub login or cloud Teams (which are
 
 **You end with:** one researcher saved as a contact with a context, a private note and a follow-up, in a local group with a selected project output, and a downloaded team pack. **About 5 minutes, 7 steps**, matching the 7 steps of **Connect & Organize, step by step** in My Network.
 
-1. **Save a researcher as a contact.** In Explore, open the stored demo profile (Tutorial 1, step 1), then choose **Save as contact**. My Network opens with a **FROM EXPLORE** panel. Optionally fill **Conference or context** (for example the meeting where you met) and **Private note**, then choose **Read record & save as contact**. This reads that one public record from ORCID; **Cancel** reads and saves nothing. The confirmation says the person is *not followed*: choose **Follow** in People if you want their new outputs in your Feed.
+1. **Save a researcher as a contact.** In Explore, open the stored demo profile (Tutorial 1, step 1), then choose **Save as contact**. My Network opens with a **FROM EXPLORE** panel, with the keyboard focus on its heading. Optionally fill **Conference or context (optional)** (for example the meeting where you met), **Date met (optional)** and **Private note (optional)**; a date is recorded only if you enter one. Then choose **Read record & save as contact**. This reads that one public record from ORCID; **Cancel** reads and saves nothing. The confirmation says the person is *not followed*: choose **Follow** in People if you want their new outputs in your Feed.
 2. **Read where your network lives.** The **Where your network lives** note explains that My Network is stored only in this browser and is lost if you clear the site's data, close a private window, or switch browser or device. Choose **Download a backup now** (or **Download my workspace** in the sidebar) before you invest time in notes. The backup file is not encrypted and contains your notes; **Restore from file** brings it back.
 3. **Add a note and plan a follow-up.** In **Contacts**, on the contact card, use **Add tag** if you skipped the context, **Add note** for a private note and **Add follow-up** with a due date. Nobody is notified.
 4. **Go back to Explore.** On the contact card, choose **Open in Explore →**. Explore opens with the same iD filled in and waits: press **Explore** to read the public record (or choose the stored demo profile again). **← Back to My Network** returns to Contacts.
-5. **Add the contact to a group.** On the result, choose **Add to group**. In the **FROM EXPLORE** panel, pick **A new group…**, type a **New group name** and choose **Add to group**. The researcher is already in your workspace, so nothing new is read from ORCID and no duplicate is created.
+5. **Add the contact to a group.** On the result, choose **Add to group**. In the **FROM EXPLORE** panel, the **Group** list starts on one of your own groups that does not yet include this researcher, or on **A new group…** if there is none; it never starts on the sample group. Pick **A new group…**, type a **New group name** and choose **Add to group**. The researcher is already in your workspace, so nothing new is read from ORCID and no duplicate is created.
 6. **Select a project output.** In **Groups**, open the group and its **Project outputs** tab. Member outputs are only suggestions: choose **+ Select for project** on one that belongs to the project. This is your local decision; it does not confirm attribution with the authors.
 7. **Download the team pack.** Open **Team pack** and choose **↓ Download team pack**. The pack contains the roster, bibliography, member biosketches and a manifest, and **no contact tags, notes or follow-ups**.
 
-**Prefer sample data?** **Explore sample data** in My Network asks first. If this browser already holds your own network, the question gives its counts; the sample is added next to it, never in its place, and every item is labelled **Demo**. **Remove sample data** in the sample banner removes only the sample. Demo people have no ORCID iD, so they have no Explore or Public Group View link.
+**Prefer sample data?** **Explore sample data** in My Network asks first. If this browser already holds your own network, the question gives its counts; the sample is added next to it, never in its place, and every item is labelled **Demo**. Sample groups appear in group lists as “… (sample group)”; a real researcher you add to one is your own data. **Remove sample data** in the sample banner asks first and says how many sample people it removes, with their Demo outputs and anything you added to them. An unchanged sample group is deleted. A sample group that holds your own members or requests is kept, renamed without “· Demo” (for example “Open Science Circle”), with the roles, selected outputs and requests you added; the confirmation ends with “Kept as your own group: …”. Demo people have no ORCID iD, so they have no Explore or Public Group View link.
 
 **Data locality:** the contact, note, follow-up, group and selection live only in this browser. ORCID is read once, when you confirm in step 1. A local group is your own annotation: the people listed are not notified and have not confirmed membership. It is not a [Public Group View](groups.md) link and not a private cloud Team.
 
 ## Links into My Network
 
-These addresses open the handoffs directly; each still asks before reading or saving anything.
+These addresses open the handoffs directly; each still asks before reading or saving anything. While a handoff question is open, My Network's **Guide** button is disabled (“Answer or cancel the pending question first”).
 
 | Address | Opens |
 | --- | --- |
@@ -49,4 +49,4 @@ These addresses open the handoffs directly; each still asks before reading or sa
 | `/network/?sample=1#groups` | The labelled sample, after a question |
 | `/?orcid=<ORCID iD>&from=contacts` | Explore with the iD filled in and a way back (`from` can also be `people` or `groups`) |
 
-An invalid iD is explained and never imported. If the researcher is already a contact, **Open their contact card** appears instead of a duplicate. If reading from ORCID fails, nothing is saved and the panel keeps what you typed, with **Retry**. If the record was read but a later step failed, **Retry** reuses the stored record.
+An invalid iD is explained and never imported. If the researcher is already a contact, **Open their contact card** appears instead of a duplicate. If reading from ORCID fails, nothing is saved and the panel keeps what you typed, with **Retry** (a reload clears it). If the record was read but a later step failed, **Retry** reuses the stored record.
