@@ -194,3 +194,37 @@ def test_store_leaves_no_database_handles_open():
         workspace.add_demo()
         workspace.state()
         workspace.path.unlink()
+
+
+def test_import_can_skip_following_a_new_record_but_never_changes_an_existing_preference(store):
+    # "Save as contact" and "Add to group" (#56) import without following; Follow stays a separate choice.
+    store.import_biosketch(bio(), follow=False)
+    assert store.state()["people"][0]["following"] is False
+    store.follow(ORCID_A, True)
+    store.import_biosketch(bio(), follow=False)  # a refresh keeps the explicit follow
+    assert store.state()["people"][0]["following"] is True
+    store.import_biosketch(bio(ORCID_B))  # the default is unchanged
+    assert {p["id"]: p["following"] for p in store.state()["people"]}[ORCID_B] is True
+    assert len(store.state()["people"]) == 2  # re-importing an iD never duplicates the person
+    with pytest.raises(ValueError):
+        store.import_biosketch(bio(), follow="no")
+
+
+def test_remove_demo_takes_out_the_sample_only(store):
+    store.import_biosketch(bio(works=[work()]))
+    store.tag_contacts([ORCID_A], ["FENS 2026"])
+    store.add_contact_note(ORCID_A, "Real private note")
+    store.add_demo()
+    store.tag_contacts(["demo-ada"], ["FENS 2026"])
+    mine = store.create_group("My group", "", [ORCID_A, "demo-sam"])
+    store.select_group_work(mine, store.state()["works"][-1]["id"], True)
+    assert store.remove_demo() == {"people": 3, "groups": 1}
+    state = store.state()
+    assert [p["id"] for p in state["people"]] == [ORCID_A]
+    assert not any(p["demo"] for p in state["people"]) and not any(w["demo"] for w in state["works"])
+    assert [g["id"] for g in state["groups"]] == [mine]
+    assert state["groups"][0]["member_ids"] == [ORCID_A]
+    assert list(state["contacts"]) == [ORCID_A]
+    assert state["contacts"][ORCID_A]["notes"][0]["text"] == "Real private note"
+    assert state["contacts"][ORCID_A]["tags"] == ["FENS 2026"]
+    assert store.remove_demo() == {"people": 0, "groups": 0}  # idempotent

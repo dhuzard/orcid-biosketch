@@ -290,7 +290,12 @@ class NetworkStore:
         result.setdefault("provenance", {}).setdefault("generated_at", None)
         return person_id, result
 
-    def import_biosketch(self, bio: dict) -> None:
+    def import_biosketch(self, bio: dict, *, follow: bool = True) -> None:
+        """Store or refresh one public record. ``follow`` applies to a new import only:
+        saving someone as a contact or a group member need not follow them, and a
+        refresh always keeps the existing follow preference."""
+        if not isinstance(follow, bool):
+            raise ValueError("follow must be true or false")
         person_id, bio = self._validate_bio(bio)
         with self._transaction(True) as data:
             previous = data["profiles"].get(person_id)
@@ -320,7 +325,7 @@ class NetworkStore:
                     event = data["events"].setdefault(key, {"observed_at": now, "people_ids": []})
                     if person_id not in event.setdefault("people_ids", []):
                         event["people_ids"].append(person_id)
-            data["profiles"][person_id] = {"bio": bio, "following": previous["following"] if previous else True,
+            data["profiles"][person_id] = {"bio": bio, "following": previous["following"] if previous else follow,
                                            "last_checked": now, "demo": False}
             self._prune(data)
 
@@ -659,6 +664,26 @@ class NetworkStore:
             data["groups"].setdefault("demo-open-science", {
                 "id": "demo-open-science", "name": "Open Science Circle · Demo", "description": "A fictional working group for trying the pilot.",
                 "member_ids": [row[0] for row in examples], "created_at": now})
+
+    def remove_demo(self) -> dict:
+        """Take the labelled sample out again; real imports and their records stay.
+
+        Removes every demo profile (with its contact record, group places and outputs) and the
+        sample groups created by :meth:`add_demo`. Groups you created keep their real members.
+        Returns what was removed, for the confirmation message.
+        """
+        with self._transaction(True) as data:
+            people = [key for key, profile in data["profiles"].items() if profile["demo"]]
+            groups = [key for key in data["groups"] if _DEMO_ID.fullmatch(key)]
+            for key in people:
+                del data["profiles"][key]
+            for key in groups:
+                del data["groups"][key]
+            removed = set(people)
+            for group in data["groups"].values():
+                group["member_ids"] = [member for member in group["member_ids"] if member not in removed]
+            self._prune(data)
+            return {"people": len(people), "groups": len(groups)}
 
     # ---- Backup, restore and team packages -------------------------------
     # Files come back from outside this workspace, so they are validated as

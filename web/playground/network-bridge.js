@@ -25,26 +25,63 @@ window.fetch = async (input, init = {}) => {
   }
 };
 
-// Links from the Studio either hand over one iD (?import=) or ask for sample data
-// (?sample=1); run that first so the app's initial state already includes it.
+// Links from Explore either hand over one iD to follow (?import=) or ask for sample data
+// (?sample=1); run that first so the app's initial state already includes it. "Save as contact"
+// and "Add to group" use #contacts?save= / #groups?add=, which the app itself confirms.
 const params = new URLSearchParams(location.search);
 const handoff = params.get('import');
-const wanted = handoff ? ['/api/import', { orcid: handoff }] : params.has('sample') ? ['/api/demo', {}] : null;
+const sample = !handoff && params.has('sample');
+if (handoff || sample) history.replaceState(null, '', location.pathname + (location.hash || (handoff ? '#people' : '#feed')));
+
+const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
+// The labelled sample never silently mixes with someone's own network: the question says what is
+// already here (web/network/app.js asks the same from its "Explore sample data" button).
+async function sampleQuestion() {
+  const intro = 'Add the labelled sample people and group to the research network stored in this browser?';
+  const generic = `${intro}\n\nEvery sample person, output and group is fictional and labelled “Demo”. If this browser already holds your own network, nothing of it is replaced: the sample is added next to it, and Remove sample data takes only the sample out again.`;
+  try {
+    const reply = JSON.parse(await Promise.race([call('api', { method: 'GET', target: '/api/state', body: null }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('slow')), 5000))]));
+    const state = JSON.parse(reply.body);
+    const demo = new Set(state.people.filter(p => p.demo).map(p => p.id));
+    if (demo.size) return null; // Already here: nothing to add, nothing to ask.
+    const people = state.people.length;
+    const contacts = Object.keys(state.contacts || {}).length;
+    const groups = state.groups.length;
+    if (!people && !contacts && !groups) return generic;
+    return `${intro}\n\nThis workspace already holds your own network: ${plural(people, 'researcher')}, ${plural(contacts, 'contact')} and ${plural(groups, 'group')}. `
+      + 'Nothing of yours is replaced or changed. The sample is added next to it, every item labelled “Demo”, and Remove sample data takes only the sample out again. '
+      + 'To keep the two apart entirely, download your workspace first or try the sample in a private window.';
+  } catch {
+    return generic; // The engine is still starting (or unavailable): ask without the counts.
+  }
+}
+
 // A link must not change someone's workspace or call ORCID without them agreeing.
-const setup = wanted && confirm(handoff
-  ? `Add the public ORCID record ${handoff} to the research network stored in this browser?`
-  : 'Add the labelled sample people and group to the research network stored in this browser?') ? wanted : null;
-if (wanted) history.replaceState(null, '', location.pathname + (location.hash || (handoff ? '#people' : '#feed')));
-if (setup) {
-  const ready = window.fetch(setup[0], { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(setup[1]) })
-    .then(async response => {
-      if (response.ok) return;
-      const { error } = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
-      alert(handoff ? `Could not add ${handoff}: ${error}` : `Could not load the sample data: ${error}`);
-    })
-    .catch(() => {});
-  const bridged = window.fetch;
-  window.fetch = async (input, init) => { await ready; return bridged(input, init); };
+async function setup() {
+  if (handoff) {
+    return confirm(`Follow the public ORCID record ${handoff} in the research network stored in this browser?\n\n`
+      + 'This reads their public record once and shows the outputs a refresh newly finds in your Feed. It does not save them as a contact, add them to a group or notify them.')
+      ? ['/api/import', { orcid: handoff }] : null;
+  }
+  if (params.has('sample')) {
+    const question = await sampleQuestion();
+    return question && confirm(question) ? ['/api/demo', {}] : null;
+  }
+  return null;
+}
+
+if (handoff || sample) {
+  const direct = window.fetch;
+  const ready = setup().then(async wanted => {
+    if (!wanted) return;
+    const response = await direct(wanted[0], { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(wanted[1]) });
+    if (response.ok) return;
+    const { error } = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+    alert(handoff ? `Could not add ${handoff}: ${error}` : `Could not load the sample data: ${error}`);
+  }).catch(() => {});
+  window.fetch = async (input, init) => { await ready; return direct(input, init); };
 }
 
 document.querySelector('#reset-workspace')?.addEventListener('click', async () => {
