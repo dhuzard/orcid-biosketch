@@ -1,6 +1,6 @@
 # Pre-promotion audit: scientific claims, privacy boundaries and brand readiness (#55)
 
-**Audit date:** 14 November 2026 · **Audited ref:** `main` at `57f50aafdfd0b1167fbdfe697ae03001963fa3fc` (10 Nov 2026), plus the changes in the #55 pull request.
+**Audit date:** 14 November 2026 · **Audited ref:** `main` at `57f50aafdfd0b1167fbdfe697ae03001963fa3fc` (10 Nov 2026), re-checked after rebasing onto `main` at `a5b1d58` (PR #63 for #54, 14 Nov 2026), plus the changes in the #55 pull request.
 **Scope:** hosted pages (`web/playground/*.html|js`, `web/network/*`), README, SEO/manifest metadata, Sphinx docs (`docs/source/`), design docs (`docs/`), video scripts and overlays (`demo/*.mjs`, `demo/README.md`), and posts (`communications/`).
 **Method:** text search for claim words (*prove, proof, verified, collaboration, published together, private, no server, approved, official, compliant, new/discovered*), then reading each hit against what the code actually does (`src/science_record_player/collaboration.py`, `network_store.py`, `web/playground/group-link.js`, `teampack.js`, `team.js`, `cloud.js`, `web/network/app.js`).
 
@@ -42,9 +42,10 @@ Status: **fixed** = changed in the #55 PR · **ok** = already accurate, kept · 
 | F13 | `web/playground/studio.js` Funder biosketch tab | “Pre-filled from asserted fields only. Review and complete before submitting.” | “Draft only… Not an official funder form or a funder-approved submission: review, complete and check the funder's current requirements…” | C4 | fixed |
 | F14 | NIH / ERC / Horizon templates (CLI, Studio, team biosketch) | Only “Generated from the ORCID record …” | Adds a draft line: “not an official funder form, not a funder-approved submission and not independently verified…” | C4 | fixed |
 | F15 | `web/playground/team.html` meta, eyebrow, lede, footer | “PRIVATE · MEMBERS ONLY”; “A private page for each team…”; footer states Firestore storage in the present tense | “IN DEVELOPMENT · NOT YET ENABLED ON THE PUBLIC SITE”; lede says “Planned…not confirmed active”; footer says “When Teams are activated…” and that sign-in does not verify affiliations | C2, C7 | fixed (page copy only) |
-| F16 | Teams entry in the site navigation | `<a href="/team/">Teams</a>` on every page | Hide/gate the entry until positive production verification | C7 | **depends on #54** (not edited here) |
+| F16 | Teams entry in the site navigation | `<a href="/team/">Teams</a>` on every page | Removed from the shared menu on every page and no longer linked from My Network; `/team/` stays reachable directly with an “Experimental: private cloud Teams are not available yet” notice and title (#54, PR #63, merged into `main` at `a5b1d58`) | C7 | **fixed on `main` by #54**; live deploy **unverified** |
 | F17 | Homepage (`index.html`) footer | “optional Team cloud features, when activated, use a separate protected service.” | “…optional cloud Teams and account sync are not yet enabled on the public site and, if activated later, would store team data in a separate EU cloud database.” | C6, C7 | fixed |
 | F18 | Homepage hero / two-track positioning | — | Must keep C1–C8 wording | all | **depends on #53** (not edited here) |
+| F31 | Network page identity | Separate “Research, in good company / THE RESEARCH COMMONS / LOCAL PILOT” branding | SRP brand and shared menu; sidebar label “MY NETWORK · LOCAL PILOT”; title “My Network · Science Record Player” (#54, PR #63) | C8 | **fixed on `main` by #54**; live deploy **unverified** |
 | F19 | `demo/contacts.mjs` caption + outro | “Everything stays private, in this browser. The people never see it.” · pill “never shared” · “Private to your browser.” | “Stored only in this browser unless you export a backup. Nobody is notified.” · “not sent anywhere” · “…backups you download contain these notes.” | C6 | fixed |
 | F20 | `demo/groups.mjs` graph caption | “COLLABORATION GRAPH … co-asserted outputs, not proven collaboration.” | “SHARED-DOI GRAPH … both public records list the same DOI. Select it to see the DOIs. A shared DOI is not proof of collaboration.” | C1 | fixed |
 | F21 | `demo/groups.mjs` shared outputs caption | “Every link cites its evidence.” | “Every link shows its shared DOI.” | C1 | fixed |
@@ -82,7 +83,7 @@ Status: **fixed** = changed in the #55 PR · **ok** = already accurate, kept · 
 | Shareable Group view link | URL fragment: group name + public iDs | Anyone with the link | The link itself, wherever you post it; recipients' browsers read public ORCID records | yes | unverified at this audit (last recorded: KF-13, 31 Oct 2026, old hostname) |
 | Static group snapshot / web component | Files on the site where you publish them | Public | Yes, by design | yes | n/a (self-hosted by users) |
 | Optional ORCID sign-in | Tab-scoped session state | You | ORCID authorization + ORCID public keys | yes | BACKLOG INF-11 records it live-verified on the old hostname; **unverified on the current hostname** in this audit |
-| Cloud Teams and personal sync | Firestore `eur3` (EU), team access rules | Active team members (per `firestore.rules`) | Yes | code + rules + emulator tests | **Not available / unverified.** `docs/team-workspaces.md`: exchange function awaits Blaze and a live two-account test. Requires production verification **and** security review before any promotion (#22). |
+| Cloud Teams and personal sync | Firestore `eur3` (EU), team access rules | Active team members (per `firestore.rules`) | Yes | code + rules + emulator tests | **Not available / unverified.** No menu entry since #54; `/team/` says “experimental, not available”. `docs/team-workspaces.md`: exchange function awaits Blaze and a live two-account test. Requires production verification **and** security review before any promotion (#22). |
 | Python CLI / local SQLite pilot | Local files | You | Optional ORCID API calls | yes | n/a (local) |
 
 There is **no “all private” promise** anywhere in the product: each surface states where its data lives. Regression tests (`tests/test_claims.py`) fail if the old wording returns.
@@ -106,7 +107,7 @@ Source of truth: issue **#44** and `communications/branding-and-rename.md` (summ
 | Gate | State on 14 Nov 2026 | Blocks |
 |---|---|---|
 | #44 brand gate | **Open.** ORCID declined the old branding in writing; rebrand implemented; ORCID has **not** reviewed the rebranded app. No permission or endorsement may be stated or implied. | Broad marketing, the public video and any post that names ORCID beyond descriptive “works with public ORCID records” |
-| #54 Teams nav entry | **Open** (sibling PR). Public nav still links to Teams. | Any release while Teams is reachable from the nav without an “unavailable” state |
+| #54 Teams nav entry and network branding | **Merged into `main`** (PR #63, `a5b1d58`): Teams removed from menus, `/team/` labelled experimental and not available, network page uses the SRP brand. Covered by `tests/test_navigation.py` and the CI `browser` job. **Not verified on the live deploy.** | Release A until the live site is checked (checklist A, Availability) |
 | #53 homepage hero | **Open** (sibling PR). | Release A sign-off must re-run the claim tests on the new hero |
 | #22 cloud Teams | Not production-verified; no security review recorded. | Any mention of cloud collaboration as available |
 | #43 feedback | In-app feedback page exists (`/feedback/`); acceptance criteria (5 unaided testers, mobile E2E) open. | Claims that feedback is fully tested |

@@ -14,7 +14,7 @@ Scientific rules and the current findings are in [`claims-privacy-audit.md`](cla
 | Gate | State |
 |---|---|
 | #44 ORCID brand review of the rebranded app | **Open — not approved.** ORCID declined the old branding (9 Nov 2026); no written review of Science Record Player yet. |
-| #54 Teams nav entry hidden/gated | Open (sibling PR) |
+| #54 Teams nav entry hidden/gated | Merged into `main` (PR #63, `a5b1d58`); **not verified on the live deploy** |
 | #53 homepage two-track hero | Open (sibling PR) |
 | #22 cloud Teams production verification + security review | Not done |
 | Release A sign-off | **Not signed** |

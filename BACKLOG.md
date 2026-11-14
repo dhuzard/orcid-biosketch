@@ -949,7 +949,8 @@ imported person, so removing someone's tags did not remove them from the list.
 - [x] Cross-surface audit with before/after table and privacy/availability matrix.
 - [x] Shared-DOI wording with supporting DOIs in the Group view; funder drafts and feed dates scoped.
 - [x] Regression assertions (`tests/test_claims.py`, `web/playground/group-link.test.mjs`).
-- [ ] Teams nav entry gated (#54) and homepage hero checked (#53).
+- [x] Teams nav entry removed and `/team/` labelled experimental (#54, PR #63 merged; audit updated). Live deploy not verified.
+- [ ] Homepage hero checked (#53).
 - [ ] #44 outcome for the rebranded app recorded.
 - [ ] Release A and B checklists signed by the owner on the deployed site.
 
