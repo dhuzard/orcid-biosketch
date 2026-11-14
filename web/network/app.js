@@ -99,7 +99,22 @@ export function workspaceSummary(data) {
   };
 }
 
-const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+const plural = (count, word, many = `${word}s`) => `${count} ${count === 1 ? word : many}`;
+
+// What "Remove sample data" would do. A sample group that holds the user's own members or
+// requests is kept (renamed without "· Demo"); see NetworkStore.remove_demo.
+export function sampleRemoval(data) {
+  const sample = new Set(data.people.filter(p => p.demo).map(p => p.id));
+  const groups = data.groups.filter(isSampleGroup);
+  const kept = groups.filter(g => g.member_ids.some(id => !sample.has(id)) || (g.requests || []).length > 0);
+  return { people: sample.size, deleted: groups.length - kept.length, kept: kept.map(g => ({ from: g.name, to: g.name.replace(/\s*·\s*Demo$/, '').trim() || 'Working group' })) };
+}
+
+// Default group for "Add to group": one of the user's own groups the person is not in yet,
+// never a sample group; otherwise a new group.
+export function defaultHandoffGroup(data, person) {
+  return data.groups.find(g => !isSampleGroup(g) && !(person && g.member_ids.includes(person.id)))?.id || '';
+}
 
 // The confirmation before the labelled sample is added; null when it is already here.
 // The hosted bridge (web/playground/network-bridge.js) asks the same for ?sample=1.
@@ -1171,17 +1186,20 @@ async function offerSample() {
 }
 
 async function removeSample() {
-  const summary = workspaceSummary(state);
-  if (!confirm(`Remove the labelled sample from this workspace?\n\nThis removes ${plural(summary.sample_people, 'sample person')}, their Demo outputs, anything you added to them (tags, notes, follow-ups, saved outputs) and ${plural(summary.sample_groups, 'sample group')}. `
-    + 'Your own researchers, contacts and groups stay; sample people are taken out of your own groups.')) return;
-  if (await mutate('/api/demo/remove', {}, 'Sample data removed. Your own records were not changed.')) render();
+  const removal = sampleRemoval(state);
+  const kept = removal.kept.map(g => `“${g.from}” holds your own members or requests, so it stays as “${g.to}”, without the sample people. The roles, selected outputs and requests you added there are kept.`);
+  if (!confirm([`Remove the labelled sample from this workspace?\n\nThis removes ${plural(removal.people, 'sample person', 'sample people')}, their Demo outputs and anything you added to them (tags, notes, follow-ups, saved outputs)${removal.deleted ? `, and ${plural(removal.deleted, 'unchanged sample group')}` : ''}.`,
+    ...kept, 'Your own researchers, contacts and groups stay; sample people are taken out of your own groups.'].join('\n\n'))) return;
+  const done = removal.kept.length ? ` Kept as your own group: ${removal.kept.map(g => g.to).join(', ')}.` : '';
+  if (await mutate('/api/demo/remove', {}, `Sample data removed. Your own records were not changed.${done}`)) render();
 }
 
 function readHandoff() {
   const route = handoffRoute(location.hash);
   if (!route) { handoff = null; return; }
   if (handoff && handoff.intent === route.intent && handoff.raw === route.raw) return;
-  handoff = { ...route, status: 'idle', error: '', tag: '', note: '', groupId: '', groupName: '' };
+  // focus: move keyboard focus to the panel's heading once it is first shown (arrival or hashchange).
+  handoff = { ...route, status: 'idle', error: '', tag: '', met: '', note: '', groupId: '', groupChosen: false, groupName: '', focus: true };
 }
 
 function closeHandoff(hash, message = '') {
@@ -1213,7 +1231,8 @@ async function confirmHandoff() {
       imported = true;
     }
     if (contact) {
-      await postState('/api/contacts/tags', { person_ids: [person.id], add: tagName ? [tagName] : [], met_on: tagName ? today() : '' });
+      // Only a date the visitor entered is recorded; nothing is assumed from today's date.
+      await postState('/api/contacts/tags', { person_ids: [person.id], add: tagName ? [tagName] : [], met_on: h.met || '' });
       if (note) await postState('/api/contacts/notes', { person_id: person.id, text: note });
       busy = false;
       closeHandoff('#contacts', `${person.name} saved as a contact${imported ? ' from their public ORCID record' : ''}. Not followed: choose Follow in People if you want their new outputs in your Feed.`);
@@ -1284,18 +1303,22 @@ function handoffPanel() {
     fields.push(el('label', { class: 'field' }, 'Conference or context (optional)',
       el('input', { class: 'input', id: 'handoff-tag', list: 'known-tags', maxlength: '60', placeholder: 'e.g. FENS 2026', value: h.tag, oninput: e => { h.tag = e.target.value; } })),
     el('datalist', { id: 'known-tags' }, allTags(state.contacts).map(([t]) => el('option', { value: t }))),
+    el('label', { class: 'field' }, 'Date met (optional)',
+      el('input', { class: 'input', id: 'handoff-met', type: 'date', value: h.met, oninput: e => { h.met = e.target.value; } })),
     el('label', { class: 'field' }, 'Private note (optional)',
       el('textarea', { class: 'input', id: 'handoff-note', rows: '2', maxlength: '2000', placeholder: 'What did you talk about?', oninput: e => { h.note = e.target.value; } }, h.note)));
   } else {
     const groups = state.groups;
-    if (!groups.some(g => g.id === h.groupId)) h.groupId = groups.find(g => !(person && g.member_ids.includes(person.id)))?.id || '';
-    const select = el('select', { class: 'input', id: 'handoff-group', onchange: e => { h.groupId = e.target.value; render(); document.querySelector('#handoff-group')?.focus(); } },
-      groups.map(g => el('option', { value: g.id }, `${g.name}${person && g.member_ids.includes(person.id) ? ' (already a member)' : ''}`)),
+    if (!h.groupChosen) h.groupId = defaultHandoffGroup(state, person);
+    if (h.groupId && !groups.some(g => g.id === h.groupId)) h.groupId = '';
+    const select = el('select', { class: 'input', id: 'handoff-group', onchange: e => { h.groupId = e.target.value; h.groupChosen = true; render(); document.querySelector('#handoff-group')?.focus(); } },
+      groups.map(g => el('option', { value: g.id }, `${g.name}${isSampleGroup(g) ? ' (sample group)' : ''}${person && g.member_ids.includes(person.id) ? ' (already a member)' : ''}`)),
       el('option', { value: '' }, 'A new group…'));
     select.value = h.groupId;
     const already = person ? groups.filter(g => g.member_ids.includes(person.id)).map(g => g.name) : [];
     fields.push(el('label', { class: 'field' }, 'Group', select));
     if (already.length) fields.push(el('p', { class: 'helper' }, `Already a member of ${already.join(', ')}. Choosing one of those changes nothing.`));
+    if (groups.some(g => g.id === h.groupId && isSampleGroup(g))) fields.push(el('p', { class: 'helper' }, 'This is the labelled sample group. A real researcher you add here is your own data: Remove sample data keeps the group for them.'));
     if (!h.groupId) fields.push(el('label', { class: 'field' }, 'New group name', el('input', { class: 'input', id: 'handoff-group-name', maxlength: '120', value: h.groupName, oninput: e => { h.groupName = e.target.value; } })));
   }
   const action = contact ? (person ? 'Save as contact' : 'Read record & save as contact') : (person ? 'Add to group' : 'Read record & add to group');
@@ -1338,7 +1361,17 @@ function render() {
   const guide = document.querySelector('#guide');
   if (guide) {
     guide.replaceChildren(...[handoff ? handoffPanel() : !guideMemory.hidden && guidePanel()].filter(Boolean));
-    document.querySelector('#guide-toggle')?.setAttribute('aria-expanded', String(!guideMemory.hidden && !handoff));
+    const toggle = document.querySelector('#guide-toggle');
+    if (toggle) {
+      // The guide steps aside while a handoff waits for an answer; the toggle says so.
+      toggle.setAttribute('aria-expanded', String(!guideMemory.hidden && !handoff));
+      toggle.disabled = Boolean(handoff);
+      toggle.title = handoff ? 'Answer or cancel the pending question first' : '';
+    }
+    if (handoff?.focus) {
+      handoff.focus = false;
+      document.querySelector('#handoff-title')?.focus();
+    }
   }
   document.querySelector('#summary').replaceChildren(...[[followed, 'researchers followed'], [state.works.length, 'research outputs'], [state.groups.length, 'working groups']].map(([count, label]) => el('div', { class: 'stat' }, el('strong', {}, count), el('span', {}, label))));
   const view = document.querySelector('#view');

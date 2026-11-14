@@ -165,11 +165,14 @@ const checks = {
     assert.match(await panel.innerText(), /does not follow them or notify them/);
     assert.equal(imports().length, 0);
     assert.equal((await workspace(page)).people.length, 0);
-    // Keyboard: context → note → confirm → cancel.
+    // Keyboard: the heading has focus on arrival; then context → date met → note → confirm → cancel.
+    await page.waitForFunction(() => document.activeElement?.id === 'handoff-title');
     await page.locator('#handoff-tag').focus();
     await page.keyboard.type('FENS 2026');
     await page.keyboard.press('Tab');
-    assert.equal(await page.evaluate(() => document.activeElement.id), 'handoff-note');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'handoff-met');
+    // A date input has a stop per date part; leave it empty and move on.
+    await page.locator('#handoff-note').focus();
     await page.keyboard.type('Ask about the imaging protocol');
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => document.activeElement.textContent), 'Read record & save as contact');
@@ -187,6 +190,7 @@ const checks = {
     assert.equal(state.people.length, 1);
     assert.equal(state.people[0].following, false, 'Save as contact is not Follow');
     assert.deepEqual(state.contacts[STORED].tags, ['FENS 2026']);
+    assert.equal(state.contacts[STORED].met_on, '', 'no meeting date is assumed');
     assert.deepEqual(state.contacts[STORED].notes.map(n => n.text), ['Ask about the imaging protocol']);
     assert.match(await card.innerText(), new RegExp(`Public ORCID record ${STORED}, read`));
 
@@ -385,7 +389,7 @@ const checks = {
 
     // Removing the sample takes out the sample only.
     await page.locator('#demo-banner').getByRole('button', { name: 'Remove sample data' }).click();
-    assert.match(dialogs.at(-1).message, /3 sample persons[\s\S]*Your own researchers, contacts and groups stay/);
+    assert.match(dialogs.at(-1).message, /3 sample people[\s\S]*Your own researchers, contacts and groups stay/);
     await page.locator('#demo-banner').waitFor({ state: 'hidden' });
     state = await workspace(page);
     assert.deepEqual(state.people.map(p => p.id), [FIXTURE]);
@@ -431,6 +435,10 @@ const checks = {
     assert.equal((await workspace(page)).people.length, 0);
 
     // Interrupted: a reload while the record is being read never leaves a half-saved contact.
+    // Only invariants that hold for both engines are asserted: in the hosted Pyodide engine the
+    // reload stops the read, so nothing is stored; with this test server (like the local pilot
+    // server) the read may finish in the background. Either way no contact exists until a new
+    // confirmation, the question is asked again, and confirming never duplicates the person.
     await openNetwork(page, `/network/#contacts?save=${SLOW}`);
     await page.fill('#handoff-note', 'Interrupted note');
     await page.getByRole('button', { name: 'Read record & save as contact' }).click();
@@ -438,21 +446,53 @@ const checks = {
     await page.reload();
     await loaded(page);
     await page.locator('#handoff').waitFor();
-    let state = await workspace(page);
+    assert.equal(await text(page, '#handoff h2'), 'Save as contact', 'the question is asked again');
+    const state = await workspace(page);
     assert.deepEqual(state.contacts, {}, 'no contact without a completed, confirmed save');
-    assert.ok(state.people.length <= 1);
-    await page.waitForTimeout(3500); // let the slow fixture finish on the server side
-    await page.reload();
-    await loaded(page);
-    // The stored record is then reused: no second ORCID read, no duplicate.
-    assert.match(await text(page, '#handoff'), /already in your network/);
-    const reads = imports().length;
-    await page.getByRole('button', { name: 'Save as contact', exact: true }).click();
+    assert.ok(state.people.filter(p => p.id === SLOW).length <= 1, 'never a duplicate person');
+    // A draft is kept after an error (above), not across a reload: the reloaded form starts empty.
+    assert.equal(await page.inputValue('#handoff-note'), '');
+    await page.getByRole('button', { name: /save as contact$/i }).click();
     await page.locator(`#contact-${SLOW}`).waitFor();
-    state = await workspace(page);
-    assert.equal(imports().length, reads);
-    assert.equal(state.people.length, 1);
-    assert.deepEqual(state.contacts[SLOW].notes, []);
+    const after = await workspace(page);
+    assert.equal(after.people.filter(p => p.id === SLOW).length, 1);
+    assert.deepEqual(after.contacts[SLOW].notes, []);
+    await close();
+  },
+
+  // Review of #66: a real researcher added to the sample group is the user's own data.
+  async sampleGroupIsNeverTheDefaultAndKeepsRealMembers(browser) {
+    const { page, dialogs, close } = await context(browser, DESKTOP);
+    await openNetwork(page, '/network/#groups');
+    await page.click('#demo');
+    await page.locator('#demo-banner:not([hidden])').waitFor();
+    // Arriving at a handoff moves keyboard focus to its heading; the Guide toggle steps aside.
+    await openNetwork(page, `/network/#groups?add=${FIXTURE}`);
+    await page.waitForFunction(() => document.activeElement?.id === 'handoff-title');
+    assert.equal(await page.isDisabled('#guide-toggle'), true);
+    // With only the sample group present, the default is a new group, never the sample one.
+    assert.equal(await page.locator('#handoff-group option:checked').innerText(), 'A new group…');
+    assert.match(await page.locator('#handoff-group option[value="demo-open-science"]').innerText(), /\(sample group\)/);
+    // Choosing the sample group explicitly is allowed, and explained.
+    await page.selectOption('#handoff-group', 'demo-open-science');
+    assert.match(await text(page, '#handoff'), /This is the labelled sample group/);
+    await page.getByRole('button', { name: 'Read record & add to group' }).click();
+    await page.waitForURL(/\/network\/#groups\/demo-open-science$/);
+    assert.equal(await page.isDisabled('#guide-toggle'), false);
+    // A local role for the real member, then Remove sample data.
+    const editor = page.locator('.member-editor', { hasText: 'Josiah Carberry' });
+    await editor.getByLabel('Project role').fill('Imaging lead');
+    await editor.getByRole('button', { name: 'Save member details' }).click();
+    await page.locator('#notice', { hasText: 'Local details saved' }).waitFor();
+    await page.locator('#demo-banner').getByRole('button', { name: 'Remove sample data' }).click();
+    assert.match(dialogs.at(-1).message, /“Open Science Circle · Demo” holds your own members or requests, so it stays as “Open Science Circle”/);
+    await page.locator('#demo-banner').waitFor({ state: 'hidden' });
+    await page.locator('#notice', { hasText: 'Kept as your own group: Open Science Circle' }).waitFor();
+    const state = await workspace(page);
+    assert.equal(state.groups.length, 1);
+    assert.equal(state.groups[0].name, 'Open Science Circle');
+    assert.deepEqual(state.groups[0].member_ids, [FIXTURE]);
+    assert.equal(state.groups[0].member_details[FIXTURE].role, 'Imaging lead');
     await close();
   },
 

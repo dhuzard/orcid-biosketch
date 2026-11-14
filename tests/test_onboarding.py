@@ -99,3 +99,20 @@ def test_guided_journeys_in_a_browser(site, tmp_path):
         assert not required, f"No usable Chromium: {result.stderr.strip()[:200]}"
         pytest.skip(f"No usable Chromium: {result.stderr.strip()[:200]}")
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def _function(source: str, name: str) -> str:
+    match = re.search(r"(?:export )?function " + name + r"\(.*?\n}\n", source, re.S)
+    assert match, name
+    return match.group(0).removeprefix("export ")
+
+
+def test_bridge_sample_question_is_an_exact_copy_of_the_apps():
+    # The bridge runs before app.js and cannot import it, so it carries copies; they must not drift.
+    app = (ROOT / "web" / "network" / "app.js").read_text(encoding="utf-8")
+    bridge = (ROOT / "web" / "playground" / "network-bridge.js").read_text(encoding="utf-8")
+    for name in ("workspaceSummary", "sampleMessage"):
+        assert _function(bridge, name) == _function(app, name), name
+    for line in ("const isSampleGroup = group => /^demo-/.test(group.id);",
+                 "const plural = (count, word, many = `${word}s`) => `${count} ${count === 1 ? word : many}`;"):
+        assert line in app and line in bridge, line

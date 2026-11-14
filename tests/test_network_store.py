@@ -218,7 +218,7 @@ def test_remove_demo_takes_out_the_sample_only(store):
     store.tag_contacts(["demo-ada"], ["FENS 2026"])
     mine = store.create_group("My group", "", [ORCID_A, "demo-sam"])
     store.select_group_work(mine, store.state()["works"][-1]["id"], True)
-    assert store.remove_demo() == {"people": 3, "groups": 1}
+    assert store.remove_demo() == {"people": 3, "groups": 1, "kept_groups": []}
     state = store.state()
     assert [p["id"] for p in state["people"]] == [ORCID_A]
     assert not any(p["demo"] for p in state["people"]) and not any(w["demo"] for w in state["works"])
@@ -227,4 +227,30 @@ def test_remove_demo_takes_out_the_sample_only(store):
     assert list(state["contacts"]) == [ORCID_A]
     assert state["contacts"][ORCID_A]["notes"][0]["text"] == "Real private note"
     assert state["contacts"][ORCID_A]["tags"] == ["FENS 2026"]
-    assert store.remove_demo() == {"people": 0, "groups": 0}  # idempotent
+    assert store.remove_demo() == {"people": 0, "groups": 0, "kept_groups": []}  # idempotent
+
+
+def test_remove_demo_keeps_a_sample_group_that_holds_the_users_own_curation(store):
+    # Review of #66: a real member, their local role and a curated output in the sample group survive.
+    store.add_demo()
+    store.import_biosketch(bio(works=[work()]), follow=False)
+    store.add_group_members("demo-open-science", [ORCID_A])
+    store.set_group_member("demo-open-science", ORCID_A, "PI", "imaging", "leads WP2")
+    real_work = next(w["id"] for w in store.state()["works"] if not w["demo"])
+    store.select_group_work("demo-open-science", real_work, True)
+    store.create_group_request("demo-open-science", "Share the protocol", "", ORCID_A, "")
+    assert store.remove_demo() == {"people": 3, "groups": 0, "kept_groups": ["Open Science Circle"]}
+    [group] = store.state()["groups"]
+    assert group["id"] != "demo-open-science" and group["name"] == "Open Science Circle"
+    assert group["description"] == ""
+    assert group["member_ids"] == [ORCID_A]
+    assert group["member_details"] == {ORCID_A: {"role": "PI", "expertise": "imaging", "contribution": "leads WP2"}}
+    assert group["selected_work_ids"] == [real_work]
+    assert [r["title"] for r in group["requests"]] == ["Share the protocol"]
+    # A sample group with only a request of the user's own is kept too; an untouched one is not.
+    store.add_demo()
+    store.create_group_request("demo-open-science", "Book a room", "", None, "")
+    assert store.remove_demo()["kept_groups"] == ["Open Science Circle"]
+    store.add_demo()
+    assert store.remove_demo() == {"people": 3, "groups": 1, "kept_groups": []}
+    assert len(store.state()["groups"]) == 2

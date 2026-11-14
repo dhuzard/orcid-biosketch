@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, addRoute, bookmarklet, removalImpact, allTags, openActions, handoffRoute, knownPerson, workspaceSummary, sampleMessage, guideSteps } from './app.js';
+import { safeUrl, dateLabel, feedEntries, feedItems, feedTopics, scopeIds, groupSuggestions, sinceLastVisit, nextVisit, foldKey, groupWorks, parseOrcidList, groupRoute, addRoute, bookmarklet, removalImpact, allTags, openActions, handoffRoute, knownPerson, workspaceSummary, sampleMessage, guideSteps, sampleRemoval, defaultHandoffGroup } from './app.js';
 
 test('external links reject executable and relative URLs', () => {
   for (const value of ['javascript:alert(1)', 'data:text/html,hello', '/api/state', '', null]) assert.equal(safeUrl(value), null);
@@ -278,4 +278,22 @@ test('the Connect & Organize guide follows the workspace, step by step', () => {
   assert.deepEqual(done(full), ['person', 'context', 'note', 'follow-up', 'group', 'curate']);
   assert.equal(done(full, true).length, 7);
   assert.ok(guideSteps(full).every(s => s.href.startsWith('#')));
+});
+
+test('Remove sample data keeps a sample group holding your own members or requests (review of #66)', () => {
+  const people = [sample, real];
+  const untouched = { id: 'demo-open-science', name: 'Open Science Circle · Demo', member_ids: ['demo-ada'], requests: [] };
+  assert.deepEqual(sampleRemoval({ people, groups: [untouched] }), { people: 1, deleted: 1, kept: [] });
+  const withReal = { ...untouched, member_ids: ['demo-ada', real.id] };
+  assert.deepEqual(sampleRemoval({ people, groups: [withReal] }), { people: 1, deleted: 0, kept: [{ from: 'Open Science Circle · Demo', to: 'Open Science Circle' }] });
+  const withRequest = { ...untouched, requests: [{ id: 'r' }] };
+  assert.equal(sampleRemoval({ people, groups: [withRequest] }).kept.length, 1);
+});
+
+test('Add to group never defaults to the sample group', () => {
+  const sampleGroup = { id: 'demo-open-science', member_ids: [] };
+  const mine = { id: 'g1', member_ids: [] };
+  assert.equal(defaultHandoffGroup({ groups: [sampleGroup] }, null), '');
+  assert.equal(defaultHandoffGroup({ groups: [sampleGroup, mine] }, null), 'g1');
+  assert.equal(defaultHandoffGroup({ groups: [sampleGroup, { ...mine, member_ids: [real.id] }] }, real), '');
 });

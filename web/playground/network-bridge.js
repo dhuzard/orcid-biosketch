@@ -33,28 +33,48 @@ const handoff = params.get('import');
 const sample = !handoff && params.has('sample');
 if (handoff || sample) history.replaceState(null, '', location.pathname + (location.hash || (handoff ? '#people' : '#feed')));
 
-const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
-
 // The labelled sample never silently mixes with someone's own network: the question says what is
-// already here (web/network/app.js asks the same from its "Explore sample data" button).
-async function sampleQuestion() {
+// already here. These helpers are exact copies of workspaceSummary / sampleMessage in
+// web/network/app.js (which this page loads after the bridge has run); tests/test_onboarding.py
+// fails if the copies drift apart.
+const isSampleGroup = group => /^demo-/.test(group.id);
+const plural = (count, word, many = `${word}s`) => `${count} ${count === 1 ? word : many}`;
+
+function workspaceSummary(data) {
+  const sample = new Set(data.people.filter(p => p.demo).map(p => p.id));
+  return {
+    people: data.people.length - sample.size,
+    sample_people: sample.size,
+    contacts: Object.keys(data.contacts || {}).filter(id => !sample.has(id)).length,
+    groups: data.groups.filter(g => !isSampleGroup(g)).length,
+    sample_groups: data.groups.filter(isSampleGroup).length,
+  };
+}
+
+function sampleMessage(summary) {
+  if (summary.sample_people) return null;
   const intro = 'Add the labelled sample people and group to the research network stored in this browser?';
-  const generic = `${intro}\n\nEvery sample person, output and group is fictional and labelled “Demo”. If this browser already holds your own network, nothing of it is replaced: the sample is added next to it, and Remove sample data takes only the sample out again.`;
+  if (!summary.people && !summary.contacts && !summary.groups) {
+    return `${intro}\n\nEvery sample person, output and group is fictional and labelled “Demo”. Remove sample data takes it out again.`;
+  }
+  return `${intro}\n\nThis workspace already holds your own network: ${plural(summary.people, 'researcher')}, ${plural(summary.contacts, 'contact')} and ${plural(summary.groups, 'group')}. `
+    + 'Nothing of yours is replaced or changed. The sample is added next to it, every item labelled “Demo”, and Remove sample data takes only the sample out again. '
+    + 'To keep the two apart entirely, download your workspace first or try the sample in a private window.';
+}
+
+// The engine may still be downloading on a first visit; wait for it a while, then ask without counts.
+const ENGINE_WAIT_MS = 20000;
+
+async function sampleQuestion() {
   try {
     const reply = JSON.parse(await Promise.race([call('api', { method: 'GET', target: '/api/state', body: null }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('slow')), 5000))]));
-    const state = JSON.parse(reply.body);
-    const demo = new Set(state.people.filter(p => p.demo).map(p => p.id));
-    if (demo.size) return null; // Already here: nothing to add, nothing to ask.
-    const people = state.people.length;
-    const contacts = Object.keys(state.contacts || {}).length;
-    const groups = state.groups.length;
-    if (!people && !contacts && !groups) return generic;
-    return `${intro}\n\nThis workspace already holds your own network: ${plural(people, 'researcher')}, ${plural(contacts, 'contact')} and ${plural(groups, 'group')}. `
-      + 'Nothing of yours is replaced or changed. The sample is added next to it, every item labelled “Demo”, and Remove sample data takes only the sample out again. '
-      + 'To keep the two apart entirely, download your workspace first or try the sample in a private window.';
+      new Promise((_, reject) => setTimeout(() => reject(new Error('slow')), ENGINE_WAIT_MS))]));
+    return sampleMessage(workspaceSummary(JSON.parse(reply.body)));
   } catch {
-    return generic; // The engine is still starting (or unavailable): ask without the counts.
+    // The engine is unavailable or still starting: ask without the counts, saying the same thing.
+    return 'Add the labelled sample people and group to the research network stored in this browser?\n\n'
+      + 'Every sample person, output and group is fictional and labelled “Demo”. If this browser already holds your own network, nothing of it is replaced: '
+      + 'the sample is added next to it, and Remove sample data takes only the sample out again.';
   }
 }
 
