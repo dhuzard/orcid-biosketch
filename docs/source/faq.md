@@ -28,7 +28,7 @@ The installed web app can reopen cached assets after an initial visit. Stored sa
 
 In the hosted Research network, tags, notes, and follow-ups are browser-local. They are not invitations and do not notify the named researchers. Take care with workspace backup files, which can contain these notes.
 
-## Can we collaborate inside a private, verified team?
+## Is there a private cloud team workspace?
 
 The codebase contains invite-based Teams, but cloud activation is not yet documented as complete for the hosted service. A local working group and a shareable public link **do not** imply accepted membership. Follow the [availability and trust notes](trust.md).
 

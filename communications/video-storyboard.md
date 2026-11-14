@@ -34,6 +34,9 @@ The final cut can move faster than these timings; retain every scientific qualif
 
 ## Production acceptance criteria
 
+Publication is gated by [`release-checklist.md`](release-checklist.md) (Release B); the criteria below are the production detail.
+
+
 1. Record the **actual merged, deployed version**. Add the Git commit/date in the video description.
 2. Test every scripted interaction against the UI in the target environment; do not fake successful downloads, identity verification, emails or invitations.
 3. Clearly label sample/stored data and synthetic Group view records. Remove all real contact notes, tokens, credentials and unpublished team details from capture.

@@ -45,7 +45,7 @@ as a 7-day workflow artifact.
 | `groups-clip-6-wrapped-cards-embed` | ~18 s | Group Wrapped, card deck, embed |
 
 Group post copy (drafts):
-- **Long cut.** Research is a team sport, but team admin is not. Curate a roster, pick the project's outputs, track requests, and see who has published together, from public ORCID records alone. Membership is yours to curate and is never presented as verified. Open source, stored in your browser.
+- **Long cut.** Research is a team sport, but team admin is not. Curate a roster, pick the project's outputs, track requests, and see which DOIs members' public ORCID records share. Membership is yours to curate and is never presented as verified. Open source, stored in your browser.
 - **Clip 4.** Paste a list of ORCID iDs, get a group link. Two members are linked only when both public records assert the same DOI. (Demo with fictional researchers.)
 - **Clip 5.** What should the whole group fix in its ORCID records? Group record health ranks the most common issues, then drafts a team biosketch in ERC, NIH or Horizon format.
 - **Clip 3.** One download for the team: roster, merged bibliography, member biosketches and a manifest of exactly what was selected.

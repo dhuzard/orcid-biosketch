@@ -52,7 +52,7 @@ $('#compose-form').addEventListener('submit', event => {
 
 function preview() {
   $('#title').textContent = group.name;
-  $('#lede').textContent = 'A group link. Read the members’ public ORCID records to see who has published together.';
+  $('#lede').textContent = 'A group link. Read the members’ public ORCID records to see which DOIs more than one record lists.';
   $('#group-name').textContent = group.name;
   $('#member-count').textContent = String(group.members.length);
   $('#members').replaceChildren(...group.members.map(id => el('li', {},
@@ -118,7 +118,7 @@ function graphSvg(graph, onSelect) {
     const angle = (2 * Math.PI * i) / graph.nodes.length - Math.PI / 2;
     return [node.orcid, { x: centre + radius * Math.cos(angle), y: centre + radius * Math.sin(angle) }];
   }));
-  const svg = el('svg:svg', { viewBox: `0 0 ${size} ${size}`, class: 'graph', role: 'img', 'aria-label': `Collaboration graph: ${graph.edges.length} links between ${graph.nodes.length} members` });
+  const svg = el('svg:svg', { viewBox: `0 0 ${size} ${size}`, class: 'graph', role: 'img', 'aria-label': `Shared-DOI graph: ${graph.edges.length} links between ${graph.nodes.length} members` });
   for (const edge of graph.edges) {
     const a = position.get(edge.source);
     const b = position.get(edge.target);
@@ -143,6 +143,7 @@ function graphPanel() {
   const detail = el('div', { class: 'edge-detail', 'aria-live': 'polite' }, el('p', { class: 'muted' }, graph.edges.length ? 'Select a line to see the DOIs both records assert.' : 'No two members’ records assert the same DOI yet.'));
   const select = edge => detail.replaceChildren(
     el('h3', {}, `${nameOf(edge.source)} & ${nameOf(edge.target)}`),
+    el('p', { class: 'muted edge-rule' }, `Both public records list ${edge.outputs.length === 1 ? 'this DOI' : `these ${edge.outputs.length} DOIs`}. This is a shared DOI assertion, not verified collaboration.`),
     el('ul', { class: 'outputs' }, edge.outputs.map(o => el('li', {}, el('b', {}, o.title || 'Untitled'), ` ${o.year || ''} · `, doiLink(o.doi)))));
   const unlinked = graph.nodes.filter(n => !n.linked);
   return [
@@ -150,13 +151,14 @@ function graphPanel() {
     el('div', { class: 'graph-wrap' }, graphSvg(graph, select), detail),
     unlinked.length ? el('p', { class: 'muted' }, `Not linked: ${unlinked.map(n => `${nameOf(n.orcid)} (${n.doi_count} DOI${n.doi_count === 1 ? '' : 's'})`).join(', ')}. This may mean their records list outputs without DOIs.`) : '',
     el('table', { class: 'pairs' }, el('caption', {}, 'Links as a table'),
-      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, 'Members'), el('th', { scope: 'col' }, 'Shared DOIs'))),
-      el('tbody', {}, graph.edges.map(e => el('tr', {}, el('td', {}, `${nameOf(e.source)} & ${nameOf(e.target)}`), el('td', {}, String(e.outputs.length)))))),
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, 'Members'), el('th', { scope: 'col' }, 'Shared DOIs'), el('th', { scope: 'col' }, 'Supporting DOI(s)'))),
+      el('tbody', {}, graph.edges.map(e => el('tr', {}, el('td', {}, `${nameOf(e.source)} & ${nameOf(e.target)}`), el('td', {}, String(e.outputs.length)),
+        el('td', {}, e.outputs.flatMap((o, i) => [i ? ', ' : '', doiLink(o.doi)])))))),
   ];
 }
 
 const TABS = {
-  'Collaboration graph': graphPanel,
+  'Shared-DOI graph': graphPanel,
   'Shared outputs'() {
     const shared = result.graph.shared_outputs;
     if (!shared.length) return [el('p', {}, 'No output is asserted by more than one member.')];
@@ -292,7 +294,7 @@ function render() {
   $('#tabs').replaceChildren(...Object.keys(TABS).map((name, i) => el('button', { type: 'button', role: 'tab', id: `tab-${i}`, 'aria-controls': 'panel', 'data-tab': name, onclick: () => showTab(name) }, name)));
   $('#provenance').textContent = `Built in your browser from ${graph.nodes.length} public ORCID records read at ${new Date().toLocaleString()}. Group membership comes from the link and is not confirmed by the people listed.`;
   $('#view').hidden = false;
-  showTab('Collaboration graph');
+  showTab('Shared-DOI graph');
 }
 
 // ---- Copy into the visitor's own research network -------------------------

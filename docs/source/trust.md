@@ -19,12 +19,15 @@ A Group view link joins two records **only when the same DOI is listed in both p
 | --- | --- | --- |
 | Hosted Studio and public Group view | Computation in your browser; downloaded exports on your device | Public ORCID API when you request a live record; hosted site serves code/runtime |
 | Hosted Research network and Contacts | A workspace in your browser (IndexedDB/local browser storage) | Public ORCID API on requested import/refresh |
-| Browser workspace backup and encrypted group package | File downloaded to your device | No automatic upload of the file; users control sharing |
+| Browser workspace backup | Unencrypted file downloaded to your device; includes Contacts notes, tags and follow-ups | No automatic upload of the file; users control sharing |
+| Encrypted team package | Password-encrypted file downloaded to your device; group details and members' public records, **no Contacts notes** | No automatic upload; anyone with the file and password can read it |
+| Shareable Group view link | The URL fragment: group name and public ORCID iDs only | Recipients' browsers read the public ORCID records; the link is as public as where you post it |
+| Static group snapshot / web component | Files on the website where you publish them | Public by design |
 | Optional ORCID sign-in | Tab-scoped authentication state | ORCID authorization and public keys |
 | Private Teams / personal cloud sync **when activated** | Google Cloud Firestore in an EU region, subject to team access rules | ORCID sign-in, token-exchange endpoint and Firebase/Firestore API |
 | Python CLI / local network pilot | Local files and (for the network pilot) a local SQLite database | Optional public ORCID API calls |
 
-**Current release qualification (2 November 2026):** The Teams backend code, access rules and tests exist, but repository deployment notes say the cloud exchange endpoint awaits production activation. Do not assume that private Teams or cloud sync are available on the hosted site without a successful live test. The static hosted network and local/manual backups are distinct.
+**Current release qualification (14 November 2026):** The Teams backend code, access rules and tests exist, but repository deployment notes say the cloud exchange endpoint awaits production activation. Private Teams and cloud sync are **not available** on the hosted site until a successful live test and a security review are recorded. The static hosted network and local/manual backups are distinct. The [claims and privacy audit](https://github.com/dhuzard/science-record-player/blob/main/communications/claims-privacy-audit.md) keeps the per-feature availability matrix.
 
 ## What should never be published inadvertently?
 

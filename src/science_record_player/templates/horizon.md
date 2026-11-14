@@ -69,3 +69,5 @@
 ---
 
 Generated from the ORCID record {{ person.orcid }}; synchronized {{ generated_at }}.
+
+_Draft built from public ORCID assertions: not an official funder form, not a funder-approved submission and not independently verified. Check every section against the funder's current requirements before use._

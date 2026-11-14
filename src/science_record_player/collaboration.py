@@ -59,7 +59,10 @@ def collaboration_graph(bios: list[dict[str, Any]]) -> dict[str, Any]:
         "nodes": [{**node, "linked": node["orcid"] in linked} for node in nodes],
         "edges": [{"source": a, "target": b, "outputs": outputs} for (a, b), outputs in sorted(edges.items())],
         "shared_outputs": shared,
-        "basis": "Members are linked only when both public records assert the same DOI.",
+        "basis": (
+            "Members are linked only when both public records list the same DOI. "
+            "A shared DOI is not verified collaboration, authorship roles or group membership."
+        ),
     }
 
 

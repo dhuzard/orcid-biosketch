@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#3a2737">
-  <meta name="description" content="Private team workspaces: only signed-in, invited members can open a team.">
+  <meta name="description" content="Private team workspaces (not yet enabled on the public site): when activated, only signed-in, invited members who accept can open a team.">
   <meta name="robots" content="noindex">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
@@ -32,16 +32,16 @@
 
   <main id="main" tabindex="-1">
     <section class="hero">
-      <div class="eyebrow">PRIVATE · MEMBERS ONLY</div>
+      <div class="eyebrow">IN DEVELOPMENT · NOT YET ENABLED ON THE PUBLIC SITE</div>
       <h1 id="title">Team workspaces</h1>
-      <p class="lede" id="lede">A private page for each team. Only people you invite, who sign in with their own ORCID iD and accept, can open it.</p>
+      <p class="lede" id="lede">Planned: a private page for each team, which only people you invite, who sign in with their own ORCID iD and accept, can open. Cloud Teams are not confirmed active on this site; the browser-local research network and encrypted team packages work without them.</p>
       <p id="status" class="status" role="status" aria-live="polite"></p>
     </section>
     <section id="view"></section>
   </main>
 
   <footer class="site-footer">
-    <p>Team data (roles, contributions, notes, requests, selected outputs) is stored in Google Cloud Firestore in the EU and is readable only by the team's active members. Public ORCID records are read live and are not copied. Leaving a team removes your access; you can delete anything recorded about you.</p>
+    <p>When Teams are activated, team data (roles, contributions, notes, requests, selected outputs) is stored in Google Cloud Firestore in the EU and the access rules allow only the team's active members to read it. Signing in shows that you control an ORCID account; it does not verify your affiliations or credentials, and membership is what the team records, not an ORCID assertion. Public ORCID records are read live and are not copied. Leaving a team removes your access; you can delete anything recorded about you.</p>
     <p><a href="https://orcid.org" target="_blank" rel="noopener noreferrer">Official ORCID site</a> · <a href="/feedback/">Suggest an improvement</a>. __BRAND_TRADEMARK__ __BRAND_NAME__ is developed and maintained independently by __BRAND_OWNER__ (<a href="https://github.com/dhuzard/science-record-player/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">__BRAND_LICENSE__ license</a>).</p>
   </footer>
 </body>
