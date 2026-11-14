@@ -66,11 +66,32 @@ tags, notes and follow-ups are typed live in the recording.
 
 Post copy (draft): *You met twelve people at the conference. A month later, who wanted the protocol? Contacts lets you tag people by event, keep private notes, and track follow-ups. All in your browser, never in a team pack, and the people never see it.*
 
+## Explore & Play cuts (#58, draft)
+
+`node demo/play-campaign.mjs site` renders the Explore & Play launch cuts from `demo/play-campaign.json`. **Draft, not
+approved for publication**: blocked by #44 and Release B in `communications/release-checklist.md`.
+
+Screens are the Studio on the stored profile (labelled on screen); each named segment is cut to its exact planned
+length from one continuous take. The Studio → network bridge and first-run guides are hidden. The cuts are silent with
+burned-in captions; `--narration=<file>` / `--music=<file>` add an optional audio version, and no audio file is included.
+Co-author names are masked by default (`demo/coauthor_mask.py` serves the filmed browser a masked copy of the stored
+profile; the file itself is not changed). `--show-coauthor-names` turns this off and needs the owner's consent.
+`node demo/play-campaign.mjs --text-only` rewrites only the caption files and transcript
+(`communications/video-drafts/`). In the manual workflow, tick the `play_campaign` input.
+
+| File | Length | Segments |
+|---|---|---|
+| `play-campaign-square.mp4` | 42 s, 1080x1080 | hook 5 · profile 7 · card 8 · journey 9 · useful 6 · cta 7 |
+| `play-campaign-landscape.mp4` | 42 s, 1280x720 | same, 16:9 master |
+| `play-walkthrough-landscape.mp4` | 115 s, 1280x720 | intro, profile, card, heatmap, wrapped, fortune, check, funder, citations, cta |
+| `play-campaign-manifest.json` | | commit SHA, render date, data source, measured durations |
+| `play-*-thumbnail.png` | | frame from the opening card |
+
 ## LinkedIn copy (drafts)
 
 **Full demo.** Your ORCID record already holds a decade of your work. What if you could reuse it, on your terms?
 Publish or Play. Science Record Player turns the public record into a biosketch, NIH/ERC/Horizon templates, citations, a quality check and a few playful extras.
-The researcher controls the narrative; ORCID supplies the assertions; every field keeps its provenance. Open source, works offline.
+The researcher controls the narrative; ORCID supplies the assertions; every field keeps its provenance. Open source; runs in your browser, and the stored sample reopens offline after a first visit.
 science-record-player.web.app  #ORCID #OpenScience #FAIR #ResearchData
 
 **Clip 1.** How complete is your ORCID record? The Studio gives a score and tells you exactly what to fix.

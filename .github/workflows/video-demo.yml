@@ -5,6 +5,10 @@ name: Render scientist-facing demo videos
 on:
   workflow_dispatch:
     inputs:
+      play_campaign:
+        description: "Also render the Explore & Play draft cuts (#58, demo/play-campaign.mjs). Drafts only: not approved for publication."
+        type: boolean
+        default: false
       organize_campaign:
         description: "Also render the Connect & Organize draft cuts (#59, demo/organize-campaign.mjs). Drafts only: not approved for publication."
         type: boolean
@@ -51,6 +55,9 @@ jobs:
         run: node demo/extras.mjs site
       - name: Assemble chaptered feature tour, invitation and review notes
         run: node demo/full-tour.mjs site
+      - name: Capture Explore & Play draft cuts (optional, #58)
+        if: ${{ inputs.play_campaign }}
+        run: node demo/play-campaign.mjs site
       - name: Capture Connect & Organize draft cuts (optional, #59)
         if: ${{ inputs.organize_campaign }}
         run: node demo/organize-campaign.mjs site
@@ -62,6 +69,8 @@ jobs:
             demo/out/*.mp4
             demo/out/chapters.txt
             demo/out/video-review-checklist.txt
+            demo/out/play-campaign-manifest.json
+            demo/out/play-*-thumbnail.png
             demo/out/organize-campaign-manifest.json
             demo/out/organize-*-thumbnail.png
           retention-days: 7
