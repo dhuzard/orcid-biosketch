@@ -18,7 +18,7 @@ Two ways in, both running in your browser. No sign-in is needed to explore publi
 | Know which information is shared or stored, and what is available | Both | [Provenance, limits and privacy](trust.md) | — |
 | Tell the developers what I need as a scientist | Both | [Feedback](feedback.md) | [Feedback](https://science-record-player.web.app/feedback/) |
 
-The [five-minute guide](getting-started.md) walks through one task on each path.
+The [five-minute guide](getting-started.md) walks through one task on each path; the [tutorials](tutorials.md) follow a researcher from Explore to a contact and a group.
 
 ## Scientific scope
 
@@ -34,6 +34,7 @@ The [five-minute guide](getting-started.md) walks through one task on each path.
 :caption: For scientists
 
 getting-started
+tutorials
 studio
 research-network
 groups

@@ -27,7 +27,7 @@ Developed and maintained independently by **Damien Huzard / Neuronautix** under 
 3. Open **Citations & data** and download **BibTeX**, **RIS**, CSL JSON, the provenance-aware **Biosketch JSON**, Schema.org **JSON-LD** or Markdown.
 4. Try **Trading card**, **Heatmap**, **Wrapped**, **Fortune** or **Funder biosketch** (NIH / ERC / Horizon *drafts*).
 
-Next step: **Add to my research network →** on a profile hands that iD to My Network, which asks you to confirm before importing. Full walkthrough: [Get started](docs/source/getting-started.md).
+Next step: **Keep this researcher in My Network** (from #56) offers **Save as contact**, **Add to group** or **Follow**, and asks before anything is read or saved. Walkthroughs: [Get started](docs/source/getting-started.md) and the [five-minute tutorials](docs/source/tutorials.md).
 
 ## Quick Start: Connect & Organize
 
@@ -39,7 +39,7 @@ Next step: **Add to my research network →** on a profile hands that iD to My N
 4. Open **Team pack** and download it for the selected people, outputs and dates. Team packs never include Contacts notes.
 5. Optional: compose a shareable **[Public Group View](https://science-record-player.web.app/group/)** link from public ORCID iDs. It carries only a group name and the iDs.
 
-Before investing time in notes, download a **workspace backup** (it contains your notes, so keep it private). Full walkthrough: [My Network guide](docs/source/research-network.md) and [Public Group View guide](docs/source/groups.md).
+Before investing time in notes, download a **workspace backup** (it contains your notes, so keep it private). Full walkthrough: [Explore → Contact → Group tutorial](docs/source/tutorials.md#tutorial-2--connect--organize-explore--contact--group), [My Network guide](docs/source/research-network.md) and [Public Group View guide](docs/source/groups.md).
 
 ## What is available where?
 
@@ -54,7 +54,8 @@ Before investing time in notes, download a **workspace backup** (it contains you
 | Optional ORCID sign-in | Live public web app (not re-checked on the current hostname) | Tab-scoped session state |
 | Python package, `srp` CLI, local SQLite network pilot, Web Components | Local Python pilot / self-hosted | Your local files |
 | **Private cloud Teams** and personal cloud sync | **Experimental — not available.** Not yet confirmed active on the public site | Would use an EU cloud database if activated; code and emulator tests exist, no production test or security review recorded |
-| Guided first-run journeys, published demo video | Planned ([#56](https://github.com/dhuzard/science-record-player/issues/56); video not published) | — |
+| Guided first-run journeys and Explore → My Network handoffs (Save as contact, Add to group) | Added by #56 ([PR #66](https://github.com/dhuzard/science-record-player/pull/66), which merges before this documentation); not verified on the live site | This browser, after you confirm each import |
+| Published demo video | Planned; no video published yet | — |
 
 “Live public web app” means the feature is deployed with the site; the [claims and privacy audit](communications/claims-privacy-audit.md) records that **no feature has yet been verified on the live deploy** and that public promotion is blocked until the [release checklist](communications/release-checklist.md) is signed. Studio and My Network never require private cloud Teams. See [Provenance, limits and privacy](docs/source/trust.md).
 
