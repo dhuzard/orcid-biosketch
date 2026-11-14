@@ -78,11 +78,11 @@ async function view(b, base) {
     await p.click('text=Preview the link'); await p.waitForTimeout(1600);
     await p.click('#load'); await p.waitForSelector('#tabs button', { timeout: 60000 }); await p.waitForTimeout(1200);
     seg('graph'); await top(p.locator('#tabs'));
-    await caption(p, 'COLLABORATION GRAPH', 'Linked only by shared DOIs.', 'A line appears only when both public records assert the same DOI. It shows co-asserted outputs, not proven collaboration.');
+    await caption(p, 'SHARED-DOI GRAPH', 'Linked only by shared DOIs.', 'A line appears only when both public records list the same DOI. Select it to see the DOIs. A shared DOI is not proof of collaboration.');
     await p.waitForTimeout(4200);
     await p.locator('line.edge').first().click({ force: true }); await p.waitForTimeout(3800);
     seg('shared'); await p.click('[data-tab="Shared outputs"]'); await top(p.locator('#tabs')); await p.waitForTimeout(500);
-    await caption(p, 'SHARED OUTPUTS', 'Every link cites its evidence.', 'Outputs asserted by more than one member, with the DOI that connects them.');
+    await caption(p, 'SHARED OUTPUTS', 'Every link shows its shared DOI.', 'Outputs listed by more than one member, with the DOI both records list.');
     await p.waitForTimeout(5000);
     seg('health'); await p.click('[data-tab="Record health"]'); await top(p.locator('#tabs')); await p.waitForTimeout(500);
     await caption(p, 'RECORD HEALTH', 'See what the group should fix, together.', 'The most common issues across all members, and exactly how to fix each in ORCID.');
@@ -109,8 +109,8 @@ const site = await serveSite();
 const browser = await chromium.launch();
 try {
   const intro = await titleCard(browser, 'g-intro', `<h1>Working groups,<br><em>without the admin.</em></h1>
-    <p>Curate a roster, pick the project's outputs, and see who has published together, from public ORCID records alone.</p>
-    <div><span class="pill">locally curated</span><span class="pill">linked by shared DOIs</span><span class="pill">no server</span></div>`, 5.5);
+    <p>Curate a roster, pick the project's outputs, and see which DOIs members' public ORCID records share.</p>
+    <div><span class="pill">locally curated</span><span class="pill">linked by shared DOIs</span><span class="pill">browser-local</span></div>`, 5.5);
   const outro = await titleCard(browser, 'g-outro', `<h1>Membership is yours to curate.<br><em>Never presented as verified.</em></h1>
     <p>Open source · stored in your browser · public ORCID data only.</p>
     <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/science-record-player</span></div>`, 5);

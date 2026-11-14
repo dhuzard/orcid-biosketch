@@ -1,6 +1,6 @@
 # Community launch copy and lightweight pilot
 
-Do not publish until the public docs/feedback URLs are verified, the new hostname is live (INF-13) and ORCID has reviewed the rebranded app, and the recorded video is checked.
+Do not publish until the public docs/feedback URLs are verified, the new hostname is live (INF-13) and ORCID has reviewed the rebranded app (#44), and the recorded video is checked. Every item in [`release-checklist.md`](release-checklist.md) (Release B) must be signed first; current findings are in [`claims-privacy-audit.md`](claims-privacy-audit.md).
 
 ## LinkedIn / community announcement (English)
 

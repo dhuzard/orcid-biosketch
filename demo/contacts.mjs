@@ -17,7 +17,7 @@ async function take(b, base) {
     const seg = (id) => segs.push({ id, t: at() });
     await p.goto(`${base}network/#contacts`); await p.waitForTimeout(9000);
     segs.t0 = at(); seg('meet');
-    await caption(p, 'CONTACTS', 'People you meet, kept in context.', 'Tag everyone from one conference or meeting. Everything stays private, in this browser. The people never see it.');
+    await caption(p, 'CONTACTS', 'People you meet, kept in context.', 'Tag everyone from one conference or meeting. Stored only in this browser unless you export a backup. Nobody is notified.');
     await p.waitForTimeout(4600);
     await top(p.getByLabel('Conference or context')); await p.waitForTimeout(500);
     await type(p.getByLabel('Conference or context'), 'FENS 2026 (Demo)'); await p.waitForTimeout(500);
@@ -64,8 +64,8 @@ const site = await serveSite();
 const browser = await chromium.launch();
 try {
   const intro = await titleCard(browser, 'c-intro', `<h1>Everyone you meet,<br><em>in context.</em></h1>
-    <p>Tag people by conference, note what you discussed, and track what you promised. Private to your browser.</p>
-    <div><span class="pill">private notes</span><span class="pill">follow-ups</span><span class="pill">never shared</span></div>`, 5.5);
+    <p>Tag people by conference, note what you discussed, and track what you promised. Stored in your browser; backups you download contain these notes.</p>
+    <div><span class="pill">private notes</span><span class="pill">follow-ups</span><span class="pill">not sent anywhere</span></div>`, 5.5);
   const outro = await titleCard(browser, 'c-outro', `<h1>Your notes are yours.<br><em>Never in a team pack.</em></h1>
     <p>Open source · stored in your browser · public ORCID data only.</p>
     <div><span class="pill">${SITE}</span><span class="pill">github.com/dhuzard/science-record-player</span></div>`, 5);

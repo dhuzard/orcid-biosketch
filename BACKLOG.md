@@ -75,6 +75,7 @@ non-ORCID sources must be labelled per field with its origin. Playful outputs
 | INF-12 | Independent identity per ORCID brand guidance (palette, disclaimer, ownership) | P0 | done | session |
 | INF-13 | Final product name, hostname and repository migration | P0 | in-progress | owner |
 | INF-14 | Rename `orcid_biosketch` / `orcid-biosketch` / `<orcid-*>` with compatibility aliases | P2 | in-review | session |
+| INF-15 | Pre-promotion audit: scientific claims, privacy boundaries, brand readiness (#55) | P0 | in-review | session |
 
 ---
 
@@ -940,6 +941,18 @@ imported person, so removing someone's tags did not remove them from the list.
 - **Evidence** `tests/test_navigation.py`; `web/navigation.browser.test.mjs` (Chromium: menu and brand on every page, no dead links, keyboard order and focus ring, 320px, `#feed`/`#people`/`#contacts`/`#groups`/`#saved`, `?sample=1#groups`, `/group/`, `/group/#v1.…`, `/group/?packages=1`), run by the CI `browser` job.
 - **Open** a small user test of the menu labels; merge and check on the live site.
 
+## INF-15 — Pre-promotion audit: scientific claims, privacy boundaries, brand readiness
+
+- **Priority** P0 · **Status** in-review · **Owner** session (sign-off: owner)
+- **Why** Copy said DOIs “prove” people published together, the feed called observation time “New on ORCID”, and the Teams page described cloud storage as live. Issue #55.
+- **Files** `communications/claims-privacy-audit.md`, `communications/release-checklist.md`, `tests/test_claims.py`, `web/playground/group-link.test.mjs`, `web/playground/group.*`, `web/playground/studio.js`, `web/playground/team.html`, `web/network/app.js`, `src/science_record_player/collaboration.py`, funder templates, `demo/*.mjs`, `docs/source/trust.md`.
+- [x] Cross-surface audit with before/after table and privacy/availability matrix.
+- [x] Shared-DOI wording with supporting DOIs in the Group view; funder drafts and feed dates scoped.
+- [x] Regression assertions (`tests/test_claims.py`, `web/playground/group-link.test.mjs`).
+- [ ] Teams nav entry gated (#54) and homepage hero checked (#53).
+- [ ] #44 outcome for the rebranded app recorded.
+- [ ] Release A and B checklists signed by the owner on the deployed site.
+
 ## Change log
 
 Append-only. Newest entries at the bottom. One line per status or scope change.
@@ -1034,3 +1047,4 @@ Append-only. Newest entries at the bottom. One line per status or scope change.
 | 2026-11-10 | INF-13 | Old address disabled by the owner; GitHub repository renamed to dhuzard/science-record-player and links updated | scope |
 | 2026-11-10 | INF-14 | Package, CLI and widgets renamed with deprecated aliases | planned → in-review |
 | 2026-11-14 | NAV-01 | Shared SRP menu and brand on every page, network page rebranded, cloud Teams removed from navigation and labelled experimental; regression tests for deep links, keyboard and 320px (#54) | — → in-review |
+| 2026-11-14 | INF-15 | Claims/privacy audit, release checklist and regression tests (#55); production checks and #44 remain open | — → in-review |

@@ -15,7 +15,7 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ".[dev]"
       - run: pytest -q
-      - run: node --test web/srp-biosketch.test.mjs web/srp-group.test.mjs web/rename-compat.test.mjs web/network/app.test.mjs web/playground/digest.test.mjs web/playground/auth.test.mjs web/playground/teampack.test.mjs web/playground/feedback.test.mjs
+      - run: node --test web/srp-biosketch.test.mjs web/srp-group.test.mjs web/rename-compat.test.mjs web/network/app.test.mjs web/playground/digest.test.mjs web/playground/auth.test.mjs web/playground/teampack.test.mjs web/playground/feedback.test.mjs web/playground/group-link.test.mjs
 
   browser:
     # Shared navigation, deep links and 320px layout in Chromium, on the built site (#54).

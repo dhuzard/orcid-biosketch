@@ -81,7 +81,7 @@ const TABS = {
     };
     const picker = el('select', { 'aria-label': 'Funder template', onchange: e => show(e.target.value) }, names.map(n => el('option', { value: n }, n.toUpperCase())));
     show(names[0]);
-    return [el('p', { class: 'muted' }, 'Pre-filled from asserted fields only. Review and complete before submitting.'), tools, view];
+    return [el('p', { class: 'muted' }, 'Draft only, pre-filled from asserted public ORCID fields. Not an official funder form or a funder-approved submission: review, complete and check the funder’s current requirements before submitting.'), tools, view];
   },
   'Citations & data'() {
     const items = [

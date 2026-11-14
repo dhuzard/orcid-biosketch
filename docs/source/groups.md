@@ -13,7 +13,7 @@ Each viewer reads public ORCID records in their browser on request. The link doe
 
 ## Explore the outputs
 
-- **Collaboration graph:** an edge appears when *both* public records assert the same DOI. Selecting an edge shows the DOIs supporting it.
+- **Shared-DOI graph** (formerly “Collaboration graph”): an edge appears when *both* public records assert the same DOI. Selecting an edge shows the DOIs supporting it.
 - **Shared outputs and bibliography:** group works merged using DOI matches where available.
 - **Record health:** inspect member-specific quality findings and common improvements; export a report.
 - **Funder-format team biosketch:** an editable draft, not an approved or funder-compliant application.

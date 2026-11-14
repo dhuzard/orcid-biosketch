@@ -324,7 +324,7 @@ function workCard(work, event = null, fresh = false) {
       el('div', { class: 'chips' }, fresh && tag('New since last visit'), work.demo && tag('Demo', true))),
     tag((work.type || 'Research output').replaceAll('-', ' ')),
     el('h3', {}, externalLink(work.title || 'Untitled output', url)),
-    el('div', { class: 'work-meta' }, el('span', {}, `Publication date: ${dateLabel(work.date)}`), event && el('span', {}, `• Observed ${dateLabel(event.observed_at)}`)),
+    el('div', { class: 'work-meta' }, el('span', {}, `Publication date: ${dateLabel(work.date)}`), event && el('span', { title: 'When your refresh first saw this output in a public ORCID record, not its publication date.' }, `• First seen by your refresh ${dateLabel(event.observed_at)}`)),
     event && el('p', { class: 'helper' }, work.demo ? 'Illustrative update from the sample workspace.' : 'Newly found in a public ORCID record. This may be an older publication.'),
     following.length > 1 && el('p', { class: 'helper' }, `${following.length} researchers you follow share this output. Shown once.`),
     el('div', { class: 'work-bottom' },
@@ -387,7 +387,7 @@ function sidePanels() {
     el('aside', { class: 'panel' }, el('h3', {}, 'Less admin. More discovery.'), el('p', {}, 'Bring a working group together and download its member roster, bibliography, and biosketches in one team pack.'), button('Create a group →', () => { editorGroup = null; navigate('groups'); }, 'quiet small')));
 }
 
-const feedViews = [['new', 'New on ORCID'], ['published', 'Recently published'], ['together', 'Together']];
+const feedViews = [['new', 'Newly observed'], ['published', 'Recently published'], ['together', 'Together']];
 
 function feedEmpty() {
   if (search) return empty('No matching outputs.', 'Try another title or researcher name.');
@@ -449,6 +449,7 @@ function feedControls(types, topics) {
       el('div', { class: 'chips', role: 'group', 'aria-label': 'Feed view' }, feedViews.map(([id, label]) =>
         button(label, () => changeFeed(() => { feedView = id; }), feedView === id ? 'small' : 'quiet small', { 'aria-pressed': String(feedView === id), 'data-focus': `feed-view-${id}` }))),
       toggle),
+    feedView === 'new' && el('p', { class: 'helper feed-observed-note' }, 'Newly observed means your refresh first saw an output in a public ORCID record. It is not the publication date, which is shown separately on each card.'),
     panel);
 }
 
@@ -457,7 +458,7 @@ function sinceBanner() {
   if (!since?.total) return null;
   const groups = since.groups.slice(0, 3).map(g => `${g.count} from ${g.name}`);
   return el('div', { class: 'since-banner', role: 'status' },
-    el('span', {}, el('strong', {}, `${since.total} new since your last visit (${dateLabel(previousVisit)})`), groups.length ? ` · ${groups.join(' · ')}` : ''),
+    el('span', {}, el('strong', {}, `${since.total} newly observed since your last visit (${dateLabel(previousVisit)})`), groups.length ? ` · ${groups.join(' · ')}` : ''),
     button('Mark as seen', () => {
       previousVisit = new Date().toISOString();
       remember('network-feed-visit', { seen: previousVisit, previous: previousVisit });
